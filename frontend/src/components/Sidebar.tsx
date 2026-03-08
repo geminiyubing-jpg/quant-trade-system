@@ -33,6 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
 
     // 定义子菜单组和它们的路径前缀
     const submenuGroups: { [key: string]: string[] } = {
+      'market-group': ['/market'],
       'strategy-group': ['/strategy/library', '/strategy/studio'],
       'ai-group': ['/ai/generate', '/ai/pick', '/ai/analyze'],
     };
@@ -60,9 +61,27 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
         type: 'divider' as const,
       },
       {
-        key: '/market',
+        key: 'market-group',
         icon: <LineChartOutlined />,
         label: t('nav.market'),
+        children: [
+          {
+            key: '/market/realtime',
+            label: t('market.realtime'),
+          },
+          {
+            key: '/market/stocks',
+            label: t('market.stocks'),
+          },
+          {
+            key: '/market/sectors',
+            label: t('market.sectors'),
+          },
+          {
+            key: '/market/futures',
+            label: t('market.futures'),
+          },
+        ],
       },
       {
         key: 'strategy-group',

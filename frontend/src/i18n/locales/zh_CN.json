@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "量化交易系统",
-    "title": "Quant-Trade System"
+    "title": "Quant-Trade System",
+    "subtitle": "算法交易平台"
   },
   "nav": {
     "dashboard": "仪表盘",
@@ -30,6 +31,7 @@
   },
   "market": {
     "title": "市场动态",
+    "realtime": "实时行情",
     "overview": "市场概览",
     "stocks": "股票行情",
     "sectors": "板块分析",
@@ -45,7 +47,8 @@
     "create": "创建策略",
     "edit": "编辑策略",
     "delete": "删除策略",
-    "list": "策略列表"
+    "list": "策略列表",
+    "developmentInProgress": "量化策略功能开发中..."
   },
   "strategyStudio": {
     "title": "策略工作室",
@@ -61,6 +64,7 @@
     "results": "回测结果",
     "report": "回测报告",
     "aiOptimize": "AI优化策略",
+    "developmentInProgress": "策略回测功能开发中...",
     "charts": "图表显示",
     "metrics": "绩效指标"
   },
@@ -72,7 +76,8 @@
     "positions": "持仓",
     "history": "历史记录",
     "buy": "买入",
-    "sell": "卖出"
+    "sell": "卖出",
+    "developmentInProgress": "交易管理功能开发中..."
   },
   "portfolio": {
     "title": "投资组合",
@@ -104,7 +109,8 @@
     "download": "数据下载",
     "quality": "数据质量",
     "monitor": "数据监控",
-    "cleaning": "数据清洗"
+    "cleaning": "数据清洗",
+    "developmentInProgress": "数据管理功能开发中..."
   },
   "community": {
     "title": "社区",
@@ -141,7 +147,8 @@
     "export": "导出",
     "refresh": "刷新",
     "language": "语言",
-    "theme": "主题"
+    "theme": "主题",
+    "logout": "退出登录"
   },
   "trade": {
     "symbol": "代码",
@@ -157,6 +164,42 @@
     "up": "上涨",
     "down": "下跌",
     "neutral": "持平"
+  },
+  "realtime": {
+    "title": "实时行情",
+    "connected": "已连接",
+    "disconnected": "未连接",
+    "connecting": "正在连接 WebSocket...",
+    "symbol": "股票代码",
+    "name": "股票名称",
+    "price": "最新价",
+    "change": "涨跌额",
+    "changePercent": "涨跌幅",
+    "volume": "成交量(手)",
+    "amount": "成交额(万元)",
+    "bidPrice": "买一价",
+    "askPrice": "卖一价",
+    "high": "最高价",
+    "low": "最低价",
+    "open": "今开",
+    "prevClose": "昨收",
+    "action": "操作",
+    "unsubscribe": "取消订阅",
+    "subscribe": "订阅",
+    "refresh": "刷新",
+    "inputPlaceholder": "输入股票代码 (如: 000001.SZ)",
+    "subscribeSuccess": "已订阅",
+    "subscribeWarning": "请输入股票代码",
+    "subscribeExist": "该股票已在订阅列表中",
+    "subscribeLimit": "最多只能订阅 100 只股票",
+    "unsubscribeSuccess": "已取消订阅",
+    "stats": {
+      "total": "订阅数量",
+      "rising": "上涨",
+      "falling": "下跌",
+      "flat": "平盘",
+      "unit": "只"
+    }
   },
   "tradingMode": {
     "title": "交易模式",

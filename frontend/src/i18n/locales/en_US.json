@@ -1,16 +1,17 @@
 {
   "app": {
     "name": "Quant Trading System",
-    "title": "Quant-Trade System"
+    "title": "Quant-Trade System",
+    "subtitle": "ALGORITHMIC TRADING PLATFORM"
   },
   "nav": {
     "dashboard": "Dashboard",
     "market": "Market Data",
-    "strategy": "Strategy",
+    "strategy": "Quant Strategy",
     "strategyLibrary": "Library",
     "strategyStudio": "Studio",
-    "backtest": "Backtest",
-    "trading": "Trading",
+    "backtest": "Strategy Backtest",
+    "trading": "Trading Manage",
     "portfolio": "Portfolio",
     "ai": "AI Lab",
     "aiGenerate": "Generator",
@@ -19,7 +20,7 @@
     "risk": "Risk Control",
     "data": "Data Center",
     "community": "Community",
-    "docs": "Documentation",
+    "docs": "System Docs",
     "settings": "Settings"
   },
   "workspace": {
@@ -30,6 +31,7 @@
   },
   "market": {
     "title": "Market Dynamics",
+    "realtime": "Real-time Quotes",
     "overview": "Market Overview",
     "stocks": "Stocks",
     "sectors": "Sectors",
@@ -45,7 +47,8 @@
     "create": "Create Strategy",
     "edit": "Edit Strategy",
     "delete": "Delete Strategy",
-    "list": "Strategy List"
+    "list": "Strategy List",
+    "developmentInProgress": "Quantitative strategy feature is under development..."
   },
   "strategyStudio": {
     "title": "Strategy Studio",
@@ -61,6 +64,7 @@
     "results": "Results",
     "report": "Report",
     "aiOptimize": "AI Optimize",
+    "developmentInProgress": "Strategy backtest feature is under development...",
     "charts": "Charts",
     "metrics": "Metrics"
   },
@@ -72,7 +76,8 @@
     "positions": "Positions",
     "history": "History",
     "buy": "Buy",
-    "sell": "Sell"
+    "sell": "Sell",
+    "developmentInProgress": "Trading management feature is under development..."
   },
   "portfolio": {
     "title": "Portfolio",
@@ -104,7 +109,8 @@
     "download": "Download",
     "quality": "Data Quality",
     "monitor": "Monitor",
-    "cleaning": "Data Cleaning"
+    "cleaning": "Data Cleaning",
+    "developmentInProgress": "Data management feature is under development..."
   },
   "community": {
     "title": "Community",
@@ -158,6 +164,42 @@
     "up": "Up",
     "down": "Down",
     "neutral": "Neutral"
+  },
+  "realtime": {
+    "title": "Real-time Quotes",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting to WebSocket...",
+    "symbol": "Symbol",
+    "name": "Name",
+    "price": "Price",
+    "change": "Change",
+    "changePercent": "Change%",
+    "volume": "Volume (Lots)",
+    "amount": "Amount (10K)",
+    "bidPrice": "Bid Price",
+    "askPrice": "Ask Price",
+    "high": "High",
+    "low": "Low",
+    "open": "Open",
+    "prevClose": "Prev Close",
+    "action": "Action",
+    "unsubscribe": "Unsubscribe",
+    "subscribe": "Subscribe",
+    "refresh": "Refresh",
+    "inputPlaceholder": "Enter symbol (e.g., 000001.SZ)",
+    "subscribeSuccess": "Subscribed to",
+    "subscribeWarning": "Please enter a symbol",
+    "subscribeExist": "This symbol is already subscribed",
+    "subscribeLimit": "Maximum 100 symbols allowed",
+    "unsubscribeSuccess": "Unsubscribed from",
+    "stats": {
+      "total": "Total",
+      "rising": "Rising",
+      "falling": "Falling",
+      "flat": "Flat",
+      "unit": ""
+    }
   },
   "tradingMode": {
     "title": "Trading Mode",
