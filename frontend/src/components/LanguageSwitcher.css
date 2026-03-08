@@ -1,0 +1,24 @@
+.language-switcher {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+}
+
+.language-switcher .ant-select-arrow {
+  color: var(--bb-text-secondary);
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.language-icon {
+  font-size: 16px;
+}
+
+.language-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--bb-text-primary);
+}

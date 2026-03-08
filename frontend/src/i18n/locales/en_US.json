@@ -1,0 +1,180 @@
+{
+  "app": {
+    "name": "Quant Trading System",
+    "title": "Quant-Trade System"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "market": "Market Data",
+    "strategy": "Strategy",
+    "strategyLibrary": "Library",
+    "strategyStudio": "Studio",
+    "backtest": "Backtest",
+    "trading": "Trading",
+    "portfolio": "Portfolio",
+    "ai": "AI Lab",
+    "aiGenerate": "Generator",
+    "aiPick": "Picker",
+    "aiAnalyze": "Analyzer",
+    "risk": "Risk Control",
+    "data": "Data Center",
+    "community": "Community",
+    "docs": "Documentation",
+    "settings": "Settings"
+  },
+  "workspace": {
+    "title": "Workspace",
+    "dashboard": "Dashboard",
+    "quickAccess": "Quick Access",
+    "recentActivity": "Recent Activity"
+  },
+  "market": {
+    "title": "Market Dynamics",
+    "overview": "Market Overview",
+    "stocks": "Stocks",
+    "sectors": "Sectors",
+    "futures": "Futures",
+    "indexes": "Indexes",
+    "hotStocks": "Hot Stocks",
+    "marketSentiment": "Market Sentiment"
+  },
+  "strategy": {
+    "title": "Quantitative Strategy",
+    "myStrategies": "My Strategies",
+    "strategyGroups": "Strategy Groups",
+    "create": "Create Strategy",
+    "edit": "Edit Strategy",
+    "delete": "Delete Strategy",
+    "list": "Strategy List"
+  },
+  "strategyStudio": {
+    "title": "Strategy Studio",
+    "create": "Create Strategy",
+    "aiGenerate": "AI Generate Strategy",
+    "evolution": "Strategy Evolution",
+    "codeEditor": "Code Editor",
+    "backtest": "Quick Backtest"
+  },
+  "backtest": {
+    "title": "Strategy Backtest",
+    "run": "Run Backtest",
+    "results": "Results",
+    "report": "Report",
+    "aiOptimize": "AI Optimize",
+    "charts": "Charts",
+    "metrics": "Metrics"
+  },
+  "trading": {
+    "title": "Trading Management",
+    "paper": "Paper Trading",
+    "live": "Live Trading",
+    "orders": "Orders",
+    "positions": "Positions",
+    "history": "History",
+    "buy": "Buy",
+    "sell": "Sell"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "overview": "Overview",
+    "management": "Management",
+    "analysis": "Analysis",
+    "riskAttribution": "Risk Attribution",
+    "performance": "Performance",
+    "stressTest": "Stress Test",
+    "rebalancing": "Rebalancing"
+  },
+  "ai": {
+    "title": "AI Intelligence",
+    "generate": "AI Strategy Generator",
+    "pick": "AI Stock Picker",
+    "analyze": "AI Market Analysis"
+  },
+  "risk": {
+    "title": "Risk Management",
+    "overview": "Overview",
+    "positions": "Position Risk",
+    "exposure": "Risk Exposure",
+    "stressTest": "Stress Test",
+    "alerts": "Alerts"
+  },
+  "data": {
+    "title": "Data Center",
+    "sources": "Data Sources",
+    "download": "Download",
+    "quality": "Data Quality",
+    "monitor": "Monitor",
+    "cleaning": "Data Cleaning"
+  },
+  "community": {
+    "title": "Community",
+    "market": "Strategy Market",
+    "leaderboard": "Leaderboard",
+    "hotTopics": "Hot Topics",
+    "discussion": "Discussion"
+  },
+  "docs": {
+    "title": "Documentation",
+    "userGuide": "User Guide",
+    "apiReference": "API Reference",
+    "tutorials": "Tutorials",
+    "faq": "FAQ"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalAssets": "Total Assets",
+    "dailyPnL": "Daily P&L",
+    "positionCount": "Positions",
+    "runningStrategies": "Running Strategies"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "refresh": "Refresh",
+    "language": "Language",
+    "theme": "Theme",
+    "logout": "Logout"
+  },
+  "trade": {
+    "symbol": "Symbol",
+    "price": "Price",
+    "change": "Change",
+    "changePercent": "Change%",
+    "volume": "Volume",
+    "amount": "Amount",
+    "open": "Open",
+    "high": "High",
+    "low": "Low",
+    "close": "Close",
+    "up": "Up",
+    "down": "Down",
+    "neutral": "Neutral"
+  },
+  "tradingMode": {
+    "title": "Trading Mode",
+    "paper": "Paper Trading",
+    "live": "Live Trading",
+    "paperDescription": "Simulated environment, zero-risk strategy testing",
+    "liveDescription": "Live environment, real money trading",
+    "switchToPaper": "Switch to Paper Trading",
+    "switchToLive": "Switch to Live Trading",
+    "currentMode": "Current Mode",
+    "warning": "Warning",
+    "liveWarningTitle": "Confirm Switch to Live Trading?",
+    "liveWarningMessage": "You are about to switch to live trading mode with real money. Please ensure:\n\n1. You understand the trading risks\n2. You have configured your broker API\n3. You have sufficient funds\n\nContinue?",
+    "confirmSwitch": "Confirm Switch",
+    "cancel": "Cancel",
+    "filterAll": "All",
+    "filterPaper": "Paper",
+    "filterLive": "Live"
+  }
+}
