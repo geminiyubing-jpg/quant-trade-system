@@ -1,11 +1,14 @@
 import { Card } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 const StrategyManagement: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div>
-      <h1>策略管理</h1>
+      <h1>{t('strategy.title')}</h1>
       <Card>
-        <p>策略管理功能开发中...</p>
+        <p>{t('strategy.developmentInProgress')}</p>
       </Card>
     </div>
   );

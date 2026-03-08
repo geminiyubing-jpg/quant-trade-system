@@ -9,6 +9,7 @@ from fastapi import APIRouter
 from src.api.v1.endpoints import (
     health,
     auth,
+    users,
     data,
     strategy,
     backtest,
@@ -28,6 +29,9 @@ api_router.include_router(health.router, tags=["Health"])
 
 # 认证
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+
+# 用户管理
+api_router.include_router(users.router, prefix="/users", tags=["Users"])
 
 # 数据管理
 api_router.include_router(data.router, prefix="/data", tags=["Data"])

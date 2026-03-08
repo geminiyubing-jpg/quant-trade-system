@@ -4,11 +4,11 @@ Health Check Endpoint
 健康检查端点，用于监控系统状态。
 """
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter
+from sqlalchemy.orm import Session
 from loguru import logger
 
-from src.core.database import get_db, check_db_health
+from src.core.database import get_db, check_db_connection
 from src.core.config import settings
 
 
@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 @router.get("/health", summary="健康检查")
-async def health_check(db: AsyncSession = Depends(get_db)):
+async def health_check():
     """
     系统健康检查
 
@@ -29,21 +29,19 @@ async def health_check(db: AsyncSession = Depends(get_db)):
         dict: 健康状态信息
     """
     # 检查数据库
-    db_healthy = await check_db_health()
+    db_healthy = check_db_connection()
 
     return {
         "success": True,
-        "data": {
-            "status": "healthy" if db_healthy else "unhealthy",
-            "app_name": settings.APP_NAME,
-            "version": settings.APP_VERSION,
-            "environment": settings.APP_ENV,
-            "components": {
-                "database": {
-                    "status": "healthy" if db_healthy else "unhealthy",
-                    "host": settings.POSTGRES_HOST,
-                    "port": settings.POSTGRES_PORT,
-                }
+        "status": "healthy" if db_healthy else "unhealthy",
+        "app_name": settings.app_name,
+        "version": settings.app_version,
+        "environment": settings.app_env,
+        "components": {
+            "database": {
+                "status": "healthy" if db_healthy else "unhealthy",
+                "host": settings.postgres_host,
+                "port": settings.postgres_port,
             }
         }
     }
@@ -57,4 +55,4 @@ async def ping():
     Returns:
         dict: pong 响应
     """
-    return {"success": True, "data": {"message": "pong"}}
+    return {"success": True, "message": "pong"}

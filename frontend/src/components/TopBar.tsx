@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, Badge, Dropdown, Avatar, Space, Typography } from 'antd';
+import { Input, Badge, Dropdown, Avatar, Space, Typography, Modal } from 'antd';
 import {
   SearchOutlined,
   BellOutlined,
@@ -11,9 +11,12 @@ import {
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logoutAsync } from '../store/slices/authSlice';
 import LanguageSwitcher from './LanguageSwitcher';
 import TradingModeSwitcher from './TradingModeSwitcher';
 import type { MenuProps } from 'antd';
+import type { AppDispatch } from '../store';
 import './TopBar.css';
 
 const { Text } = Typography;
@@ -21,6 +24,24 @@ const { Text } = Typography;
 const TopBar: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = () => {
+    Modal.confirm({
+      title: t('common.logout'),
+      content: '确定要退出登录吗？',
+      okText: t('common.confirm'),
+      cancelText: t('common.cancel'),
+      onOk: async () => {
+        try {
+          await dispatch(logoutAsync()).unwrap();
+          navigate('/login');
+        } catch (error) {
+          console.error('登出失败:', error);
+        }
+      },
+    });
+  };
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -36,12 +57,7 @@ const TopBar: React.FC = () => {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: t('common.logout'),
-      onClick: () => {
-        // TODO: 实现登出逻辑
-        // 1. 清除用户认证信息
-        // 2. 清除LocalStorage中的用户数据
-        // 3. 跳转到登录页面
-      },
+      onClick: handleLogout,
     },
   ];
 
@@ -73,7 +89,7 @@ const TopBar: React.FC = () => {
             <div className="logo-subtitle">
               <DotChartOutlined style={{ fontSize: '9px', marginRight: '6px' }} />
               <Text style={{ fontSize: '9px', color: 'var(--bb-text-muted)', letterSpacing: '1px' }}>
-                ALGORITHMIC TRADING PLATFORM
+                {t('app.subtitle')}
               </Text>
             </div>
           </div>

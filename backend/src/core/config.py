@@ -1,148 +1,161 @@
 """
-Quant-Trade System - Application Configuration
-
-应用配置管理，从环境变量读取配置。
+==============================================
+QuantAI Ecosystem - 应用配置模块
+==============================================
 """
 
-from typing import List
-from pydantic_settings import BaseSettings
 from functools import lru_cache
+from pathlib import Path
+from typing import Optional
+
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """应用配置类"""
+    """应用配置类（使用 Pydantic Settings）"""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore"
+    )
 
     # ==============================================
     # 应用配置
     # ==============================================
-    APP_NAME: str = "Quant-Trade System"
-    APP_VERSION: str = "1.0.0"
-    APP_ENV: str = "development"  # development | staging | production
-    DEBUG: bool = True
-    LOG_LEVEL: str = "INFO"
+    app_name: str = Field(default="QuantAI_Ecosystem", description="应用名称")
+    app_version: str = Field(default="2.0.0", description="应用版本")
+    app_env: str = Field(default="development", description="运行环境")
+    debug: bool = Field(default=False, description="调试模式")
+    log_level: str = Field(default="INFO", description="日志级别")
+
+    @field_validator("app_env")
+    @classmethod
+    def validate_app_env(cls, v: str) -> str:
+        """验证运行环境"""
+        allowed = ["development", "staging", "production"]
+        if v not in allowed:
+            raise ValueError(f"app_env must be one of {allowed}")
+        return v
+
+    @field_validator("log_level")
+    @classmethod
+    def validate_log_level(cls, v: str) -> str:
+        """验证日志级别"""
+        allowed = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        if v.upper() not in allowed:
+            raise ValueError(f"log_level must be one of {allowed}")
+        return v.upper()
 
     # ==============================================
     # 服务器配置
     # ==============================================
-    BACKEND_HOST: str = "0.0.0.0"
-    BACKEND_PORT: int = 8000
-    API_PREFIX: str = "/api/v1"
+    host: str = Field(default="0.0.0.0", description="服务器地址")
+    port: int = Field(default=8000, description="服务器端口", ge=1, le=65535)
+    workers: int = Field(default=4, description="工作进程数", ge=1)
 
     # ==============================================
-    # 数据库配置 - PostgreSQL
+    # 数据库配置
     # ==============================================
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str = "quant_trade"
-    POSTGRES_PASSWORD: str = "quant_trade_pass"
-    POSTGRES_DB: str = "quant_trade"
-    POSTGRES_MAX_CONNECTIONS: int = 20
-
-    @property
-    def DATABASE_URL(self) -> str:
-        """数据库连接 URL"""
-        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-
-    # ==============================================
-    # 缓存配置 - Redis
-    # ==============================================
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_PASSWORD: str = ""
-    REDIS_DB: int = 0
-    REDIS_MAX_CONNECTIONS: int = 10
+    postgres_host: str = Field(default="localhost", description="PostgreSQL 主机")
+    postgres_port: int = Field(default=5432, description="PostgreSQL 端口", ge=1, le=65535)
+    postgres_user: str = Field(default="quant_trio", description="PostgreSQL 用户名")
+    postgres_password: str = Field(default="quant_trio_pass", description="PostgreSQL 密码")
+    postgres_db: str = Field(default="quant_trio", description="PostgreSQL 数据库名")
 
     @property
-    def REDIS_URL(self) -> str:
-        """Redis 连接 URL"""
-        password_part = f":{self.REDIS_PASSWORD}@" if self.REDIS_PASSWORD else ""
-        return f"redis://{password_part}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+    def database_url(self) -> str:
+        """生成数据库连接 URL"""
+        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+
+    @property
+    def async_database_url(self) -> str:
+        """生成异步数据库连接 URL"""
+        return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+
+    # 数据库连接池配置
+    db_pool_size: int = Field(default=20, description="连接池大小", ge=1)
+    db_max_overflow: int = Field(default=10, description="最大溢出连接数", ge=0)
+    db_pool_timeout: int = Field(default=30, description="连接池超时（秒）", ge=1)
+    db_pool_recycle: int = Field(default=3600, description="连接回收时间（秒）", ge=0)
 
     # ==============================================
-    # Celery 配置
+    # Redis 配置
     # ==============================================
-    CELERY_BROKER_URL: str = "amqp://guest:guest@localhost:5672/"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/1"
-    CELERY_TASK_TIMEOUT: int = 300
+    redis_host: str = Field(default="localhost", description="Redis 主机")
+    redis_port: int = Field(default=6379, description="Redis 端口", ge=1, le=65535)
+    redis_password: Optional[str] = Field(default=None, description="Redis 密码")
+    redis_db: int = Field(default=0, description="Redis 数据库", ge=0, le=15)
+    redis_max_connections: int = Field(default=20, description="最大连接数", ge=1)
+
+    @property
+    def redis_url(self) -> str:
+        """生成 Redis 连接 URL"""
+        if self.redis_password:
+            return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/{self.redis_db}"
+        return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
 
     # ==============================================
-    # JWT 认证配置
+    # 认证配置
     # ==============================================
-    SECRET_KEY: str = "your-super-secret-key-change-this-in-production"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    secret_key: str = Field(default="change-this-secret-key-in-production", description="JWT 密钥")
+    algorithm: str = Field(default="HS256", description="JWT 算法")
+    access_token_expire_minutes: int = Field(default=30, description="访问令牌过期时间（分钟）", ge=1)
+    refresh_token_expire_days: int = Field(default=7, description="刷新令牌过期时间（天）", ge=1)
 
     # ==============================================
-    # CORS 配置
+    # 外部 API 密钥
     # ==============================================
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:8000",
-    ]
-    CORS_ALLOW_CREDENTIALS: bool = True
-    CORS_ALLOW_METHODS: List[str] = ["*"]
-    CORS_ALLOW_HEADERS: List[str] = ["*"]
-
-    # ==============================================
-    # 数据源配置
-    # ==============================================
-    TUSHARE_TOKEN: str = ""
-    TUSHARE_PRO_API: str = "https://api.tushare.pro"
+    tushare_token: Optional[str] = Field(default=None, description="Tushare Token")
+    alpha_vantage_api_key: Optional[str] = Field(default=None, description="Alpha Vantage API Key")
+    openai_api_key: Optional[str] = Field(default=None, description="OpenAI API Key")
 
     # ==============================================
     # 交易配置
     # ==============================================
-    PAPER_TRADING: bool = True
-    PAPER_TRADING_INITIAL_CAPITAL: float = 1000000.0
+    default_max_slippage: float = Field(default=0.001, description="默认最大滑点", ge=0)
+    default_max_position_ratio: float = Field(default=0.3, description="默认最大单仓比例", ge=0, le=1)
+    default_max_daily_loss_ratio: float = Field(default=0.05, description="默认最大单日亏损比例", ge=0, le=1)
 
+    # ==============================================
     # 风控配置
-    MAX_POSITION_RATIO: float = 0.3
-    MAX_SINGLE_STOCK_RATIO: float = 0.1
-    MAX_DAILY_LOSS_RATIO: float = 0.05
-    STOP_LOSS_RATIO: float = 0.08
+    # ==============================================
+    risk_control_enabled: bool = Field(default=True, description="启用实时风控")
+    risk_check_interval: int = Field(default=60, description="风险检查间隔（秒）", ge=1)
 
     # ==============================================
-    # 文件存储
+    # 日志配置
     # ==============================================
-    UPLOAD_DIR: str = "uploads/"
-    MAX_UPLOAD_SIZE: int = 10485760  # 10MB
+    log_file_path: str = Field(default="logs/app.log", description="日志文件路径")
+    log_retention_days: int = Field(default=30, description="日志保留天数", ge=1)
 
     # ==============================================
-    # 性能配置
+    # Celery 配置
     # ==============================================
-    DB_POOL_SIZE: int = 20
-    DB_MAX_OVERFLOW: int = 10
-    DB_POOL_TIMEOUT: int = 30
-    DB_POOL_RECYCLE: int = 3600
-
-    CACHE_TTL: int = 300  # 5 minutes
-    CACHE_MAX_SIZE: int = 1000
+    celery_broker_url: str = Field(default="redis://localhost:6379/1", description="Celery Broker URL")
+    celery_result_backend: str = Field(default="redis://localhost:6379/2", description="Celery Result Backend")
 
     # ==============================================
-    # 功能开关
+    # 项目路径
     # ==============================================
-    FEATURE_DATA_DOWNLOAD: bool = True
-    FEATURE_BACKTEST: bool = True
-    FEATURE_LIVE_TRADING: bool = False
-    FEATURE_AI_OPTIMIZATION: bool = True
+    @property
+    def base_dir(self) -> Path:
+        """项目根目录"""
+        return Path(__file__).resolve().parent.parent.parent
 
-    class Config:
-        """Pydantic 配置"""
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
+    @property
+    def log_dir(self) -> Path:
+        """日志目录"""
+        return self.base_dir / "logs"
 
 
 @lru_cache()
 def get_settings() -> Settings:
-    """
-    获取配置单例
-
-    使用 lru_cache 确保配置只加载一次。
-    """
+    """获取配置单例"""
     return Settings()
 
 
-# 导出配置实例
+# 全局配置实例
 settings = get_settings()

@@ -1,11 +1,14 @@
 import { Card } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 const DataManagement: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div>
-      <h1>数据管理</h1>
+      <h1>{t('data.title')}</h1>
       <Card>
-        <p>数据管理功能开发中...</p>
+        <p>{t('data.developmentInProgress')}</p>
       </Card>
     </div>
   );

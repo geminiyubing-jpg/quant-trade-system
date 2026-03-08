@@ -1,13 +1,17 @@
+/* 彭博主题 - App 根容器样式 */
 .App {
-  text-align: center;
+  min-height: 100vh;
+  background-color: var(--bb-bg-primary);
+  color: var(--bb-text-primary);
 }
 
-.app-header {
-  background-color: #1890ff;
-  padding: 20px;
-  color: white;
-}
-
+/* 主内容区域 */
 .app-content {
   padding: 24px;
+  background-color: var(--bb-bg-primary);
+}
+
+/* 移除默认样式，使用彭博主题变量 */
+* {
+  box-sizing: border-box;
 }

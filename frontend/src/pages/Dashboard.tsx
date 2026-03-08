@@ -1,19 +1,20 @@
 import { Card, Row, Col, Statistic } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div>
-      <h1>仪表盘</h1>
+      <h1>{t('dashboard.title')}</h1>
       <Row gutter={16}>
         <Col span={6}>
           <Card>
             <Statistic
-              title="总资产"
+              title={t('dashboard.totalAssets')}
               value={1128000}
               precision={2}
-              valueStyle={{ color: '#3f8600' }}
-              prefix={<ArrowUpOutlined />}
+              valueStyle={{ color: 'var(--bb-up)' }}
               suffix="¥"
             />
           </Card>
@@ -21,11 +22,10 @@ const Dashboard: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="今日收益"
+              title={t('dashboard.dailyPnL')}
               value={9.3}
               precision={2}
-              valueStyle={{ color: '#cf1322' }}
-              prefix={<ArrowDownOutlined />}
+              valueStyle={{ color: 'var(--bb-down)' }}
               suffix="%"
             />
           </Card>
@@ -33,7 +33,7 @@ const Dashboard: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="持仓数"
+              title={t('dashboard.positionCount')}
               value={15}
               suffix="只"
             />
@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="运行策略"
+              title={t('dashboard.runningStrategies')}
               value={3}
               suffix="个"
             />

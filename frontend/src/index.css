@@ -1,15 +1,38 @@
+/**
+ * quant-trade-system 主样式文件
+ *
+ * 引入彭博终端主题样式系统
+ * 所有页面必须遵守彭博主题设计规范
+ */
+
+/* 引入彭博主题核心样式 */
+@import './styles/bloomberg-theme.css';
+
+/* 引入彭博主题字体系统 */
+@import './styles/bloomberg-typography.css';
+
+/* 引入彭博主题组件样式 */
+@import './styles/bloomberg-components.css';
+
+/* 引入彭博主题动画效果 */
+@import './styles/bloomberg-animations.css';
+
+/* 引入动态字体切换样式 */
+@import './styles/font-switch.css';
+
+/* ========================================
+   应用特定样式
+   ======================================== */
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  /* 字体由 font-switch.css 动态控制 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: var(--font-mono);
 }
 
 * {

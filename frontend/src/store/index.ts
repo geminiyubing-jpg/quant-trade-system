@@ -1,9 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
+import marketDataReducer from './slices/marketDataSlice';
+import authReducer from './slices/authSlice';
 
-export const store = configureStore({
+const store = configureStore({
   reducer: {
     // 这里添加各个 slice reducer
-    // auth: authReducer,
+    marketData: marketDataReducer,
+    auth: authReducer,
     // data: dataReducer,
     // strategy: strategyReducer,
   },
@@ -16,5 +19,6 @@ export const store = configureStore({
     }),
 });
 
+export default store;
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
