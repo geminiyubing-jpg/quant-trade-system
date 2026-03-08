@@ -1,0 +1,165 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+backend/data/*.duckdb
+backend/data/*.parquet
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Frontend build
+frontend/build/
+frontend/dist/
+frontend/.next/
+frontend/out/
+
+# Frontend cache
+.frontend_cache/
+.eslintcache
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+
+# Data files (large)
+backend/data/csv/
+backend/data/parquet/
+backend/data/h5/
+
+# Models and ML
+models/
+*.pkl
+*.h5
+*.pb
+*.onnx
+
+# Secrets (IMPORTANT!)
+secrets/
+*.key
+*.pem
+*.crt
+credentials.json
+service-account.json
+
+# Docker
+.dockerignore
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Redis
+dump.rdb
+
+# Monitoring
+prometheus/
+grafana/
+
+# IDE specific
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# Project specific
+!backend/data/.gitkeep
+!frontend/public/.gitkeep
