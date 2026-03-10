@@ -553,9 +553,9 @@ const RiskManagement: React.FC = () => {
             <span>
               <WarningOutlined />
               风险预警
-              {alerts.filter(a => a.status === 'active').length > 0 && (
+              {(alerts?.filter(a => a.status === 'active').length ?? 0) > 0 && (
                 <Badge
-                  count={alerts.filter(a => a.status === 'active').length}
+                  count={alerts?.filter(a => a.status === 'active').length ?? 0}
                   style={{ marginLeft: 8 }}
                 />
               )}
