@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Layout, ConfigProvider, theme, Drawer } from 'antd';
+import { Layout, ConfigProvider, theme, Drawer, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
@@ -9,19 +9,54 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import DataManagement from './pages/DataManagement';
-import StrategyManagement from './pages/StrategyManagement';
-import StrategyStudio from './pages/StrategyStudio';
-import Backtest from './pages/Backtest';
-import Trading from './pages/Trading';
-import MarketRealtime from './pages/MarketRealtime';
-import Portfolio from './pages/Portfolio';
-import SectorAnalysis from './pages/SectorAnalysis';
-import RiskManagement from './pages/RiskManagement';
-import AILab from './pages/AILab';
-import Docs from './pages/Docs';
+
+// ==========================================
+// 路由懒加载 - 优化首屏加载性能
+// ==========================================
+
+// 核心页面 - 高优先级
+const Login = lazy(() => import('./pages/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+
+// 数据相关
+const DataManagement = lazy(() => import('./pages/DataManagement'));
+
+// 策略相关
+const StrategyManagement = lazy(() => import('./pages/StrategyManagement'));
+const StrategyStudio = lazy(() => import('./pages/StrategyStudio'));
+const Backtest = lazy(() => import('./pages/Backtest'));
+
+// 交易相关
+const Trading = lazy(() => import('./pages/Trading'));
+const Portfolio = lazy(() => import('./pages/Portfolio'));
+const RiskManagement = lazy(() => import('./pages/RiskManagement'));
+
+// 行情相关
+const MarketRealtime = lazy(() => import('./pages/MarketRealtime'));
+const SectorAnalysis = lazy(() => import('./pages/SectorAnalysis'));
+
+// AI 相关
+const AILab = lazy(() => import('./pages/AILab'));
+
+// 其他
+const Docs = lazy(() => import('./pages/Docs'));
+
+// ==========================================
+// 加载组件
+// ==========================================
+
+const PageLoader = () => (
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    minHeight: 400,
+  }}>
+    <Spin size="large" tip="加载中..." />
+  </div>
+);
+
 import './App.css';
 import './styles/font-switch.css';
 
@@ -83,7 +118,14 @@ function AppContent() {
         <BrowserRouter>
           <Routes>
             {/* 登录页面 - 无需认证 */}
-            <Route path="/login" element={<Login />} />
+            <Route
+              path="/login"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <Login />
+                </Suspense>
+              }
+            />
 
             {/* 主应用 - 需要认证 */}
             <Route
@@ -172,32 +214,34 @@ function AppContent() {
                           }}
                           className="main-content"
                         >
-                          <Routes>
-                            <Route path="/" element={<Dashboard />} />
+                          <Suspense fallback={<PageLoader />}>
+                            <Routes>
+                              <Route path="/" element={<Dashboard />} />
 
-                            {/* 旧路由重定向 */}
-                            <Route path="/data" element={<Navigate to="/data/management" replace />} />
-                            <Route path="/market" element={<Navigate to="/market/realtime" replace />} />
-                            <Route path="/strategy" element={<Navigate to="/strategy/library" replace />} />
+                              {/* 旧路由重定向 */}
+                              <Route path="/data" element={<Navigate to="/data/management" replace />} />
+                              <Route path="/market" element={<Navigate to="/market/realtime" replace />} />
+                              <Route path="/strategy" element={<Navigate to="/strategy/library" replace />} />
 
-                            {/* 新路由 */}
-                            <Route path="/workspace" element={<Dashboard />} />
-                            <Route path="/data/management" element={<DataManagement />} />
-                            <Route path="/data" element={<Navigate to="/data/management" replace />} />
-                            <Route path="/market/realtime" element={<MarketRealtime />} />
-                            <Route path="/market/sectors" element={<SectorAnalysis />} />
-                            <Route path="/strategy/library" element={<StrategyManagement />} />
-                            <Route path="/strategy/studio" element={<StrategyStudio />} />
-                            <Route path="/trading" element={<Trading />} />
-                            <Route path="/backtest" element={<Backtest />} />
-                            <Route path="/portfolio" element={<Portfolio />} />
-                            <Route path="/ai/generate" element={<AILab />} />
-                            <Route path="/ai/pick" element={<AILab />} />
-                            <Route path="/ai/analyze" element={<AILab />} />
-                            <Route path="/risk" element={<RiskManagement />} />
-                            <Route path="/community" element={<Dashboard />} />
-                            <Route path="/docs" element={<Docs />} />
-                          </Routes>
+                              {/* 新路由 */}
+                              <Route path="/workspace" element={<Dashboard />} />
+                              <Route path="/data/management" element={<DataManagement />} />
+                              <Route path="/data" element={<Navigate to="/data/management" replace />} />
+                              <Route path="/market/realtime" element={<MarketRealtime />} />
+                              <Route path="/market/sectors" element={<SectorAnalysis />} />
+                              <Route path="/strategy/library" element={<StrategyManagement />} />
+                              <Route path="/strategy/studio" element={<StrategyStudio />} />
+                              <Route path="/trading" element={<Trading />} />
+                              <Route path="/backtest" element={<Backtest />} />
+                              <Route path="/portfolio" element={<Portfolio />} />
+                              <Route path="/ai/generate" element={<AILab />} />
+                              <Route path="/ai/pick" element={<AILab />} />
+                              <Route path="/ai/analyze" element={<AILab />} />
+                              <Route path="/risk" element={<RiskManagement />} />
+                              <Route path="/community" element={<Dashboard />} />
+                              <Route path="/docs" element={<Docs />} />
+                            </Routes>
+                          </Suspense>
                         </Content>
                       </Layout>
                     </Layout>
