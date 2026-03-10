@@ -636,7 +636,7 @@ const RiskManagement: React.FC = () => {
                       max={1}
                       step={0.01}
                       formatter={v => `${Number(v) * 100}%`}
-                      parser={v => Number(v?.replace('%', '')) / 100}
+                      parser={v => Number(v?.replace('%', '')) / 100 as 0 | 1}
                       style={{ width: '100%' }}
                     />
                   </Form.Item>
@@ -655,7 +655,7 @@ const RiskManagement: React.FC = () => {
                         max={1}
                         step={0.01}
                         formatter={v => `${Number(v) * 100}%`}
-                        parser={v => v ? Number(v.replace('%', '')) / 100 : 0}
+                        parser={v => (v ? Number(v.replace('%', '')) / 100 : 0) as 0 | 1}
                         style={{ width: '100%' }}
                       />
                     </Form.Item>
@@ -665,7 +665,7 @@ const RiskManagement: React.FC = () => {
                         max={1}
                         step={0.01}
                         formatter={v => `${Number(v) * 100}%`}
-                        parser={v => v ? Number(v.replace('%', '')) / 100 : 0}
+                        parser={v => (v ? Number(v.replace('%', '')) / 100 : 0) as 0 | 1}
                         style={{ width: '100%' }}
                       />
                     </Form.Item>
@@ -684,7 +684,7 @@ const RiskManagement: React.FC = () => {
                       max={1}
                       step={0.01}
                       formatter={v => `${Number(v) * 100}%`}
-                      parser={v => v ? Number(v.replace('%', '')) / 100 : 0}
+                      parser={v => (v ? Number(v.replace('%', '')) / 100 : 0) as 0 | 1}
                       style={{ width: '100%' }}
                     />
                   </Form.Item>

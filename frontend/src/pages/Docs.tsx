@@ -15,6 +15,7 @@ import {
   ClockCircleOutlined,
   CloseCircleOutlined,
   ExportOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text, Paragraph } = Typography;

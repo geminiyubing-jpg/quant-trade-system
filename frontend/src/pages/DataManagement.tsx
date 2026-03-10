@@ -20,22 +20,9 @@ import {
   Form,
   Input,
   Select,
-  InputNumber,
   message,
   Progress,
   Badge,
-  Statistic,
-  Row,
-  Col,
-  Divider,
-  Alert,
-  Tooltip,
-  Empty,
-  Spin,
-  DatePicker,
-  Upload,
-  Dropdown,
-  Menu,
 } from 'antd';
 import {
   DatabaseOutlined,
@@ -46,14 +33,13 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   LoadingOutlined,
+  ClockCircleOutlined,
   CloudUploadOutlined,
   CloudDownloadOutlined,
   SettingOutlined,
   EyeOutlined,
   DeleteOutlined,
-  FileTextOutlined,
   SyncOutlined,
-  MoreOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
@@ -68,7 +54,6 @@ import './DataManagement.css';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 // 任务状态颜色
 const STATUS_COLORS: Record<ETLTaskStatus, string> = {
@@ -95,10 +80,8 @@ const TASK_TYPE_MAP: Record<ETLTask['task_type'], string> = {
   custom: '自定义',
 };
 
-const ClockCircleOutlined = () => <span>⏳</span>;
-
 const DataManagement: React.FC = () => {
-  const { t } = useTranslation();
+  useTranslation(); // 保持 i18n 上下文
   const [activeTab, setActiveTab] = useState('etl');
 
   // ETL 任务相关状态
@@ -447,7 +430,7 @@ const DataManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      render: (_, record) => (
+      render: () => (
         <Space>
           <Button type="link" size="small" icon={<SyncOutlined />}>
             同步
