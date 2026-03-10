@@ -529,62 +529,42 @@
 }
 
 /* ========================================
-   表单样式覆盖 - 精致输入框设计
+   表单样式覆盖 - 无边框输入框设计
    ======================================== */
 
 .login-card .ant-form-item {
   margin-bottom: 24px;
 }
 
-/* 输入框容器 - 无边框设计 */
+/* 输入框容器 - 完全无边框设计，统一尺寸 */
 .login-card .ant-input-affix-wrapper {
-  height: 52px;
-  padding: 0 18px;
-  background: rgba(22, 27, 34, 0.8) !important;
+  height: 52px !important;
+  padding: 0 18px !important;
+  background: rgba(22, 27, 34, 0.6) !important;
   border: none !important;
-  border-bottom: 2px solid rgba(48, 54, 61, 0.6) !important;
-  border-radius: 6px 6px 0 0 !important;
+  border-radius: 8px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
-/* 输入框容器 hover */
+/* 输入框容器 hover - 只改变背景 */
 .login-card .ant-input-affix-wrapper:hover {
-  background: rgba(27, 32, 40, 0.9) !important;
-  border-bottom-color: rgba(255, 107, 0, 0.3) !important;
+  background: rgba(30, 35, 43, 0.8) !important;
 }
 
-/* 输入框容器 focus */
+/* 输入框容器 focus - 统一内边框样式 */
 .login-card .ant-input-affix-wrapper-focused,
 .login-card .ant-input-affix-wrapper:focus-within {
-  background: rgba(30, 35, 43, 0.95) !important;
-  border-bottom-color: #FF6B00 !important;
-  box-shadow: none !important;
+  background: rgba(35, 40, 50, 0.9) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 107, 0, 0.2) !important;
+  outline: none !important;
 }
 
-/* 输入框发光效果 */
-.login-card .ant-input-affix-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 107, 0, 0.05),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-
-.login-card .ant-input-affix-wrapper:focus-within::before {
-  left: 100%;
-}
-
-/* 输入框文字 */
+/* 输入框文字 - 统一样式 */
 .login-card .ant-input,
 .login-card .ant-input-password input {
   background: transparent !important;
@@ -593,6 +573,7 @@
   font-size: 15px !important;
   font-weight: 500 !important;
   letter-spacing: 0.3px;
+  height: 100% !important;
 }
 
 /* Placeholder */
@@ -602,12 +583,14 @@
   font-weight: 400 !important;
 }
 
-/* 前缀图标 */
+/* 前缀图标 - 统一大小 */
 .login-card .ant-input-prefix {
   color: #6E7681 !important;
   margin-right: 14px !important;
   font-size: 16px !important;
   transition: color 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .login-card .ant-input-affix-wrapper:hover .ant-input-prefix,
@@ -615,9 +598,12 @@
   color: #FF6B00 !important;
 }
 
-/* 密码输入框后缀图标 */
+/* 密码输入框后缀图标 - 统一大小 */
 .login-card .ant-input-suffix {
   color: #6E7681 !important;
+  margin-left: 14px !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .login-card .ant-input-affix-wrapper:hover .ant-input-suffix {
@@ -644,14 +630,14 @@
   text-transform: uppercase;
 }
 
-/* 错误状态 */
+/* 错误状态 - 无边框设计 */
 .login-card .ant-form-item-has-error .ant-input-affix-wrapper {
-  border-color: #FF4D4D !important;
-  background: rgba(255, 77, 77, 0.05) !important;
+  background: rgba(255, 77, 77, 0.08) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 77, 77, 0.3) !important;
 }
 
 .login-card .ant-form-item-has-error .ant-input-affix-wrapper:hover {
-  border-color: #FF6666 !important;
+  background: rgba(255, 77, 77, 0.12) !important;
 }
 
 .login-card .ant-form-item-explain-error {
