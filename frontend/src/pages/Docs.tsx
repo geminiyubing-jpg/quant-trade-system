@@ -50,14 +50,16 @@ const moduleStatus = [
   { module: '用户管理', backend: 100, frontend: 100, priority: 'P0' },
   { module: '实时行情', backend: 100, frontend: 100, priority: 'P0' },
   { module: 'WebSocket推送', backend: 100, frontend: 100, priority: 'P0' },
-  { module: '交易系统', backend: 100, frontend: 60, priority: 'P1' },
-  { module: '风控系统', backend: 100, frontend: 40, priority: 'P1' },
-  { module: '回测引擎', backend: 100, frontend: 40, priority: 'P1' },
+  { module: '交易系统', backend: 100, frontend: 100, priority: 'P1' },
+  { module: '风控系统', backend: 100, frontend: 80, priority: 'P1' },
+  { module: '回测引擎', backend: 100, frontend: 100, priority: 'P1' },
   { module: '自选股管理', backend: 100, frontend: 100, priority: 'P1' },
   { module: '价格预警', backend: 100, frontend: 100, priority: 'P1' },
-  { module: '策略引擎', backend: 40, frontend: 20, priority: 'P2' },
-  { module: 'AI服务', backend: 20, frontend: 10, priority: 'P2' },
-  { module: '投资组合', backend: 0, frontend: 10, priority: 'P2' },
+  { module: '策略引擎', backend: 100, frontend: 80, priority: 'P1' },
+  { module: 'AI服务', backend: 80, frontend: 60, priority: 'P2' },
+  { module: '投资组合', backend: 100, frontend: 80, priority: 'P2' },
+  { module: '板块分析', backend: 100, frontend: 100, priority: 'P2' },
+  { module: '数据管理', backend: 100, frontend: 80, priority: 'P2' },
   { module: '社区功能', backend: 0, frontend: 0, priority: 'P3' },
 ];
 
@@ -399,6 +401,111 @@ const Docs: React.FC = () => {
                   <Paragraph>
                     <Text keyboard>Esc</Text> - 关闭弹窗
                   </Paragraph>
+                </Card>
+              </Space>
+            </TabPane>
+
+            {/* 测试数据 */}
+            <TabPane
+              tab={
+                <span>
+                  <DatabaseOutlined />
+                  测试数据
+                </span>
+              }
+              key="testdata"
+            >
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                <Title level={4}>测试数据脚本</Title>
+                <Card size="small" style={{ background: 'var(--bg-secondary)', borderRadius: 8 }}>
+                  <Paragraph>
+                    <Text strong>Python 版本：</Text>
+                    <br />
+                    <code>backend/database/scripts/seed_test_data.py</code>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text strong>SQL 版本：</Text>
+                    <br />
+                    <code>backend/database/scripts/seed_test_data.sql</code>
+                  </Paragraph>
+                </Card>
+
+                <Title level={4}>测试账号</Title>
+                <Card size="small" style={{ background: 'var(--bg-secondary)', borderRadius: 8 }}>
+                  <Paragraph>
+                    <Text strong>管理员：</Text> admin / admin123
+                  </Paragraph>
+                  <Paragraph>
+                    <Text strong>交易员：</Text> trader_zhang / trader123
+                  </Paragraph>
+                  <Paragraph>
+                    <Text strong>分析师：</Text> analyst_li / analyst123
+                  </Paragraph>
+                </Card>
+
+                <Title level={4}>测试数据内容</Title>
+                <Card size="small" style={{ background: 'var(--bg-secondary)', borderRadius: 8 }}>
+                  <Paragraph>• 25 只测试股票（覆盖金融、科技、消费、医药等行业）</Paragraph>
+                  <Paragraph>• 1500+ 条股票历史价格（每只股票60天数据）</Paragraph>
+                  <Paragraph>• 5 个测试策略（双均线、RSI、布林带、MACD、多因子）</Paragraph>
+                  <Paragraph>• 3 个回测任务（带完整回测结果）</Paragraph>
+                  <Paragraph>• 10 条测试订单（各种状态）</Paragraph>
+                  <Paragraph>• 6 条测试持仓记录</Paragraph>
+                </Card>
+              </Space>
+            </TabPane>
+
+            {/* 文档链接 */}
+            <TabPane
+              tab={
+                <span>
+                  <FileTextOutlined />
+                  文档链接
+                </span>
+              }
+              key="links"
+            >
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                <Title level={4}>项目文档</Title>
+                <Card size="small" style={{ background: 'var(--bg-secondary)', borderRadius: 8 }}>
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Button type="link" icon={<FileTextOutlined />} onClick={() => window.open('/docs/SYSTEM_ARCHITECTURE.html', '_blank')}>
+                      系统架构文档
+                    </Button>
+                    <Button type="link" icon={<FileTextOutlined />} onClick={() => window.open('https://github.com/geminiyubing-jpg/quant-trade-system/blob/main/docs/GETTING_STARTED.md', '_blank')}>
+                      快速开始指南
+                    </Button>
+                    <Button type="link" icon={<FileTextOutlined />} onClick={() => window.open('https://github.com/geminiyubing-jpg/quant-trade-system/blob/main/docs/API.md', '_blank')}>
+                      API 文档
+                    </Button>
+                    <Button type="link" icon={<FileTextOutlined />} onClick={() => window.open('https://github.com/geminiyubing-jpg/quant-trade-system/blob/main/docs/USER_GUIDE.md', '_blank')}>
+                      用户指南
+                    </Button>
+                    <Button type="link" icon={<FileTextOutlined />} onClick={() => window.open('https://github.com/geminiyubing-jpg/quant-trade-system/blob/main/docs/STRATEGY_MODULE_GUIDE.md', '_blank')}>
+                      策略模块指南
+                    </Button>
+                    <Button type="link" icon={<FileTextOutlined />} onClick={() => window.open('https://github.com/geminiyubing-jpg/quant-trade-system/blob/main/docs/POSTGRESQL_SETUP.md', '_blank')}>
+                      PostgreSQL 设置
+                    </Button>
+                    <Button type="link" icon={<FileTextOutlined />} onClick={() => window.open('https://github.com/geminiyubing-jpg/quant-trade-system/blob/main/docs/BLOOMBERG_THEME_GUIDE.md', '_blank')}>
+                      Bloomberg 主题指南
+                    </Button>
+                  </Space>
+                </Card>
+
+                <Title level={4}>外部链接</Title>
+                <Card size="small" style={{ background: 'var(--bg-secondary)', borderRadius: 8 }}>
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <Button type="link" icon={<ExportOutlined />} onClick={() => window.open('https://github.com/geminiyubing-jpg/quant-trade-system', '_blank')}>
+                      GitHub 仓库
+                    </Button>
+                    <Button type="link" icon={<ExportOutlined />} onClick={() => window.open('http://localhost:8000/docs', '_blank')}>
+                      Swagger API 文档
+                    </Button>
+                    <Button type="link" icon={<ExportOutlined />} onClick={() => window.open('http://localhost:8000/redoc', '_blank')}>
+                      ReDoc API 文档
+                    </Button>
+                  </Space>
                 </Card>
               </Space>
             </TabPane>

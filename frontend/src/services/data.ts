@@ -4,7 +4,7 @@
  * 封装数据管理相关端点：ETL、数据引擎、数据质量
  */
 
-import { get, post, put, del } from './api';
+import { get, post, del } from './api';
 
 // ==============================================
 // 数据 ETL

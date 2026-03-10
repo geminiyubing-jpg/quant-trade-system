@@ -159,7 +159,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
         type: 'divider' as const,
       },
       {
-        key: '/data',
+        key: '/data/management',
         icon: <DatabaseOutlined />,
         label: t('nav.data'),
       },

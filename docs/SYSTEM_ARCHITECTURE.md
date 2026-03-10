@@ -1,7 +1,7 @@
 # Quant-Trade System 系统架构文档
 
-> **版本**: v2.2.0
-> **更新日期**: 2026-03-10
+> **版本**: v2.5.0
+> **更新日期**: 2026-03-11
 > **作者**: QuantDev Team
 
 ---
@@ -323,14 +323,64 @@ docker-compose up -d postgres redis
 
 ---
 
-## 9. 扩展阅读
+## 9. 测试数据
+
+### 9.1 测试数据脚本
+
+系统提供了两个版本的测试数据初始化脚本：
+
+| 脚本 | 路径 | 说明 |
+|------|------|------|
+| Python 版本 | `backend/database/scripts/seed_test_data.py` | 异步执行，支持复杂逻辑 |
+| SQL 版本 | `backend/database/scripts/seed_test_data.sql` | 直接执行，无需依赖 |
+
+### 9.2 测试数据内容
+
+| 数据类型 | 数量 | 说明 |
+|---------|------|------|
+| 测试用户 | 3 | admin, trader_zhang, analyst_li |
+| 测试股票 | 25 | 覆盖金融、科技、消费、医药等行业 |
+| 股票价格 | 1500+ | 每只股票60天历史数据 |
+| 测试策略 | 5 | 双均线、RSI、布林带、MACD、多因子 |
+| 回测任务 | 3 | 带完整回测结果 |
+| 测试订单 | 10 | 各种状态：FILLED、PENDING、CANCELED 等 |
+| 测试持仓 | 6 | 不同策略的持仓记录 |
+
+### 9.3 使用方法
+
+**SQL 版本（推荐）:**
+```bash
+cd backend
+psql -h localhost -U quant_trio -d quant_trio -f database/scripts/seed_test_data.sql
+```
+
+**Python 版本:**
+```bash
+cd backend
+python3 database/scripts/seed_test_data.py
+```
+
+### 9.4 测试账号
+
+| 用户名 | 密码 | 角色 |
+|--------|------|------|
+| admin | admin123 | 管理员 |
+| trader_zhang | trader123 | 交易员 |
+| analyst_li | analyst123 | 分析师 |
+
+---
+
+## 10. 扩展阅读
 
 - [快速开始指南](./GETTING_STARTED.md)
 - [API 文档](./API.md)
+- [用户指南](./USER_GUIDE.md)
+- [策略模块指南](./STRATEGY_MODULE_GUIDE.md)
+- [PostgreSQL 设置](./POSTGRESQL_SETUP.md)
 - [WebSocket 架构](../backend/docs/WEBSOCKET_ARCHITECTURE.md)
 - [Bloomberg 主题指南](./BLOOMBERG_THEME_GUIDE.md)
 
 ---
 
 **维护者**: QuantDev Team
-**最后更新**: 2026-03-10
+**最后更新**: 2026-03-11

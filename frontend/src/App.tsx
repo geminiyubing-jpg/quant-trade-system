@@ -19,6 +19,8 @@ import Trading from './pages/Trading';
 import MarketRealtime from './pages/MarketRealtime';
 import Portfolio from './pages/Portfolio';
 import SectorAnalysis from './pages/SectorAnalysis';
+import RiskManagement from './pages/RiskManagement';
+import AILab from './pages/AILab';
 import Docs from './pages/Docs';
 import './App.css';
 import './styles/font-switch.css';
@@ -174,13 +176,14 @@ function AppContent() {
                             <Route path="/" element={<Dashboard />} />
 
                             {/* 旧路由重定向 */}
-                            <Route path="/data" element={<Navigate to="/market/realtime" replace />} />
+                            <Route path="/data" element={<Navigate to="/data/management" replace />} />
                             <Route path="/market" element={<Navigate to="/market/realtime" replace />} />
                             <Route path="/strategy" element={<Navigate to="/strategy/library" replace />} />
 
                             {/* 新路由 */}
                             <Route path="/workspace" element={<Dashboard />} />
-                            <Route path="/market" element={<DataManagement />} />
+                            <Route path="/data/management" element={<DataManagement />} />
+                            <Route path="/data" element={<Navigate to="/data/management" replace />} />
                             <Route path="/market/realtime" element={<MarketRealtime />} />
                             <Route path="/market/sectors" element={<SectorAnalysis />} />
                             <Route path="/strategy/library" element={<StrategyManagement />} />
@@ -188,10 +191,10 @@ function AppContent() {
                             <Route path="/trading" element={<Trading />} />
                             <Route path="/backtest" element={<Backtest />} />
                             <Route path="/portfolio" element={<Portfolio />} />
-                            <Route path="/ai/generate" element={<Dashboard />} />
-                            <Route path="/ai/pick" element={<Dashboard />} />
-                            <Route path="/ai/analyze" element={<Dashboard />} />
-                            <Route path="/risk" element={<Dashboard />} />
+                            <Route path="/ai/generate" element={<AILab />} />
+                            <Route path="/ai/pick" element={<AILab />} />
+                            <Route path="/ai/analyze" element={<AILab />} />
+                            <Route path="/risk" element={<RiskManagement />} />
                             <Route path="/community" element={<Dashboard />} />
                             <Route path="/docs" element={<Docs />} />
                           </Routes>

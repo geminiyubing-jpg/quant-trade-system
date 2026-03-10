@@ -1,0 +1,176 @@
+/**
+ * 风险管理页面样式
+ */
+
+.risk-management {
+  padding: 24px;
+  background: var(--bb-bg-primary, #0D1117);
+  min-height: 100vh;
+}
+
+.risk-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.risk-header h2 {
+  color: var(--bb-text-primary, #E6EDF3);
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.risk-header h2 .anticon {
+  color: var(--bb-accent-primary, #FF6B00);
+}
+
+/* 风险指标卡片 */
+.risk-metrics-card {
+  margin-bottom: 24px;
+  background: var(--bb-bg-secondary, #161B22);
+  border: 1px solid var(--bb-border, #30363D);
+  border-radius: 8px;
+}
+
+.risk-metrics-card .ant-statistic-title {
+  color: var(--bb-text-secondary, #8B949E);
+  font-size: 12px;
+}
+
+.risk-metrics-card .ant-statistic-content {
+  color: var(--bb-text-primary, #E6EDF3);
+}
+
+/* 表格工具栏 */
+.table-toolbar {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Tab 样式 */
+.risk-management .ant-tabs-nav {
+  margin-bottom: 16px;
+}
+
+.risk-management .ant-tabs-tab {
+  color: var(--bb-text-secondary, #8B949E);
+}
+
+.risk-management .ant-tabs-tab-active {
+  color: var(--bb-accent-primary, #FF6B00);
+}
+
+.risk-management .ant-tabs-ink-bar {
+  background: var(--bb-accent-primary, #FF6B00);
+}
+
+/* Card 样式 */
+.risk-management .ant-card {
+  background: var(--bb-bg-secondary, #161B22);
+  border: 1px solid var(--bb-border, #30363D);
+  border-radius: 8px;
+}
+
+.risk-management .ant-card-head {
+  border-bottom: 1px solid var(--bb-border, #30363D);
+  color: var(--bb-text-primary, #E6EDF3);
+}
+
+.risk-management .ant-card-body {
+  color: var(--bb-text-primary, #E6EDF3);
+}
+
+/* Table 样式 */
+.risk-management .ant-table {
+  background: transparent;
+}
+
+.risk-management .ant-table-thead > tr > th {
+  background: var(--bb-bg-tertiary, #21262D);
+  color: var(--bb-text-secondary, #8B949E);
+  border-bottom: 1px solid var(--bb-border, #30363D);
+}
+
+.risk-management .ant-table-tbody > tr > td {
+  background: transparent;
+  color: var(--bb-text-primary, #E6EDF3);
+  border-bottom: 1px solid var(--bb-border, #30363D);
+}
+
+.risk-management .ant-table-tbody > tr:hover > td {
+  background: var(--bb-bg-hover, rgba(255, 107, 0, 0.08));
+}
+
+/* Modal 样式 */
+.risk-management .ant-modal-content {
+  background: var(--bb-bg-secondary, #161B22);
+  border: 1px solid var(--bb-border, #30363D);
+}
+
+.risk-management .ant-modal-header {
+  background: transparent;
+  border-bottom: 1px solid var(--bb-border, #30363D);
+}
+
+.risk-management .ant-modal-title {
+  color: var(--bb-text-primary, #E6EDF3);
+}
+
+.risk-management .ant-modal-close-x {
+  color: var(--bb-text-secondary, #8B949E);
+}
+
+.risk-management .ant-modal-footer {
+  border-top: 1px solid var(--bb-border, #30363D);
+}
+
+/* Form 样式 */
+.risk-management .ant-form-item-label > label {
+  color: var(--bb-text-secondary, #8B949E);
+}
+
+.risk-management .ant-input,
+.risk-management .ant-input-number,
+.risk-management .ant-select-selector,
+.risk-management .ant-input-textarea textarea {
+  background: var(--bb-bg-tertiary, #21262D) !important;
+  border-color: var(--bb-border, #30363D) !important;
+  color: var(--bb-text-primary, #E6EDF3) !important;
+}
+
+.risk-management .ant-input::placeholder,
+.risk-management .ant-input-textarea textarea::placeholder {
+  color: var(--bb-text-muted, #6E7681);
+}
+
+.risk-management .ant-select-arrow {
+  color: var(--bb-text-secondary, #8B949E);
+}
+
+/* Button 样式 */
+.risk-management .ant-btn-primary {
+  background: var(--bb-accent-primary, #FF6B00);
+  border-color: var(--bb-accent-primary, #FF6B00);
+}
+
+.risk-management .ant-btn-primary:hover {
+  background: var(--bb-accent-primary-hover, #FF8533);
+  border-color: var(--bb-accent-primary-hover, #FF8533);
+}
+
+.risk-management .ant-btn-link {
+  color: var(--bb-accent-primary, #FF6B00);
+}
+
+/* Divider */
+.risk-management .ant-divider-horizontal.ant-divider-with-text {
+  color: var(--bb-text-secondary, #8B949E);
+  border-color: var(--bb-border, #30363D);
+}
