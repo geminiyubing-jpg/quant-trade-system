@@ -23,6 +23,10 @@ import {
   message,
   Progress,
   Badge,
+  Row,
+  Col,
+  Typography,
+  Divider,
 } from 'antd';
 import {
   DatabaseOutlined,
@@ -40,6 +44,10 @@ import {
   EyeOutlined,
   DeleteOutlined,
   SyncOutlined,
+  ThunderboltOutlined,
+  LineChartOutlined,
+  StockOutlined,
+  CalculatorOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
@@ -50,7 +58,11 @@ import dataService, {
   DataSource,
   QualityReport,
 } from '../services/data';
+import SmartTaskWizard, { TaskCreateParams } from '../components/SmartTaskWizard';
+import { QUICK_TEMPLATES, getTaskConfig, getDateRangeFromPreset } from '../config/taskSchemas';
 import './DataManagement.css';
+
+const { Title, Text, Paragraph } = Typography;
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -87,7 +99,7 @@ const DataManagement: React.FC = () => {
   // ETL 任务相关状态
   const [etlTasks, setEtlTasks] = useState<ETLTask[]>([]);
   const [etlLoading, setEtlLoading] = useState(false);
-  const [etlModalVisible, setEtlModalVisible] = useState(false);
+  const [wizardVisible, setWizardVisible] = useState(false);
   const [etlForm] = Form.useForm();
 
   // 数据源相关状态
@@ -238,12 +250,38 @@ const DataManagement: React.FC = () => {
   }, [loadETLTasks, loadDataSources, loadQualityReports]);
 
   // 创建 ETL 任务
-  const handleCreateETLTask = async (values: ETLTaskCreate) => {
+  const handleCreateETLTask = async (params: TaskCreateParams) => {
     try {
-      await dataService.createETLTask(values);
+      await dataService.createETLTask(params);
       message.success('任务创建成功');
-      setEtlModalVisible(false);
-      etlForm.resetFields();
+      loadETLTasks();
+    } catch (error) {
+      message.error('创建任务失败');
+      throw error;
+    }
+  };
+
+  // 快捷模板创建任务
+  const handleQuickTemplate = async (template: typeof QUICK_TEMPLATES[0]) => {
+    try {
+      // 处理日期范围预设
+      let config = { ...template.config };
+      if (config.date_range) {
+        const [start, end] = getDateRangeFromPreset(config.date_range);
+        config.start_date = start;
+        config.end_date = end;
+        delete config.date_range;
+      }
+
+      const taskParams: TaskCreateParams = {
+        name: `${template.name}_${new Date().toLocaleDateString('zh-CN')}`,
+        task_type: template.taskType,
+        config,
+        schedule: template.schedule,
+      };
+
+      await dataService.createETLTask(taskParams);
+      message.success(`快捷任务「${template.name}」创建成功`);
       loadETLTasks();
     } catch (error) {
       message.error('创建任务失败');
@@ -516,12 +554,55 @@ const DataManagement: React.FC = () => {
           tab={<span><PlayCircleOutlined /> ETL 任务</span>}
           key="etl"
         >
+          {/* 快捷模板 */}
+          <Card
+            title={
+              <Space>
+                <ThunderboltOutlined style={{ color: '#faad14' }} />
+                <span>快捷操作</span>
+              </Space>
+            }
+            style={{ marginBottom: 16 }}
+            bodyStyle={{ padding: '16px 24px' }}
+          >
+            <Row gutter={[16, 16]}>
+              {QUICK_TEMPLATES.map((template) => (
+                <Col key={template.key} xs={24} sm={12} md={6}>
+                  <Card
+                    hoverable
+                    size="small"
+                    className="quick-template-card"
+                    onClick={() => handleQuickTemplate(template)}
+                  >
+                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                      <Space>
+                        <span style={{ color: '#1890ff', fontSize: 18 }}>
+                          {template.icon}
+                        </span>
+                        <Text strong>{template.name}</Text>
+                      </Space>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        {template.description}
+                      </Text>
+                      {template.schedule && (
+                        <Tag color="blue" style={{ marginTop: 4 }}>
+                          <ClockCircleOutlined /> 定时任务
+                        </Tag>
+                      )}
+                    </Space>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </Card>
+
+          {/* 任务列表 */}
           <Card>
             <div className="table-toolbar">
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
-                onClick={() => setEtlModalVisible(true)}
+                onClick={() => setWizardVisible(true)}
               >
                 新建任务
               </Button>
@@ -603,43 +684,26 @@ const DataManagement: React.FC = () => {
         </TabPane>
       </Tabs>
 
-      {/* 创建 ETL 任务弹窗 */}
-      <Modal
-        title="新建 ETL 任务"
-        open={etlModalVisible}
-        onOk={() => etlForm.submit()}
-        onCancel={() => { setEtlModalVisible(false); etlForm.resetFields(); }}
-        destroyOnClose
-      >
-        <Form form={etlForm} layout="vertical" onFinish={handleCreateETLTask}>
-          <Form.Item
-            name="name"
-            label="任务名称"
-            rules={[{ required: true, message: '请输入任务名称' }]}
-          >
-            <Input placeholder="请输入任务名称" />
-          </Form.Item>
-          <Form.Item
-            name="task_type"
-            label="任务类型"
-            rules={[{ required: true, message: '请选择任务类型' }]}
-          >
-            <Select placeholder="请选择任务类型">
-              <Option value="stock_daily">股票日线</Option>
-              <Option value="stock_info">股票信息</Option>
-              <Option value="factor">因子数据</Option>
-              <Option value="index">指数数据</Option>
-              <Option value="custom">自定义</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item name="config" label="配置 (JSON)">
-            <Input.TextArea rows={4} placeholder='{"market": "A股"}' />
-          </Form.Item>
-          <Form.Item name="schedule" label="定时计划 (Cron)">
-            <Input placeholder="0 8 * * *" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      {/* 智能任务创建向导 */}
+      <SmartTaskWizard
+        visible={wizardVisible}
+        onClose={() => setWizardVisible(false)}
+        onSubmit={handleCreateETLTask}
+      />
+
+      {/* 快捷模板卡片样式 */}
+      <style>{`
+        .quick-template-card {
+          cursor: pointer;
+          transition: all 0.3s;
+          border: 1px solid #e8e8e8;
+        }
+        .quick-template-card:hover {
+          border-color: #1890ff;
+          box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+          transform: translateY(-2px);
+        }
+      `}</style>
     </div>
   );
 };

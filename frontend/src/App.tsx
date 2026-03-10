@@ -35,6 +35,7 @@ const RiskManagement = lazy(() => import('./pages/RiskManagement'));
 
 // 行情相关
 const MarketRealtime = lazy(() => import('./pages/MarketRealtime'));
+const MarketOverview = lazy(() => import('./pages/MarketOverview'));
 const SectorAnalysis = lazy(() => import('./pages/SectorAnalysis'));
 
 // AI 相关
@@ -226,6 +227,8 @@ function AppContent() {
                               <Route path="/workspace" element={<Dashboard />} />
                               <Route path="/data/management" element={<DataManagement />} />
                               <Route path="/data" element={<Navigate to="/data/management" replace />} />
+                              <Route path="/market" element={<Navigate to="/market/overview" replace />} />
+                              <Route path="/market/overview" element={<MarketOverview />} />
                               <Route path="/market/realtime" element={<MarketRealtime />} />
                               <Route path="/market/sectors" element={<SectorAnalysis />} />
                               <Route path="/strategy/library" element={<StrategyManagement />} />
