@@ -9,6 +9,8 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import ProtectedRoute from './components/ProtectedRoute';
+import './App.css';
+import './styles/font-switch.css';
 
 // ==========================================
 // 路由懒加载 - 优化首屏加载性能
@@ -56,9 +58,6 @@ const PageLoader = () => (
     <Spin size="large" tip="加载中..." />
   </div>
 );
-
-import './App.css';
-import './styles/font-switch.css';
 
 const { Content } = Layout;
 
