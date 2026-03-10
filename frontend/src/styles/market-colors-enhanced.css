@@ -1,0 +1,489 @@
+/**
+ * ==============================================
+ * 实时行情数据颜色优化
+ * Market Data Colors Enhancement
+ * ==============================================
+ *
+ * 设计理念：
+ * - 深色主题：遵循彭博终端风格（绿涨红跌）
+ * - 浅色主题：遵循中国市场习惯（红涨绿跌）
+ * - 高对比度确保数据清晰可见
+ * - 精致的发光效果增强视觉体验
+ */
+
+/* ========================================
+   深色主题 - 彭博终端风格
+   绿涨红跌（国际市场标准）
+   ======================================== */
+
+[data-theme="dark"] {
+  /* 上涨 - 鲜明绿色 */
+  --color-up: #00FF88;
+  --color-up-hover: #33FFAA;
+  --color-up-bg: rgba(0, 255, 136, 0.12);
+  --color-up-border: rgba(0, 255, 136, 0.3);
+  --color-up-glow: rgba(0, 255, 136, 0.4);
+
+  /* 下跌 - 鲜明红色 */
+  --color-down: #FF4757;
+  --color-down-hover: #FF6B7A;
+  --color-down-bg: rgba(255, 71, 87, 0.12);
+  --color-down-border: rgba(255, 71, 87, 0.3);
+  --color-down-glow: rgba(255, 71, 87, 0.4);
+
+  /* 持平 - 金色 */
+  --color-neutral: #FFD700;
+  --color-neutral-hover: #FFE033;
+  --color-neutral-bg: rgba(255, 215, 0, 0.12);
+  --color-neutral-border: rgba(255, 215, 0, 0.3);
+
+  /* 强调色 */
+  --accent-blue: #58A6FF;
+  --accent-gold: #FFD700;
+  --accent-orange: #FF6B00;
+
+  /* 表格相关 */
+  --table-row-up: rgba(0, 255, 136, 0.06);
+  --table-row-down: rgba(255, 71, 87, 0.06);
+  --table-row-hover: rgba(255, 107, 0, 0.08);
+
+  /* 背景和边框 */
+  --bg-primary: #000000;
+  --bg-secondary: #0D1117;
+  --bg-card: #0D1117;
+  --bg-table: #0D1117;
+  --border-color: #30363D;
+  --border-light: #21262D;
+  --text-primary: #E6EDF3;
+  --text-secondary: #8B949E;
+  --text-muted: #6E7681;
+
+  /* 输入框 */
+  --input-focus-border: #FF6B00;
+  --hover-bg: #1C2128;
+  --button-primary-bg: #FF6B00;
+  --button-primary-hover: #FF8533;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --grid-color: rgba(255, 107, 0, 0.05);
+}
+
+/* ========================================
+   浅色主题 - 中国市场习惯
+   红涨绿跌
+   ======================================== */
+
+[data-theme="light"] {
+  /* 上涨 - 鲜明红色（中国习惯） */
+  --color-up: #DC2626;
+  --color-up-hover: #EF4444;
+  --color-up-bg: rgba(220, 38, 38, 0.08);
+  --color-up-border: rgba(220, 38, 38, 0.3);
+  --color-up-glow: rgba(220, 38, 38, 0.3);
+
+  /* 下跌 - 鲜明绿色（中国习惯） */
+  --color-down: #059669;
+  --color-down-hover: #10B981;
+  --color-down-bg: rgba(5, 150, 105, 0.08);
+  --color-down-border: rgba(5, 150, 105, 0.3);
+  --color-down-glow: rgba(5, 150, 105, 0.3);
+
+  /* 持平 - 灰色 */
+  --color-neutral: #6B7280;
+  --color-neutral-hover: #9CA3AF;
+  --color-neutral-bg: rgba(107, 114, 128, 0.08);
+  --color-neutral-border: rgba(107, 114, 128, 0.3);
+
+  /* 强调色 */
+  --accent-blue: #0284C7;
+  --accent-gold: #D97706;
+  --accent-orange: #EA580C;
+
+  /* 表格相关 */
+  --table-row-up: rgba(220, 38, 38, 0.04);
+  --table-row-down: rgba(5, 150, 105, 0.04);
+  --table-row-hover: rgba(2, 132, 199, 0.06);
+
+  /* 背景和边框 */
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-table: #FAFBFC;
+  --border-color: #E2E8F0;
+  --border-light: #F1F5F9;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+
+  /* 输入框 */
+  --input-focus-border: #0284C7;
+  --hover-bg: #F1F5F9;
+  --button-primary-bg: #0284C7;
+  --button-primary-hover: #0369A1;
+  --shadow-color: rgba(15, 23, 42, 0.08);
+  --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --grid-color: rgba(2, 132, 199, 0.06);
+}
+
+/* ========================================
+   深色主题 - 价格颜色增强
+   ======================================== */
+
+/* 上涨价格 - 深色主题 */
+[data-theme="dark"] .market-table .ant-typography[style*="var(--color-up)"],
+[data-theme="dark"] .market-table [class*="change-up"],
+[data-theme="dark"] .text-up {
+  color: var(--color-up) !important;
+  text-shadow: 0 0 8px var(--color-up-glow);
+  font-weight: 700 !important;
+}
+
+/* 下跌价格 - 深色主题 */
+[data-theme="dark"] .market-table .ant-typography[style*="var(--color-down)"],
+[data-theme="dark"] .market-table [class*="change-down"],
+[data-theme="dark"] .text-down {
+  color: var(--color-down) !important;
+  text-shadow: 0 0 8px var(--color-down-glow);
+  font-weight: 700 !important;
+}
+
+/* 持平价格 - 深色主题 */
+[data-theme="dark"] .market-table .ant-typography[style*="var(--color-neutral)"],
+[data-theme="dark"] .text-neutral {
+  color: var(--color-neutral) !important;
+  font-weight: 600 !important;
+}
+
+/* 上涨行背景 - 深色主题 */
+[data-theme="dark"] .row-rising {
+  background: linear-gradient(90deg, var(--color-up-bg) 0%, transparent 100%) !important;
+  border-left: 3px solid var(--color-up) !important;
+}
+
+/* 下跌行背景 - 深色主题 */
+[data-theme="dark"] .row-falling {
+  background: linear-gradient(90deg, var(--color-down-bg) 0%, transparent 100%) !important;
+  border-left: 3px solid var(--color-down) !important;
+}
+
+/* 高亮行 - 深色主题 */
+[data-theme="dark"] .row-highlighted {
+  background: rgba(255, 215, 0, 0.08) !important;
+  outline: 1px solid var(--accent-gold);
+  outline-offset: -1px;
+}
+
+/* ========================================
+   浅色主题 - 价格颜色增强
+   ======================================== */
+
+/* 上涨价格 - 浅色主题（红色） */
+[data-theme="light"] .market-table .ant-typography[style*="var(--color-up)"],
+[data-theme="light"] .market-table [class*="change-up"],
+[data-theme="light"] .text-up {
+  color: var(--color-up) !important;
+  font-weight: 700 !important;
+}
+
+/* 下跌价格 - 浅色主题（绿色） */
+[data-theme="light"] .market-table .ant-typography[style*="var(--color-down)"],
+[data-theme="light"] .market-table [class*="change-down"],
+[data-theme="light"] .text-down {
+  color: var(--color-down) !important;
+  font-weight: 700 !important;
+}
+
+/* 持平价格 - 浅色主题 */
+[data-theme="light"] .market-table .ant-typography[style*="var(--color-neutral)"],
+[data-theme="light"] .text-neutral {
+  color: var(--color-neutral) !important;
+  font-weight: 600 !important;
+}
+
+/* 上涨行背景 - 浅色主题 */
+[data-theme="light"] .row-rising {
+  background: linear-gradient(90deg, var(--color-up-bg) 0%, transparent 100%) !important;
+  border-left: 3px solid var(--color-up) !important;
+}
+
+/* 下跌行背景 - 浅色主题 */
+[data-theme="light"] .row-falling {
+  background: linear-gradient(90deg, var(--color-down-bg) 0%, transparent 100%) !important;
+  border-left: 3px solid var(--color-down) !important;
+}
+
+/* 高亮行 - 浅色主题 */
+[data-theme="light"] .row-highlighted {
+  background: rgba(2, 132, 199, 0.06) !important;
+  outline: 1px solid var(--accent-blue);
+  outline-offset: -1px;
+}
+
+/* ========================================
+   价格闪烁动画增强
+   ======================================== */
+
+/* 上涨闪烁 - 深色主题 */
+[data-theme="dark"] @keyframes flashUp {
+  0% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+  25% {
+    background-color: var(--color-up-bg);
+    box-shadow: inset 0 0 10px var(--color-up-glow);
+  }
+  50% {
+    background-color: var(--color-up-bg);
+    box-shadow: inset 0 0 10px var(--color-up-glow);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+/* 下跌闪烁 - 深色主题 */
+[data-theme="dark"] @keyframes flashDown {
+  0% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+  25% {
+    background-color: var(--color-down-bg);
+    box-shadow: inset 0 0 10px var(--color-down-glow);
+  }
+  50% {
+    background-color: var(--color-down-bg);
+    box-shadow: inset 0 0 10px var(--color-down-glow);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+/* 上涨闪烁 - 浅色主题 */
+[data-theme="light"] @keyframes flashUp {
+  0% {
+    background-color: transparent;
+  }
+  30% {
+    background-color: var(--color-up-bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* 下跌闪烁 - 浅色主题 */
+[data-theme="light"] @keyframes flashDown {
+  0% {
+    background-color: transparent;
+  }
+  30% {
+    background-color: var(--color-down-bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* 闪烁动画应用 */
+[data-theme="dark"] .price-flash-up {
+  animation: flashUp 0.8s ease-out;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+[data-theme="dark"] .price-flash-down {
+  animation: flashDown 0.8s ease-out;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+[data-theme="light"] .price-flash-up {
+  animation: flashUp 0.8s ease-out;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+[data-theme="light"] .price-flash-down {
+  animation: flashDown 0.8s ease-out;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+/* ========================================
+   统计卡片颜色增强
+   ======================================== */
+
+/* 深色主题统计卡片 */
+[data-theme="dark"] .stat-card.stat-rising {
+  border-left: 4px solid var(--color-up);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+}
+
+[data-theme="dark"] .stat-card.stat-falling {
+  border-left: 4px solid var(--color-down);
+  box-shadow: 0 0 20px rgba(255, 71, 87, 0.1);
+}
+
+[data-theme="dark"] .stat-card.stat-flat {
+  border-left: 4px solid var(--color-neutral);
+}
+
+[data-theme="dark"] .stat-card.stat-total {
+  border-left: 4px solid var(--accent-blue);
+  box-shadow: 0 0 20px rgba(88, 166, 255, 0.1);
+}
+
+/* 浅色主题统计卡片 */
+[data-theme="light"] .stat-card.stat-rising {
+  border-left: 4px solid var(--color-up);
+}
+
+[data-theme="light"] .stat-card.stat-falling {
+  border-left: 4px solid var(--color-down);
+}
+
+[data-theme="light"] .stat-card.stat-flat {
+  border-left: 4px solid var(--color-neutral);
+}
+
+[data-theme="light"] .stat-card.stat-total {
+  border-left: 4px solid var(--accent-blue);
+}
+
+/* ========================================
+   表格表头增强
+   ======================================== */
+
+/* 深色主题表头 */
+[data-theme="dark"] .market-table .ant-table-thead > tr > th {
+  background: linear-gradient(180deg, #161B22 0%, #0D1117 100%) !important;
+  border-bottom: 2px solid var(--accent-orange) !important;
+  color: var(--accent-blue) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* 浅色主题表头 */
+[data-theme="light"] .market-table .ant-table-thead > tr > th {
+  background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%) !important;
+  border-bottom: 2px solid var(--accent-blue) !important;
+  color: #1E293B !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* ========================================
+   连接状态标签增强
+   ======================================== */
+
+/* 深色主题 - 已连接 */
+[data-theme="dark"] .connection-tag.connected {
+  background: rgba(0, 255, 136, 0.15) !important;
+  border: 1px solid var(--color-up) !important;
+  color: var(--color-up) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+/* 深色主题 - 未连接 */
+[data-theme="dark"] .connection-tag.disconnected {
+  background: rgba(255, 71, 87, 0.15) !important;
+  border: 1px solid var(--color-down) !important;
+  color: var(--color-down) !important;
+}
+
+/* 浅色主题 - 已连接 */
+[data-theme="light"] .connection-tag.connected {
+  background: rgba(5, 150, 105, 0.1) !important;
+  border: 1px solid #059669 !important;
+  color: #059669 !important;
+}
+
+/* 浅色主题 - 未连接 */
+[data-theme="light"] .connection-tag.disconnected {
+  background: rgba(220, 38, 38, 0.1) !important;
+  border: 1px solid #DC2626 !important;
+  color: #DC2626 !important;
+}
+
+/* ========================================
+   数字字体优化
+   ======================================== */
+
+.market-table .ant-typography,
+.market-table td {
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   按钮颜色优化
+   ======================================== */
+
+/* 深色主题按钮 */
+[data-theme="dark"] .subscribe-btn {
+  background: linear-gradient(135deg, var(--accent-orange) 0%, #FF8533 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+}
+
+[data-theme="dark"] .subscribe-btn:hover {
+  background: linear-gradient(135deg, #FF8533 0%, #FF9955 100%) !important;
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 浅色主题按钮 */
+[data-theme="light"] .subscribe-btn {
+  background: linear-gradient(135deg, var(--accent-blue) 0%, #0EA5E9 100%) !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+[data-theme="light"] .subscribe-btn:hover {
+  background: linear-gradient(135deg, #0369A1 0%, #0284C7 100%) !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   响应式调整
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* 移动端保持颜色但简化效果 */
+  .price-flash-up,
+  .price-flash-down {
+    padding: 1px 4px;
+  }
+
+  [data-theme="dark"] .row-rising,
+  [data-theme="dark"] .row-falling {
+    border-left-width: 2px;
+  }
+
+  [data-theme="light"] .row-rising,
+  [data-theme="light"] .row-falling {
+    border-left-width: 2px;
+  }
+}
+
+/* ========================================
+   减少动画模式
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .price-flash-up,
+  .price-flash-down {
+    animation: none;
+  }
+}

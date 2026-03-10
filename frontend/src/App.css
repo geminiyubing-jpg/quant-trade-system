@@ -1,17 +1,170 @@
-/* 彭博主题 - App 根容器样式 */
+/* 主题系统 - App 根容器样式 */
 .App {
   min-height: 100vh;
-  background-color: var(--bb-bg-primary);
-  color: var(--bb-text-primary);
+  background: var(--bg-primary, #f8fafc);
+  color: var(--text-primary, #0f172a);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* 主内容区域 */
 .app-content {
   padding: 24px;
-  background-color: var(--bb-bg-primary);
+  background: var(--gradient-primary, var(--bg-primary, #f8fafc));
+  min-height: calc(100vh - 64px);
+  transition: background 0.3s ease;
 }
 
-/* 移除默认样式，使用彭博主题变量 */
+/* 移除默认样式 */
 * {
   box-sizing: border-box;
+}
+
+/* ==========================================
+   移动端菜单 Drawer 样式
+   ========================================== */
+
+.mobile-menu-drawer .ant-drawer-content {
+  background: var(--bb-bg-secondary);
+}
+
+.mobile-menu-drawer .ant-drawer-body {
+  padding: 0;
+}
+
+/* ==========================================
+   响应式布局
+   ========================================== */
+
+/* 平板适配 */
+@media (max-width: 1024px) {
+  .app-content {
+    padding: 16px;
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .app-layout.mobile .main-content {
+    padding: 12px;
+  }
+
+  /* 移动端卡片间距 */
+  .main-content .ant-card {
+    margin-bottom: 12px;
+  }
+
+  /* 移动端表格优化 */
+  .main-content .ant-table {
+    font-size: 12px;
+  }
+
+  .main-content .ant-table-thead > tr > th {
+    padding: 8px 8px;
+  }
+
+  .main-content .ant-table-tbody > tr > td {
+    padding: 8px 8px;
+  }
+
+  /* 移动端统计卡片 */
+  .main-content .ant-statistic-title {
+    font-size: 12px;
+  }
+
+  .main-content .ant-statistic-content {
+    font-size: 18px;
+  }
+
+  /* 移动端按钮组 */
+  .main-content .ant-space {
+    flex-wrap: wrap;
+  }
+
+  /* 移动端表单 */
+  .main-content .ant-form-item-label {
+    padding-bottom: 4px;
+  }
+
+  /* 移动端 Tabs */
+  .main-content .ant-tabs-nav {
+    margin-bottom: 12px;
+  }
+}
+
+/* 小屏幕手机适配 */
+@media (max-width: 480px) {
+  .app-layout.mobile .main-content {
+    padding: 8px;
+  }
+
+  /* 隐藏表格非必要列 */
+  .main-content .ant-table-thead > tr > th:nth-child(n+5),
+  .main-content .ant-table-tbody > tr > td:nth-child(n+5) {
+    display: none;
+  }
+}
+
+/* ==========================================
+   浅色主题适配 - 高对比度优化
+   ========================================== */
+
+[data-theme="light"] .App {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+  color: #0f172a;
+}
+
+[data-theme="light"] .app-content {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+  color: #0f172a;
+}
+
+/* 全局文字优化 - 浅色主题 */
+[data-theme="light"] body {
+  color: #0f172a;
+}
+
+/* 标题文字优化 */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #0f172a !important;
+}
+
+/* 段落文字优化 */
+[data-theme="light"] p {
+  color: #1e293b;
+}
+
+/* 链接文字优化 */
+[data-theme="light"] a {
+  color: #0284c7;
+}
+
+[data-theme="light"] a:hover {
+  color: #0369a1;
+}
+
+/* ==========================================
+   深色主题适配 - 彭博终端风格
+   ========================================== */
+
+[data-theme="dark"] .App {
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #0d0d0d 100%);
+}
+
+[data-theme="dark"] .app-content {
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #0d0d0d 100%);
+}
+
+/* 深色主题移动端 Drawer */
+[data-theme="dark"] .mobile-menu-drawer .ant-drawer-content {
+  background: #1a1a1a;
+}
+
+/* 浅色主题移动端 Drawer */
+[data-theme="light"] .mobile-menu-drawer .ant-drawer-content {
+  background: #1e3a5f;
 }

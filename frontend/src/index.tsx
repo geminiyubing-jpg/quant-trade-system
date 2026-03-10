@@ -8,6 +8,13 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import 'dayjs/locale/en';
 import './index.css';
+import './styles/bloomberg-theme.css';
+import './styles/bloomberg-components.css';
+import './styles/bloomberg-enhanced.css';
+import './styles/bloomberg-animations.css';
+import './styles/light-theme-enhanced.css';
+import './styles/bloomberg-enhanced.css';
+import './styles/market-colors-enhanced.css';
 import './i18n/config'; // 引入 i18n 配置
 import App from './App';
 import store from './store';

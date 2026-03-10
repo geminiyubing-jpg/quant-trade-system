@@ -5,22 +5,27 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@monaco-editor/react": "^4.7.0",
     "@reduxjs/toolkit": "^2.0.1",
     "ajv": "^8.18.0",
     "antd": "^5.12.8",
     "axios": "^1.6.5",
     "dayjs": "^1.11.10",
+    "dexie": "^4.3.0",
     "echarts": "^5.4.3",
     "echarts-for-react": "^3.0.2",
     "i18next": "^23.7.11",
+    "monaco-editor": "^0.55.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^14.0.0",
     "react-redux": "^9.0.4",
     "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
+    "recharts": "^3.8.0",
     "redux": "^5.0.1",
-    "web-vitals": "^3.5.0"
+    "web-vitals": "^3.5.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.5",

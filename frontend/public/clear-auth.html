@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除认证状态</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 32px;
+        }
+        p {
+            margin: 10px 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .token-found {
+            color: #ffd700;
+        }
+        .no-token {
+            color: #90ee90;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 清除认证状态</h1>
+        <p>检测当前的 localStorage 状态</p>
+        <div id="status" class="status">正在检查...</div>
+        <button onclick="clearAuth()">清除认证状态并返回登录</button>
+    </div>
+
+    <script>
+        function checkAuthStatus() {
+            const auth = localStorage.getItem('auth');
+            const token = localStorage.getItem('token');
+            const statusDiv = document.getElementById('status');
+
+            if (auth || token) {
+                statusDiv.innerHTML = `
+                    <div class="token-found">⚠️ 发现认证数据：</div>
+                    <div>${auth ? '✓ auth 对象' : '✗ 无 auth 对象'}</div>
+                    <div>${token ? '✓ token 字符串' : '✗ 无 token 字符串'}</div>
+                    <div style="margin-top: 8px;">点击下方按钮清除</div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="no-token">✅ 未发现认证数据</div>
+                    <div>localStorage 已经是干净的</div>
+                `;
+            }
+        }
+
+        function clearAuth() {
+            localStorage.removeItem('auth');
+            localStorage.removeItem('token');
+            sessionStorage.clear();
+
+            document.getElementById('status').innerHTML = `
+                <div class="no-token">✅ 清除成功！</div>
+                <div>3 秒后跳转到登录页面...</div>
+            `;
+
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 3000);
+        }
+
+        // 页面加载时检查状态
+        checkAuthStatus();
+    </script>
+</body>
+</html>

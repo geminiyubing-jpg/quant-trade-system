@@ -6,6 +6,10 @@
 
 import store from '../store';
 import { marketDataActions } from '../store/slices/marketDataSlice';
+import authService from './auth';
+import subscriptionStorage from './subscriptionStorage';
+import { message } from 'antd';
+import logger from '../utils/logger';
 
 interface WebSocketMessage {
   type: string;
@@ -46,7 +50,7 @@ class WebSocketService {
    */
   connect(): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      console.warn('⚠️  WebSocket 已连接');
+      logger.warn('WebSocket 已连接');
       return;
     }
 
@@ -56,44 +60,53 @@ class WebSocketService {
 
       // 开发环境：如果没有 Token，自动登录获取
       if (!token && process.env.NODE_ENV === 'development') {
-        console.warn('⚠️  未找到 Token，尝试自动登录...');
+        logger.warn('未找到 Token，尝试自动登录...');
         this.autoLoginAndConnect();
         return;
       }
 
       if (!token) {
-        console.error('❌ 未找到 Token，无法连接 WebSocket');
-        console.error('💡 请先登录系统，或者在浏览器控制台运行登录命令');
+        logger.error('未找到 Token，无法连接 WebSocket');
+        logger.error('请先登录系统，或者在浏览器控制台运行登录命令');
         return;
       }
 
       // 构建 WebSocket URL
       const wsUrl = `${this.config.url}?token=${token}`;
-      console.log(`🔌 正在连接 WebSocket: ${wsUrl}`);
+      logger.info(`正在连接 WebSocket: ${wsUrl}`);
 
       this.ws = new WebSocket(wsUrl);
 
       // 连接成功
       this.ws.onopen = () => {
-        console.log('✅ WebSocket 连接成功');
+        logger.success('WebSocket 连接成功');
         this.reconnectAttempts = 0;
-
-        // 恢复之前的订阅（现在 subscribe 会检查连接状态）
-        if (this.subscriptions.size > 0 && this.ws) {
-          const pendingSubscriptions = Array.from(this.subscriptions);
-          console.log(`📋 自动恢复 ${pendingSubscriptions.length} 个订阅:`, pendingSubscriptions);
-
-          // 发送订阅请求
-          const message: WebSocketMessage = {
-            type: 'subscribe',
-            symbols: pendingSubscriptions,
-          };
-          this.ws.send(JSON.stringify(message));
-          console.log('📋 已发送恢复订阅请求');
-        }
 
         // 启动心跳
         this.startHeartbeat();
+
+        // 延迟发送订阅请求，确保连接完全建立
+        setTimeout(() => {
+          // 首先从 localStorage 加载保存的订阅
+          const savedSubscriptions = subscriptionStorage.loadSubscriptions();
+          if (savedSubscriptions.length > 0) {
+            savedSubscriptions.forEach((s) => this.subscriptions.add(s));
+            logger.debug(`从 localStorage 恢复 ${savedSubscriptions.length} 个订阅`);
+          }
+
+          if (this.subscriptions.size > 0 && this.ws && this.ws.readyState === WebSocket.OPEN) {
+            const pendingSubscriptions = Array.from(this.subscriptions);
+            logger.info(`自动恢复 ${pendingSubscriptions.length} 个订阅:`, pendingSubscriptions);
+
+            // 发送订阅请求
+            const message: WebSocketMessage = {
+              type: 'subscribe',
+              symbols: pendingSubscriptions,
+            };
+            this.ws.send(JSON.stringify(message));
+            logger.debug('已发送恢复订阅请求');
+          }
+        }, 100);
       };
 
       // 接收消息
@@ -102,13 +115,13 @@ class WebSocketService {
           const message: WebSocketMessage = JSON.parse(event.data);
           this.handleMessage(message);
         } catch (error) {
-          console.error('❌ 解析 WebSocket 消息失败:', error);
+          logger.error('解析 WebSocket 消息失败:', error);
         }
       };
 
       // 连接关闭
       this.ws.onclose = (event) => {
-        console.log(`🔌 WebSocket 连接关闭: code=${event.code}, reason=${event.reason}`);
+        logger.info(`WebSocket 连接关闭: code=${event.code}, reason=${event.reason}`);
         this.stopHeartbeat();
 
         // 如果不是手动关闭，尝试重连
@@ -119,10 +132,10 @@ class WebSocketService {
 
       // 连接错误
       this.ws.onerror = (error) => {
-        console.error('❌ WebSocket 连接错误:', error);
+        logger.error('WebSocket 连接错误:', error);
       };
     } catch (error) {
-      console.error('❌ 创建 WebSocket 连接失败:', error);
+      logger.error('创建 WebSocket 连接失败:', error);
       this.scheduleReconnect();
     }
   }
@@ -148,7 +161,7 @@ class WebSocketService {
       this.ws = null;
     }
 
-    console.log('🔌 WebSocket 已断开连接');
+    logger.info('WebSocket 已断开连接');
   }
 
   /**
@@ -156,9 +169,11 @@ class WebSocketService {
    */
   subscribe(symbols: string[]): boolean {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn('⚠️  WebSocket 未连接，订阅请求已排队，连接后将自动订阅');
+      logger.warn('WebSocket 未连接，订阅请求已排队，连接后将自动订阅');
       // 保存订阅请求，连接后自动订阅
       symbols.forEach((symbol) => this.subscriptions.add(symbol));
+      // 持久化到 localStorage
+      subscriptionStorage.addSubscriptions(symbols);
       return false;  // 返回 false 表示未立即发送
     }
 
@@ -168,10 +183,12 @@ class WebSocketService {
     };
 
     this.ws.send(JSON.stringify(message));
-    console.log('📋 订阅行情:', symbols);
+    logger.debug('订阅行情:', symbols);
 
     // 保存订阅
     symbols.forEach((symbol) => this.subscriptions.add(symbol));
+    // 持久化到 localStorage
+    subscriptionStorage.addSubscriptions(symbols);
     return true;  // 返回 true 表示已立即发送
   }
 
@@ -180,7 +197,7 @@ class WebSocketService {
    */
   unsubscribe(symbols: string[]): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn('⚠️  WebSocket 未连接');
+      logger.warn('WebSocket 未连接');
       return;
     }
 
@@ -190,10 +207,12 @@ class WebSocketService {
     };
 
     this.ws.send(JSON.stringify(message));
-    console.log('🚫 取消订阅:', symbols);
+    logger.debug('取消订阅:', symbols);
 
     // 移除订阅
     symbols.forEach((symbol) => this.subscriptions.delete(symbol));
+    // 从 localStorage 移除
+    subscriptionStorage.removeSubscriptions(symbols);
   }
 
   /**
@@ -202,35 +221,40 @@ class WebSocketService {
   private handleMessage(message: WebSocketMessage): void {
     switch (message.type) {
       case 'connected':
-        console.log('✅ WebSocket 已连接:', message.data);
+        logger.success('WebSocket 已连接:', message.data);
         break;
 
       case 'quote':
         // 更新 Redux Store
         if (message.data) {
           store.dispatch(marketDataActions.updateQuote(message.data));
-          console.log('📈 收到行情:', message.data.symbol, message.data.price);
+          logger.debug('收到行情:', message.data.symbol, message.data.price);
         }
         break;
 
       case 'subscribed':
-        console.log('✅ 订阅成功:', message.data);
+        logger.debug('订阅成功:', message.data);
         break;
 
       case 'unsubscribed':
-        console.log('✅ 取消订阅成功:', message.data);
+        logger.debug('取消订阅成功:', message.data);
         break;
 
       case 'pong':
-        console.debug('💓 收到心跳响应');
+        logger.debug('收到心跳响应');
         break;
 
       case 'error':
-        console.error('❌ WebSocket 错误:', message.message, message.code);
+        logger.error('WebSocket 错误:', message.message, message.code);
+        break;
+
+      case 'alert_triggered':
+        // 处理预警触发通知
+        this.handleAlertTriggered(message.data);
         break;
 
       default:
-        console.warn('⚠️  未知消息类型:', message.type);
+        logger.warn('未知消息类型:', message.type);
     }
   }
 
@@ -247,7 +271,7 @@ class WebSocketService {
       }
     }, this.config.heartbeatInterval);
 
-    console.debug('💓 心跳已启动');
+    logger.debug('心跳已启动');
   }
 
   /**
@@ -257,7 +281,7 @@ class WebSocketService {
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = null;
-      console.debug('💓 心跳已停止');
+      logger.debug('心跳已停止');
     }
   }
 
@@ -266,7 +290,7 @@ class WebSocketService {
    */
   private scheduleReconnect(): void {
     if (this.reconnectAttempts >= (this.config.maxReconnectAttempts || 10)) {
-      console.error('❌ 已达到最大重连次数，停止重连');
+      logger.error('已达到最大重连次数，停止重连');
       return;
     }
 
@@ -275,7 +299,7 @@ class WebSocketService {
     }
 
     const delay = (this.config.reconnectInterval || 5000) * Math.pow(1.5, this.reconnectAttempts);
-    console.log(`🔄 ${delay / 1000} 秒后尝试重连 (${this.reconnectAttempts + 1}/${this.config.maxReconnectAttempts})`);
+    logger.info(`${delay / 1000} 秒后尝试重连 (${this.reconnectAttempts + 1}/${this.config.maxReconnectAttempts})`);
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
@@ -289,7 +313,18 @@ class WebSocketService {
    */
   private getToken(): string | null {
     try {
-      // 从 localStorage 获取 Token
+      // 优先使用 authService 获取 Token
+      const token = authService.getAccessToken();
+      if (token) {
+        // 检查 Token 是否即将过期，如果是则尝试刷新
+        if (authService.isTokenExpiringSoon()) {
+          console.log('🔄 Token 即将过期，尝试刷新...');
+          authService.refreshToken();
+        }
+        return token;
+      }
+
+      // 兼容旧代码：从 localStorage 获取 Token
       const authState = localStorage.getItem('auth');
       if (authState) {
         const auth = JSON.parse(authState);
@@ -297,21 +332,15 @@ class WebSocketService {
       }
 
       // 尝试从另一个可能的 key 获取
-      const token = localStorage.getItem('token');
-      if (token) {
-        return token;
+      const fallbackToken = localStorage.getItem('token');
+      if (fallbackToken) {
+        return fallbackToken;
       }
 
-      // 如果都没有，尝试从 sessionStorage 获取
-      const sessionToken = sessionStorage.getItem('token');
-      if (sessionToken) {
-        return sessionToken;
-      }
-
-      console.warn('⚠️  未找到认证 Token');
+      logger.warn('未找到认证 Token');
       return null;
     } catch (error) {
-      console.error('❌ 获取 Token 失败:', error);
+      logger.error('获取 Token 失败:', error);
       return null;
     }
   }
@@ -328,36 +357,20 @@ class WebSocketService {
    */
   private async autoLoginAndConnect(): Promise<void> {
     try {
-      console.log('🔑 正在自动登录...');
-      const response = await fetch('http://localhost:8000/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: 'test_user',
-          password: 'testpass123'
-        })
-      });
+      logger.info('正在自动登录...');
+      const success = await authService.autoLogin();
 
-      const data = await response.json();
-
-      if (data.access_token) {
-        // 保存 Token
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('auth', JSON.stringify({
-          accessToken: data.access_token,
-          user: { id: data.user_id || 1 }
-        }));
-        console.log('✅ 自动登录成功！');
-
+      if (success) {
         // 重新连接
-        this.config.token = data.access_token;
+        this.config.token = authService.getAccessToken() || undefined;
         this.connect();
       } else {
-        console.error('❌ 自动登录失败:', data);
+        logger.error('自动登录失败');
+        logger.error('请手动登录系统，或者检查后端是否运行');
       }
     } catch (error) {
-      console.error('❌ 自动登录错误:', error);
-      console.error('💡 请手动登录系统，或者检查后端是否运行');
+      logger.error('自动登录错误:', error);
+      logger.error('请手动登录系统，或者检查后端是否运行');
     }
   }
 
@@ -366,6 +379,49 @@ class WebSocketService {
    */
   getSubscriptions(): string[] {
     return Array.from(this.subscriptions);
+  }
+
+  /**
+   * 清除所有订阅
+   */
+  clearAllSubscriptions(): void {
+    // 取消所有订阅
+    if (this.subscriptions.size > 0 && this.ws && this.ws.readyState === WebSocket.OPEN) {
+      const symbols = Array.from(this.subscriptions);
+      this.unsubscribe(symbols);
+    }
+
+    // 清空内存中的订阅
+    this.subscriptions.clear();
+    // 清除 localStorage
+    subscriptionStorage.clearSubscriptions();
+    logger.info('已清除所有订阅');
+  }
+
+  /**
+   * 处理预警触发通知
+   */
+  private handleAlertTriggered(data: any): void {
+    logger.info('收到预警触发通知:', data);
+    // 触发自定义事件，让 UI 组件可以响应
+    window.dispatchEvent(
+      new CustomEvent('alertTriggered', {
+        detail: {
+          alertId: data.alert_id,
+          symbol: data.symbol,
+          alertType: data.alert_type,
+          targetValue: data.target_value,
+          currentPrice: data.current_price,
+          message: data.message,
+          triggeredAt: data.triggered_at,
+        },
+      })
+    );
+    // 也可以通过消息提示用户
+    message.warning({
+      content: `预警触发: ${data.symbol} ${data.message}`,
+      duration: 5,
+    });
   }
 }
 

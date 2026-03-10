@@ -1,0 +1,459 @@
+/**
+ * ==============================================
+ * 彭博终端增强样式 - Bloomberg Terminal Enhanced
+ * ==============================================
+ * 基于 2026 金融 UI 设计趋势
+ * 纯黑背景 + 彭博橙主题 + 精致微交互
+ */
+
+/* ==========================================
+   深色主题全局增强 - 彭博终端风格
+   ========================================== */
+
+[data-theme="dark"] {
+  /* 全局背景 */
+  --app-bg: var(--gradient-primary);
+}
+
+/* 页面背景 - 纯黑 + 细腻噪点纹理 */
+[data-theme="dark"] .app-content,
+[data-theme="dark"] .App {
+  background: var(--gradient-primary);
+  position: relative;
+}
+
+/* 背景纹理 - 细腻的点状纹理，增加质感 */
+[data-theme="dark"] .app-content::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 107, 0, 0.015) 1px, transparent 0);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================
+   卡片组件增强 - 彭博终端风格
+   ========================================== */
+
+[data-theme="dark"] .ant-card {
+  background: var(--bg-card) !important;
+  border: var(--card-border) !important;
+  border-radius: var(--card-radius) !important;
+  box-shadow: var(--card-shadow) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .ant-card:hover {
+  box-shadow: var(--card-shadow-hover) !important;
+  border-color: rgba(255, 107, 0, 0.4) !important;
+}
+
+/* 卡片顶部装饰线 - 彭博橙 */
+[data-theme="dark"] .ant-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff6b00, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-theme="dark"] .ant-card:hover::before {
+  opacity: 1;
+}
+
+/* ==========================================
+   按钮组件增强 - 彭博橙主题
+   ========================================== */
+
+/* 主按钮 */
+[data-theme="dark"] .ant-btn-primary {
+  background: var(--button-primary-bg) !important;
+  border: none !important;
+  box-shadow: var(--button-primary-shadow) !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[data-theme="dark"] .ant-btn-primary:hover {
+  background: var(--button-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* 默认按钮 */
+[data-theme="dark"] .ant-btn-default {
+  background: transparent !important;
+  border: 1px solid rgba(255, 107, 0, 0.3) !important;
+  color: #ff6b00 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .ant-btn-default:hover {
+  border-color: #ff6b00 !important;
+  color: #ff8533 !important;
+  background: rgba(255, 107, 0, 0.1) !important;
+}
+
+/* 链接按钮 */
+[data-theme="dark"] .ant-btn-link {
+  color: #00d4ff !important;
+}
+
+[data-theme="dark"] .ant-btn-link:hover {
+  color: #00ffcc !important;
+}
+
+/* ==========================================
+   输入框组件增强
+   ========================================== */
+
+[data-theme="dark"] .ant-input,
+[data-theme="dark"] .ant-input-affix-wrapper {
+  background: var(--bg-input) !important;
+  border: 1px solid rgba(255, 107, 0, 0.2) !important;
+  border-radius: 4px !important;
+  color: var(--text-primary) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .ant-input:hover,
+[data-theme="dark"] .ant-input-affix-wrapper:hover {
+  border-color: rgba(255, 107, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-input:focus,
+[data-theme="dark"] .ant-input-affix-wrapper-focused {
+  border-color: #ff6b00 !important;
+  box-shadow: var(--input-focus-shadow) !important;
+}
+
+[data-theme="dark"] .ant-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* ==========================================
+   表格组件增强 - 金融数据风格
+   ========================================== */
+
+[data-theme="dark"] .ant-table {
+  background: transparent !important;
+  border-radius: 4px !important;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .ant-table-thead > tr > th {
+  background: var(--table-header-bg) !important;
+  color: #ff6b00 !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 10px !important;
+  letter-spacing: 1px !important;
+  border-bottom: 1px solid rgba(255, 107, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .ant-table-tbody > tr > td {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-theme="dark"] .ant-table-tbody > tr:hover > td {
+  background: var(--table-row-hover) !important;
+}
+
+/* ==========================================
+   标签组件增强
+   ========================================== */
+
+[data-theme="dark"] .ant-tag {
+  background: var(--tag-bg) !important;
+  border: 1px solid var(--tag-border) !important;
+  border-radius: 2px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .ant-tag:hover {
+  border-color: #ff6b00 !important;
+}
+
+/* ==========================================
+   统计数字增强 - 金融数据风格
+   ========================================== */
+
+[data-theme="dark"] .ant-statistic-title {
+  color: var(--statistic-title) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+[data-theme="dark"] .ant-statistic-content {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+}
+
+/* ==========================================
+   弹窗组件增强
+   ========================================== */
+
+[data-theme="dark"] .ant-modal-content {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(255, 107, 0, 0.3) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-theme="dark"] .ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 107, 0, 0.2) !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+[data-theme="dark"] .ant-modal-title {
+  color: #ff6b00 !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="dark"] .ant-modal-close {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .ant-modal-close:hover {
+  color: #ff6b00 !important;
+}
+
+/* ==========================================
+   分页组件增强
+   ========================================== */
+
+[data-theme="dark"] .ant-pagination-item {
+  background: transparent !important;
+  border: 1px solid rgba(255, 107, 0, 0.2) !important;
+  border-radius: 2px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .ant-pagination-item a {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-pagination-item:hover {
+  border-color: #ff6b00 !important;
+}
+
+[data-theme="dark"] .ant-pagination-item:hover a {
+  color: #ff6b00 !important;
+}
+
+[data-theme="dark"] .ant-pagination-item-active {
+  background: rgba(255, 107, 0, 0.15) !important;
+  border-color: #ff6b00 !important;
+}
+
+[data-theme="dark"] .ant-pagination-item-active a {
+  color: #ff6b00 !important;
+}
+
+/* ==========================================
+   下拉菜单增强
+   ========================================== */
+
+[data-theme="dark"] .ant-dropdown-menu {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(255, 107, 0, 0.2) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+  padding: 4px !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item {
+  border-radius: 2px !important;
+  transition: all 0.15s ease !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item:hover {
+  background: rgba(255, 107, 0, 0.1) !important;
+  color: #ff6b00 !important;
+}
+
+/* ==========================================
+   选择器增强
+   ========================================== */
+
+[data-theme="dark"] .ant-select-selector {
+  background: var(--bg-input) !important;
+  border: 1px solid rgba(255, 107, 0, 0.2) !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .ant-select:hover .ant-select-selector {
+  border-color: rgba(255, 107, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-select-focused .ant-select-selector {
+  border-color: #ff6b00 !important;
+  box-shadow: var(--input-focus-shadow) !important;
+}
+
+/* ==========================================
+   消息提示增强
+   ========================================== */
+
+[data-theme="dark"] .ant-message-notice-content {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(255, 107, 0, 0.2) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="dark"] .ant-message-success .anticon {
+  color: #ffd700 !important;
+}
+
+[data-theme="dark"] .ant-message-error .anticon {
+  color: #ff4757 !important;
+}
+
+[data-theme="dark"] .ant-message-info .anticon {
+  color: #00d4ff !important;
+}
+
+/* ==========================================
+   加载动画增强
+   ========================================== */
+
+[data-theme="dark"] .ant-spin-dot-item {
+  background-color: #ff6b00 !important;
+}
+
+[data-theme="dark"] .ant-spin-text {
+  color: #ff6b00 !important;
+}
+
+/* ==========================================
+   滚动条美化 - 彭博风格
+   ========================================== */
+
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 3px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 0, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 0, 0.5);
+}
+
+/* ==========================================
+   动画关键帧 - 彭博终端风格
+   ========================================== */
+
+/* 淡入动画 */
+@keyframes bloomberg-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 缩放动画 */
+@keyframes bloomberg-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 闪烁动画 - 上涨（红色 - 中国市场习惯） */
+@keyframes bloomberg-flash-up {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(255, 77, 77, 0.2); }
+  100% { background-color: transparent; }
+}
+
+/* 闪烁动画 - 下跌（绿色 - 中国市场习惯） */
+@keyframes bloomberg-flash-down {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(0, 210, 106, 0.2); }
+  100% { background-color: transparent; }
+}
+
+/* 脉冲动画 - 连接状态 */
+@keyframes bloomberg-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255, 107, 0, 0);
+  }
+}
+
+/* 应用动画 */
+[data-theme="dark"] .ant-card {
+  animation: bloomberg-fade-in 0.3s ease-out;
+}
+
+[data-theme="dark"] .ant-modal-content {
+  animation: bloomberg-scale-in 0.2s ease-out;
+}
+
+[data-theme="dark"] .price-flash-up {
+  animation: bloomberg-flash-up 0.6s ease-out;
+}
+
+[data-theme="dark"] .price-flash-down {
+  animation: bloomberg-flash-down 0.6s ease-out;
+}
+
+/* ==========================================
+   响应式调整
+   ========================================== */
+
+@media (max-width: 768px) {
+  [data-theme="dark"] .ant-card {
+    border-radius: 4px !important;
+    margin: 8px;
+  }
+
+  [data-theme="dark"] .ant-card:hover {
+    transform: none;
+  }
+}

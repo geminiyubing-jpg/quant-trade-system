@@ -85,9 +85,17 @@ app = FastAPI(
 # ==============================================
 
 # CORS 中间件（跨域资源共享）
+# 注意：当 allow_credentials=True 时，allow_origins 不能是 ["*"]，必须指定具体域名
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 生产环境应该指定具体域名
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -191,7 +199,7 @@ async def get_config():
 # ==============================================
 # API 路由
 # ==============================================
-from .api.v1.endpoints import auth, users, trading, health, risk, backtest, websocket
+from .api.v1.endpoints import auth, users, trading, health, risk, backtest, websocket, data, watchlist, alerts, data_etl
 
 # 认证路由
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
@@ -214,11 +222,63 @@ app.include_router(health.router, tags=["Health"])
 # WebSocket 路由
 app.include_router(websocket.router, prefix="/api/v1", tags=["WebSocket"])
 
-# TODO: 添加更多路由
-# app.include_router(strategies.router, prefix="/api/v1/strategies", tags=["Strategies"])
-# app.include_router(market.router, prefix="/api/v1/market", tags=["Market"])
-# app.include_router(data.router, prefix="/api/v1/data", tags=["Data"])
-# app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI"])
+# 数据管理路由
+app.include_router(data.router, prefix="/api/v1/data", tags=["Data"])
+
+# 自选股路由
+app.include_router(watchlist.router, prefix="/api/v1/watchlist", tags=["Watchlist"])
+
+# 价格预警路由
+app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["Price Alerts"])
+
+# 数据ETL路由
+app.include_router(data_etl.router, prefix="/api/v1/data-etl", tags=["Data ETL"])
+
+# AI功能路由
+from .api.v1.endpoints import ai
+app.include_router(ai.router, prefix="/api/v1", tags=["AI"])
+
+# 策略进化路由
+from .api.v1.endpoints import evolution
+app.include_router(evolution.router, prefix="/api/v1", tags=["Strategy Evolution"])
+
+
+# 添加新模块路由
+from .api.v1.endpoints import strategy_versions, backtest_analysis, fills, trading_calendar, daily_trade_stats, portfolio
+
+# 策略版本管理路由
+app.include_router(strategy_versions.router, prefix="/api/v1/strategies", tags=["策略版本管理"])
+
+# 回测分析路由
+app.include_router(backtest_analysis.router, prefix="/api/v1/backtest", tags=["回测分析"])
+
+# 成交记录路由
+app.include_router(fills.router, prefix="/api/v1/fills", tags=["成交记录"])
+
+# 交易日历路由
+app.include_router(trading_calendar.router, prefix="/api/v1/trading-calendar", tags=["交易日历"])
+
+# 交易统计路由
+app.include_router(daily_trade_stats.router, prefix="/api/v1/trade-stats", tags=["交易统计"])
+
+# 投资组合路由
+app.include_router(portfolio.router, prefix="/api/v1/portfolios", tags=["投资组合"])
+
+# 数据质量监控路由
+from .api.v1.endpoints import data_quality
+app.include_router(data_quality.router, prefix="/api/v1", tags=["Data Quality"])
+
+# 策略注册表路由
+from .api.v1.endpoints import strategy_registry
+app.include_router(strategy_registry.router, prefix="/api/v1/strategy-registry", tags=["策略注册表"])
+
+# 数据引擎路由
+from .api.v1.endpoints import data_engine
+app.include_router(data_engine.router, prefix="/api/v1/data-engine", tags=["数据引擎"])
+
+# 板块分析路由
+from .api.v1.endpoints import sector
+app.include_router(sector.router, prefix="/api/v1/data", tags=["板块分析"])
 
 
 # ==============================================

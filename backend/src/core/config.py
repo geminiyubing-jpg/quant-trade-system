@@ -111,6 +111,9 @@ class Settings(BaseSettings):
     tushare_token: Optional[str] = Field(default=None, description="Tushare Token")
     alpha_vantage_api_key: Optional[str] = Field(default=None, description="Alpha Vantage API Key")
     openai_api_key: Optional[str] = Field(default=None, description="OpenAI API Key")
+    glm_api_key: Optional[str] = Field(default=None, description="GLM API Key")
+    glm_api_url: str = Field(default="https://open.bigmodel.cn/api/paas/v4/chat/completions", description="GLM API URL")
+    glm_model: str = Field(default="glm-4", description="GLM Model Name")
 
     # ==============================================
     # 交易配置

@@ -1,0 +1,245 @@
+/**
+ * 彭博终端主题 - 组件样式系统
+ * Bloomberg Terminal Component Styles
+ */
+
+/* ========================================
+   按钮组件 (Buttons)
+   ======================================== */
+
+.bb-button {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  padding: 8px 16px;
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-sm);
+  background: var(--bb-bg-secondary);
+  color: var(--bb-text-primary);
+  cursor: pointer;
+  transition: all var(--bb-transition-fast) var(--bb-ease-out);
+  outline: none;
+}
+
+.bb-button:hover {
+  background: var(--bb-bg-hover);
+  border-color: var(--bb-text-secondary);
+}
+
+.bb-button:active {
+  background: var(--bb-bg-active);
+}
+
+.bb-button:focus-visible {
+  box-shadow: var(--bb-glow);
+}
+
+/* 主要按钮 */
+.bb-button-primary {
+  background: var(--bb-accent-primary);
+  color: var(--bb-text-inverse);
+  border-color: var(--bb-accent-primary);
+}
+
+.bb-button-primary:hover {
+  background: var(--bb-accent-primary-hover);
+  border-color: var(--bb-accent-primary-hover);
+}
+
+/* 上涨按钮（买入） */
+.bb-button-up {
+  background: var(--bb-up-bg);
+  color: var(--bb-up);
+  border-color: var(--bb-up-border);
+}
+
+.bb-button-up:hover {
+  background: var(--bb-up);
+  color: var(--bb-text-inverse);
+}
+
+/* 下跌按钮（卖出） */
+.bb-button-down {
+  background: var(--bb-down-bg);
+  color: var(--bb-down);
+  border-color: var(--bb-down-border);
+}
+
+.bb-button-down:hover {
+  background: var(--bb-down);
+  color: var(--bb-text-inverse);
+}
+
+/* ========================================
+   卡片组件 (Cards)
+   ======================================== */
+
+.bb-card {
+  background: var(--bb-bg-secondary);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-sm);
+  padding: var(--bb-space-lg);
+  box-shadow: var(--bb-shadow-sm);
+}
+
+.bb-card-header {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--bb-text-primary);
+  margin-bottom: var(--bb-space-md);
+  padding-bottom: var(--bb-space-sm);
+  border-bottom: 1px solid var(--bb-border);
+}
+
+.bb-card-body {
+  font-size: var(--text-sm);
+  color: var(--bb-text-secondary);
+}
+
+/* ========================================
+   表格组件 (Tables)
+   ======================================== */
+
+.bb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.bb-table thead {
+  background: var(--bb-bg-tertiary);
+  border-bottom: 2px solid var(--bb-border);
+}
+
+.bb-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: var(--font-semibold);
+  color: var(--bb-text-secondary);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+}
+
+.bb-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--bb-border-subtle);
+  color: var(--bb-text-primary);
+}
+
+.bb-table tbody tr:hover {
+  background: var(--bb-bg-hover);
+}
+
+/* 数字列右对齐 */
+.bb-table td.numeric,
+.bb-table th.numeric {
+  text-align: right;
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+   输入框组件 (Inputs)
+   ======================================== */
+
+.bb-input {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: var(--bb-bg-input);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-sm);
+  padding: 8px 12px;
+  color: var(--bb-text-primary);
+  outline: none;
+  transition: all var(--bb-transition-fast) var(--bb-ease-out);
+}
+
+.bb-input::placeholder {
+  color: var(--bb-text-muted);
+}
+
+.bb-input:focus {
+  border-color: var(--bb-border-focus);
+  box-shadow: var(--bb-glow);
+}
+
+.bb-input:disabled {
+  background: var(--bb-bg-disabled);
+  color: var(--bb-text-disabled);
+  cursor: not-allowed;
+}
+
+/* ========================================
+   数据标签 (Data Tags)
+   ======================================== */
+
+.bb-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  border-radius: var(--bb-radius-none);
+  background: var(--bb-bg-tertiary);
+  color: var(--bb-text-secondary);
+}
+
+.bb-tag-up {
+  background: var(--bb-up-bg);
+  color: var(--bb-up);
+}
+
+.bb-tag-down {
+  background: var(--bb-down-bg);
+  color: var(--bb-down);
+}
+
+/* ========================================
+   面板组件 (Panels)
+   ======================================== */
+
+.bb-panel {
+  background: var(--bb-bg-secondary);
+  border: 1px solid var(--bb-border);
+  border-radius: var(--bb-radius-sm);
+  overflow: hidden;
+}
+
+.bb-panel-header {
+  background: var(--bb-bg-tertiary);
+  padding: 8px 12px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--bb-text-primary);
+  border-bottom: 1px solid var(--bb-border);
+}
+
+.bb-panel-body {
+  padding: var(--bb-space-md);
+}
+
+/* ========================================
+   状态指示器 (Status Indicators)
+   ======================================== */
+
+.bb-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.bb-status-dot.online {
+  background: var(--bb-up);
+  box-shadow: 0 0 8px var(--bb-up);
+}
+
+.bb-status-dot.offline {
+  background: var(--bb-down);
+}
+
+.bb-status-dot.warning {
+  background: var(--bb-warning);
+}

@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Layout, ConfigProvider, theme } from 'antd';
+import { Layout, ConfigProvider, theme, Drawer } from 'antd';
 import { useTranslation } from 'react-i18next';
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import { TradingModeProvider } from './contexts/TradingModeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -12,17 +13,39 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import DataManagement from './pages/DataManagement';
 import StrategyManagement from './pages/StrategyManagement';
+import StrategyStudio from './pages/StrategyStudio';
 import Backtest from './pages/Backtest';
 import Trading from './pages/Trading';
 import MarketRealtime from './pages/MarketRealtime';
+import Portfolio from './pages/Portfolio';
+import SectorAnalysis from './pages/SectorAnalysis';
+import Docs from './pages/Docs';
 import './App.css';
 import './styles/font-switch.css';
 
 const { Content } = Layout;
 
-function App() {
+function AppContent() {
   const { i18n } = useTranslation();
+  const { theme: appTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // 检测移动端
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 根据当前语言动态设置字体
   useEffect(() => {
@@ -37,9 +60,9 @@ function App() {
       : "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
   }, [i18n.language]);
 
-  // Ant Design 主题配置（动态字体）
+  // Ant Design 主题配置（动态字体 + 动态主题）
   const antdTheme = {
-    algorithm: theme.darkAlgorithm,
+    algorithm: appTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
     token: {
       fontFamily: currentFont,
       fontSize: 13,
@@ -48,6 +71,9 @@ function App() {
 
   // 根据当前语言动态设置 Ant Design locale
   const antdLocale = i18n.language === 'zh_CN' ? zhCN : enUS;
+
+  // 计算侧边栏宽度
+  const sidebarWidth = isMobile ? 0 : (collapsed ? 64 : 200);
 
   return (
     <TradingModeProvider>
@@ -62,7 +88,7 @@ function App() {
               path="/*"
               element={
                 <ProtectedRoute>
-                  <Layout style={{ minHeight: '100vh' }}>
+                  <Layout style={{ minHeight: '100vh' }} className={`app-layout ${isMobile ? 'mobile' : 'desktop'}`}>
                     {/* 顶部功能栏 - 贯通整个页面 */}
                     <Layout.Header
                       style={{
@@ -78,43 +104,71 @@ function App() {
                         top: 0,
                       }}
                     >
-                      <TopBar />
+                      <TopBar
+                        isMobile={isMobile}
+                        onMenuClick={() => setMobileMenuOpen(true)}
+                      />
                     </Layout.Header>
 
                     {/* 主体区域 - 包含侧边栏和内容 */}
                     <Layout style={{ marginTop: 64 }}>
-                      {/* 左侧导航栏 */}
-                      <Layout.Sider
-                        collapsible
-                        collapsed={collapsed}
-                        onCollapse={setCollapsed}
-                        theme="dark"
-                        width={200}
-                        collapsedWidth={64}
-                        trigger={null}
-                        style={{
-                          background: 'var(--bb-bg-secondary)',
-                          borderRight: '1px solid var(--bb-border)',
-                          position: 'fixed',
-                          left: 0,
-                          top: 64,
-                          bottom: 0,
-                          zIndex: 999,
-                        }}
-                      >
-                        <Sidebar collapsed={collapsed} />
-                      </Layout.Sider>
+                      {/* 移动端侧边栏 - 使用 Drawer */}
+                      {isMobile && (
+                        <Drawer
+                          placement="left"
+                          open={mobileMenuOpen}
+                          onClose={() => setMobileMenuOpen(false)}
+                          width={250}
+                          className="mobile-menu-drawer"
+                          styles={{
+                            body: { padding: 0 },
+                            header: { display: 'none' },
+                          }}
+                        >
+                          <div style={{
+                            height: '100%',
+                            background: 'var(--bb-bg-secondary)',
+                          }}>
+                            <Sidebar collapsed={false} />
+                          </div>
+                        </Drawer>
+                      )}
+
+                      {/* 桌面端侧边栏 */}
+                      {!isMobile && (
+                        <Layout.Sider
+                          collapsible
+                          collapsed={collapsed}
+                          onCollapse={setCollapsed}
+                          theme="dark"
+                          width={200}
+                          collapsedWidth={64}
+                          trigger={null}
+                          style={{
+                            background: 'var(--bb-bg-secondary)',
+                            borderRight: '1px solid var(--bb-border)',
+                            position: 'fixed',
+                            left: 0,
+                            top: 64,
+                            bottom: 0,
+                            zIndex: 999,
+                          }}
+                        >
+                          <Sidebar collapsed={collapsed} />
+                        </Layout.Sider>
+                      )}
 
                       {/* 右侧内容区 */}
-                      <Layout style={{ marginLeft: collapsed ? 64 : 200 }}>
+                      <Layout style={{ marginLeft: sidebarWidth, transition: 'margin-left 0.2s' }}>
                         {/* 中央内容区 */}
                         <Content
                           style={{
                             background: 'var(--bb-bg-primary)',
-                            padding: 24,
+                            padding: isMobile ? 12 : 24,
                             overflow: 'auto',
                             minHeight: 'calc(100vh - 64px)',
                           }}
+                          className="main-content"
                         >
                           <Routes>
                             <Route path="/" element={<Dashboard />} />
@@ -128,17 +182,18 @@ function App() {
                             <Route path="/workspace" element={<Dashboard />} />
                             <Route path="/market" element={<DataManagement />} />
                             <Route path="/market/realtime" element={<MarketRealtime />} />
+                            <Route path="/market/sectors" element={<SectorAnalysis />} />
                             <Route path="/strategy/library" element={<StrategyManagement />} />
-                            <Route path="/strategy/studio" element={<StrategyManagement />} />
+                            <Route path="/strategy/studio" element={<StrategyStudio />} />
                             <Route path="/trading" element={<Trading />} />
                             <Route path="/backtest" element={<Backtest />} />
-                            <Route path="/portfolio" element={<Dashboard />} />
+                            <Route path="/portfolio" element={<Portfolio />} />
                             <Route path="/ai/generate" element={<Dashboard />} />
                             <Route path="/ai/pick" element={<Dashboard />} />
                             <Route path="/ai/analyze" element={<Dashboard />} />
                             <Route path="/risk" element={<Dashboard />} />
                             <Route path="/community" element={<Dashboard />} />
-                            <Route path="/docs" element={<Dashboard />} />
+                            <Route path="/docs" element={<Docs />} />
                           </Routes>
                         </Content>
                       </Layout>
@@ -151,6 +206,15 @@ function App() {
         </BrowserRouter>
       </ConfigProvider>
     </TradingModeProvider>
+  );
+}
+
+// 主 App 组件 - 包裹 ThemeProvider
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 

@@ -1,0 +1,512 @@
+/* 移动端响应式优化样式 */
+:root {
+  --mobile-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    line-height: 1.5;
+    padding: 8px 24px;
+    margin-bottom: 12px;
+    line-height: 2;
+  }
+
+  }
+
+  .market-realtime-container {
+    position: relative;
+  width: 100%;
+    padding: 0 24px 24px;
+  font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+  .market-table {
+    width: 100%;
+    overflow-x: hidden;
+  .market-card {
+      flex: 1;
+      flex-direction: column;
+    }
+  }
+  .stats-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+          .stats-row > .stat-card {
+            flex: 1;
+            flex-basis: 30%;
+            margin-right: 8px 0;
+          }
+        }
+      }
+      .stats-row:last({
+        margin-bottom: 0;
+      }
+      .stat-card {
+        padding: 16px;
+        border-radius: 12px;
+        border-left: 3px solid var(--accent-blue);
+        background: var(--bg-secondary);
+        backdrop-filter: blur(10px);
+      }
+      .stat-card.stat-rising {
+        border-left: 3px solid var(--color-up)
+      }
+      .stat-card.stat-falling {
+        border-left: 3px solid var(--color-down);
+      }
+      .stat-card.stat-flat {
+        border-left: 3px solid var(--color-neutral);
+      }
+    }
+  }
+  .stats-row {
+    display: flex;
+    gap: 8px 12px;
+            flex-wrap: wrap;
+          flex-shrink: 0;
+            transform: translateY(-1px)
+            }
+          }
+        }
+      }
+    }
+
+  }
+  .stats-row {
+    flex-direction: column;
+    gap: 8px 12px;
+            flex: 1
+          flex-wrap: wrap;
+            flex-shrink: 0;
+          : text-nowrap'
+          &: flex-shrink({ padding: '0 8px 12px' }) {
+          transition: max-width 0.8s ease;
+        }
+      }
+      }
+      }
+      {/* 涨跌股票统计 */}
+      .stat-card.stat-falling {
+        border-left: 3px solid var(--color-down);
+      }
+    }
+  }
+  .stats-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+          flex-shrink: 0
+            transform: translateY(-2px);
+            }
+          }
+        }
+      }
+    }
+
+  .stats-row {
+    display: flex;
+    gap: 8px 16px 24px;
+              flex-direction="column"
+            gap={8}
+          >
+            {/* 统计信息 */}
+            <div className="stats-row">
+              <Row gutter={8}>
+                :={gutterSize => size === 'sm', ' md' === '24px'}>
+                gap={8}
+              >
+                <div className="stat-card stat-total">
+                  <div className="stat-card stat-rising"
+                    <div className="stat-card stat-falling"
+                    <div className="stat-card stat-flat"
+                    <div className="stat-card stat-rising"
+                  <div className="stat-card stat-falling"
+                  <div className="stat-card stat-flat"
+                    >
+                      <Statistic
+                        title={t('realtime.stats.total')}
+                        value={totalStocks}
+                        suffix={t('realtime.stats.unit')}
+                        valueStyle={{ color: 'var(--accent-blue)' }}
+                        />
+                      />
+                      <div className="stat-card stat-rising">
+                      <div className="stat-card stat-falling">
+                      <div className="stat-card stat-flat"
+                      <div className="stat-card stat-rising"
+                      <div className="stat-card stat-falling"
+                      <div className="stat-card stat-flat"
+                      <div className="stat-card stat-rising"
+                        />
+                      </div>
+                    </div>
+                  </ </:`
+                  </ flight状态: 'none'
+                  ? <Statistic
+                    title={t('realtime.stats.falling')}
+                    value={fallingStocks}
+                    suffix={t('realtime.stats.unit')}
+                    valueStyle={{ color: 'var(--color-down)' }}
+                  />
+                />
+              </ </div>
+          </ Col>
+          <Row justify="space-between" align="middle" style={{ gap: 8 }}>
+            <Col span={6}>
+              {/* 数据项 */}
+            <Space size={6} flexWrap>
+              <div className="stat-card stat-rising" key={i.key} index}>
+              onClick={() => handleShowAlertModal(symbol)}
+                  >
+                  </ </ >
+          </Col>
+          <Col span={6}>
+            {/* 移动端 - 涨跌股票数量 */}
+            <Row gutter={8}>
+              <Col span={6}>
+              {/* 数据项 */}
+            <Space direction="column" align="center"
+            >
+              <Row gutter={8}>
+                <Col span={6} md={col}
+                  <Col span={6} lg={isMobile}>
+ <Col span={6}>
+            {/* 涨跌股票数量 */}
+            <Row gutter={8}>
+              <Col span={6}>
+              {/* 数据项 */}
+            <Space style={{ padding: '8px 16' }}>
+            .text` {t('realtime.stats.falling')}
+            </ valueStyle={{ color: 'var(--color-down)' }}
+          }
+        />
+      </Row>
+            </Col>
+          <Col span={6}>
+            {/* 平盘股票数量 */}
+            <Row gutter={8}>
+              <Col span={6} md={col}
+              <Col span={6} lg={isMobile ? <Col span={6}>
+              {/* 移动端布局 */}
+            <Space direction="column" align="center">
+            <Row gutter={8}>
+              <Col span={6}>
+            {/* 数据项 */}
+            <Space direction="column" flex-wrap
+              [data, => (
+            <Row justify="space-between" align="middle">
+            >
+              </ {/* 统计信息 */}
+            <Row gutter={8}>
+              <Col span={6}>
+              {/* 数据项 */}
+            <Space direction="column" flexWrap
+              [data, flexWrap({ sm: false)}
+              .map((q) => {
+              const changePct = number
+              );
+              return q.change_pct;
+            })
+          });
+          }
+        </ </Row>
+      >
+    </ }
+  }
+  const quoteList = Object.values(quotes);
+              .map((q) => {
+                const change = q.change_pct;
+                return { changePct };
+              }
+            });
+          }
+        )}
+      }
+    });
+  });
+  const percent =
+              ? ((q.change_pct >= 0
+                ? changePct : 0
+                : :0
+                : ? q.change_pct < 0
+                ? < 0
+                  : 0
+                : :0;
+              </ <Stat-card>
+                border-left: 3px solid var(--color-up);
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, rgba(0, 0.04)) rgba(0, rgba(0, 0.16px rgba(0) rgba(0, 0.08px rgba(1) rgba(0, 0.16px rgba(1) rgba(0, 0.08px rgba(1) rgba(0, 0.16px rgba(1) rgba(0, 0.12px) }
+            } else {
+              color: getChangeColor(q.change)
+                }
+              </ return {getChangeColor(q.change) }
+            }
+            return changeColor
+              ? (change > 0 ? 'up' : 'down'
+              ? (change < 0 ? 'down' : `var(--color-down)`
+            }
+            : `row-falling ${classes.push('row-falling');
+            : styles.row = {
+              ...classes.join('row-falling')
+            }
+            padding: '8px 12px;
+            text-align: center;
+          }
+          .ant-card.stat-rising {
+            border-left: 3px solid var(--color-up);
+          }
+          .ant-card.stat-rising:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px 0px 0px 12px 0, 0.16px rgba(0, 0, 0.16px) rgba(1px, 0, 0.08px, 0px);
+            background: var(--bg-secondary);
+          }
+        }
+      }
+
+    }
+  });
+
+  // 移动端响应式
+  const mediaQuery = `
+    @media (max-width: 600px) {
+      .market-realtime-container {
+        padding: 16px;
+        min-height: 100vh;
+      }
+
+      .ant-layout.Sider,
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 64px;
+        z-index: 999;
+      }
+      .ant-layout {
+        padding: 24px;
+        margin-left: ${ collapsed ? 64 : : 0)
+        right: 0;
+        overflow-x: hidden;
+      }
+    }
+  `;
+
+  .ant-layout-header {
+        position: fixed
+        left: 0
+        right: 64px
+        height: 64px
+        line-height: 64px
+        background: var(--bg-header);
+        border-bottom: 1px solid var(--bg-header-border);
+      }
+    }
+
+  `;
+
+        .ant-layout-main {
+        margin-top: 0;
+        padding: 0 24px 0;
+      .ant-layout-content {
+        margin-left: 64px;
+      }
+    }
+
+    }
+
+    }
+  `;
+
+        .ant-layout-header {
+          display: flex;
+          align-items: center;
+          padding: 16px 0;
+          .ant-layout-sider {
+            width: 200px;
+            collapsed={collapsed ? 64 : : 0}
+            flex-direction: column;
+          }
+        }
+      }
+    }
+  `;
+        .ant-layout-content {
+          margin-top: 0;
+          padding: 0;
+          ${inputSymbol}
+          .ant-layout-header {
+            margin-top: 0;
+          padding: 0 24px 0;
+            overflow-x: hidden;
+          }
+          .ant-layout-header {
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            background: var(--bg-secondary);
+          border-bottom: 1px solid var(--border-color);
+        }
+      }
+    }
+  }
+`
+;
+
+@media (max-width: 600px) {
+    .market-realtime-container {
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .ant-table {
+      font-size: 12px;
+      .ant-table-thead > tr > th {
+        background: var(--hover-bg);
+        color: var(--accent-blue);
+        font-weight: 600;
+        text-transform: uppercase
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border-light);
+      }
+    }
+
+    .ant-table-tbody > tr > td {
+      background: transparent !important;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background: var(--table-row-hover) !important;
+    }
+    .ant-table-tbody > tr > td {
+      background: transparent;
+      border-bottom: 1px solid var(--border-light);
+    }
+  }
+  .ant-table-tbody {
+    scrollbar-width: 8px;
+    overflow-x: auto;
+    touch-action: smooth;
+  }
+
+}
+
+  .ant-table-wrapper {
+    background: var(--bg-table);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 12px 0px 0px 12px rgba(0) rgba(0, 0, 16px) inset 0) rgba(0, 0, 12px);
+
+    `& .ant-table-cell {
+      padding: 4px 12px 0;
+    }
+
+  }
+` : var(--font-size, 13px);
+  font-size: 11px;
+  font-family: '"Inter", -apple-system, BlinkMacSystemFont, "Fira Code", monospace';
+
+          color: var(--text-secondary);
+        }
+      }
+    }
+  }
+}
+
+  // 移动端媒体查询
+  @media (max-width: 600px) {
+    .market-realtime-container {
+      padding: 16px;
+    }
+  }
+`);arded at 0 and}
+
+    }
+  }
+  }
+  .market-table {
+    width: 100%;
+    overflow-x: auto;
+  table {
+    table-layout: fixed;
+  }
+}
+
+            table-layout: fixed;
+          }
+        }
+      }
+    }
+  }
+}
+
+  // 移动端媒体查询
+  @media (max-width: 768px) {
+    .market-realtime-container {
+      padding: 16px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+
+      .ant-table {
+        border-collapse: collapse;
+        border-radius: 8px;
+        background: transparent;
+      }
+      .ant-table-thead > tr > th {
+        background: var(--hover-bg);
+        color: var(--accent-blue);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border-light);
+      }
+    }
+    .ant-table-thead > tr > th:first-child {
+      flex: 1;
+    }
+    .ant-table-thead > tr > th:last-child {
+      padding: 8px 0;
+      background: var(--hover-bg);
+      color: var(--accent-blue);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-light);
+    }
+  }
+  .ant-table-thead > tr > th {
+    background: var(--hover-bg);
+    color: var(--accent-blue);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .ant-table-thead .ant-table-thead > tr {
+    background: var(--hover-bg) !important;
+  }
+
+        }
+      }
+    }
+  }
+  .ant-table-thead {
+    position: sticky;
+    top: 0;
+    background: var(--hover-bg);
+    z-index: 999;
+  }
+}
+`)
+
+          }
+        }
+      }
+    }
+  }
+`);

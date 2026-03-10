@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bb-bg-secondary);
+  background: var(--bg-sidebar, var(--bb-bg-secondary));
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -231,4 +231,110 @@
 
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: var(--bb-accent-primary);
+}
+
+/* ==========================================
+   浅色主题适配 - 深蓝色背景 + 高对比度文字
+   优化文字可读性，确保所有文字在深蓝背景上清晰可见
+   ========================================== */
+[data-theme="light"] .sidebar {
+  background: var(--bg-sidebar, #1e3a5f);
+  border-right: 1px solid var(--bg-header-border, #2d4a6f);
+}
+
+/* 菜单项默认文字 - 纯白色，确保高对比度 */
+[data-theme="light"] .sidebar-menu .ant-menu-item,
+[data-theme="light"] .sidebar-menu .ant-menu-submenu-title {
+  color: #f1f5f9 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .sidebar-menu .ant-menu-item:hover,
+[data-theme="light"] .sidebar-menu .ant-menu-submenu-title:hover {
+  background: var(--bg-sidebar-hover, #2d4a6f);
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* 选中状态 - 金色高亮（仅适用于真正选中的菜单项） */
+[data-theme="light"] .sidebar-menu > .ant-menu-item-selected,
+[data-theme="light"] .sidebar-menu .ant-menu-sub .ant-menu-item-selected {
+  background: rgba(255, 215, 0, 0.2) !important;
+  border-left: 3px solid #ffd700;
+  color: #ffd700 !important;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+/* 子菜单展开时标题样式 - 使用更亮的白色 */
+[data-theme="light"] .sidebar-menu .ant-menu-submenu-open > .ant-menu-submenu-title {
+  background: rgba(96, 165, 250, 0.15) !important;
+  border-left: 2px solid #60a5fa;
+  color: #ffffff !important;
+}
+
+/* 图标颜色 - 纯白色，确保清晰可见 */
+[data-theme="light"] .sidebar-menu .ant-menu-item .anticon,
+[data-theme="light"] .sidebar-menu .ant-menu-submenu-title .anticon {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="light"] .sidebar-menu .ant-menu-item:hover .anticon,
+[data-theme="light"] .sidebar-menu .ant-menu-submenu-title:hover .anticon {
+  color: #ffffff !important;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
+}
+
+/* 只有真正选中的菜单项图标才显示金色 */
+[data-theme="light"] .sidebar-menu > .ant-menu-item-selected .anticon,
+[data-theme="light"] .sidebar-menu .ant-menu-sub .ant-menu-item-selected .anticon {
+  color: #ffd700 !important;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+}
+
+/* 子菜单展开时标题图标保持白色 */
+[data-theme="light"] .sidebar-menu .ant-menu-submenu-open > .ant-menu-submenu-title .anticon {
+  color: #ffffff !important;
+  filter: none;
+}
+
+/* 子菜单选中 */
+[data-theme="light"] .sidebar-menu .ant-menu-sub .ant-menu-item-selected {
+  background: rgba(255, 215, 0, 0.15) !important;
+  color: #ffd700 !important;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
+}
+
+/* 箭头颜色 - 纯白色 */
+[data-theme="light"] .sidebar-menu .ant-menu-submenu-arrow {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="light"] .sidebar-menu .ant-menu-submenu:hover .ant-menu-submenu-arrow {
+  color: #ffffff !important;
+}
+
+/* 子菜单展开时箭头保持白色 */
+[data-theme="light"] .sidebar-menu .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-submenu-arrow {
+  color: #ffffff !important;
+}
+
+/* 子菜单项 - 更深的背景 + 更亮的文字 */
+[data-theme="light"] .sidebar-menu .ant-menu-sub {
+  background: rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="light"] .sidebar-menu .ant-menu-sub .ant-menu-item {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .sidebar-menu .ant-menu-sub .ant-menu-item:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Sidebar Logo 区域文字优化 */
+[data-theme="light"] .sidebar-logo-text {
+  color: #60a5fa !important;
+  text-shadow: 0 0 12px rgba(96, 165, 250, 0.5);
 }

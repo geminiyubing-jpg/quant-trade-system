@@ -1,527 +1,528 @@
 /**
- * Trading Page - 交易页面
+ * Trading Page - 交易页面 (增强版)
  *
  * 功能：
- * - 显示订单列表（支持按模式过滤）
- * - 显示持仓列表（支持按模式过滤）
- * - 显示持仓汇总统计
- * - 创建订单表单
+ * - 订单管理
+ * - 成交记录
+ * - 交易日历
+ * - 交易统计
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Card,
-  Tabs,
-  Table,
-  Button,
-  Tag,
-  Space,
-  Statistic,
-  Row,
-  Col,
-  Select,
-  Form,
-  InputNumber,
-  message,
-  Spin,
+  Card, Tabs, Table, Button, Tag, Space, Statistic, Row, Col,
+  Select, Form, InputNumber, message, Spin, Modal, Calendar,
+  Badge, Descriptions, Divider, Typography,
+  Empty
 } from 'antd';
 import {
-  PlusOutlined,
-  SwapOutlined,
+  PlusOutlined, SwapOutlined, CheckCircleOutlined,
+  CalendarOutlined, BarChartOutlined, FileTextOutlined, ThunderboltOutlined,
+  HistoryOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useTradingMode } from '../contexts/TradingModeContext';
-import type { TradingMode } from '../contexts/TradingModeContext';
+import type { ColumnsType } from 'antd/es/table';
+import dayjs, { Dayjs } from 'dayjs';
+
+// 导入服务
+import tradingService from '../services/trading';
+import fillsService from '../services/fills';
+import { get } from '../services/api';
+
+// 导入类型
+import type {
+  Order,
+  OrderCreate,
+  Position,
+  Fill,
+  ExecutionMode,
+} from '../types/trading';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
+const { Text, Title } = Typography;
 
-// 订单数据类型（模拟）
-interface Order {
-  id: string;
-  symbol: string;
-  side: 'BUY' | 'SELL';
-  quantity: number;
-  price: number;
-  status: 'PENDING' | 'PARTIAL' | 'FILLED' | 'CANCELED' | 'REJECTED';
-  execution_mode: TradingMode;
-  order_time: string;
+// 交易日历
+interface TradingDay {
+  date: string;
+  is_trading_day: boolean;
+  is_half_day: boolean;
+  open_time?: string;
+  close_time?: string;
+  holiday_name?: string;
 }
 
-// 持仓数据类型（模拟）
-interface Position {
-  id: string;
-  symbol: string;
-  quantity: number;
-  avg_price: number;
-  current_price: number;
-  market_value: number;
-  unrealized_pnl: number;
-  execution_mode: TradingMode;
-}
-
-// 持仓汇总类型
-interface PositionSummary {
-  total_market_value: number;
-  total_unrealized_pnl: number;
-  total_realized_pnl: number;
-  position_count: number;
+// 交易统计
+interface DailyStats {
+  date: string;
+  total_orders: number;
+  filled_orders: number;
+  buy_count: number;
+  sell_count: number;
+  buy_amount: number;
+  sell_amount: number;
+  total_commission: number;
+  total_stamp_duty: number;
+  realized_pnl: number;
+  daily_pnl: number;
 }
 
 const Trading: React.FC = () => {
-  const { t } = useTranslation();
+  useTranslation();
   const { mode, isPaperTrading } = useTradingMode();
 
-  // 状态
   const [activeTab, setActiveTab] = useState('orders');
-  const [orderFilter, setOrderFilter] = useState<TradingMode | 'ALL'>(mode);
-  const [positionFilter, setPositionFilter] = useState<TradingMode>(mode);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [fills, setFills] = useState<Fill[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
-  const [summary, setSummary] = useState<PositionSummary | null>(null);
+  const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
+  const [tradingDays, setTradingDays] = useState<TradingDay[]>([]);
   const [loading, setLoading] = useState(false);
   const [createOrderVisible, setCreateOrderVisible] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
 
-  // 表单实例
   const [form] = Form.useForm();
 
   // 加载数据
-  useEffect(() => {
-    loadData();
-  }, [orderFilter, positionFilter]);
-
-  // 模式切换时同步更新过滤器
-  useEffect(() => {
-    setOrderFilter(mode);
-    setPositionFilter(mode);
-  }, [mode]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      // TODO: 替换为真实 API 调用
-      // const ordersData = await tradingApi.getOrders(orderFilter);
-      // const positionsData = await tradingApi.getPositions(positionFilter);
-      // const summaryData = await tradingApi.getPositionSummary(positionFilter);
+      // 并行加载所有数据
+      const [ordersRes, fillsRes, positionsRes, tradingDaysRes, statsRes] = await Promise.allSettled([
+        // 订单列表
+        tradingService.getOrders({ execution_mode: mode as ExecutionMode, limit: 100 }),
+        // 成交记录
+        fillsService.getFills({ execution_mode: mode as ExecutionMode, limit: 100 }),
+        // 持仓列表
+        tradingService.getPositions({ execution_mode: mode as ExecutionMode }),
+        // 交易日历
+        get<{ items: TradingDay[] }>('/api/v1/trading-calendar/days?start_date=2026-03-01&end_date=2026-03-31'),
+        // 交易统计
+        get<{ items: DailyStats[] }>('/api/v1/trade-stats/daily?execution_mode=' + mode),
+      ]);
 
-      // 模拟数据
-      const mockOrders = generateMockOrders(orderFilter);
-      const mockPositions = generateMockPositions(positionFilter);
-      const mockSummary = generateMockSummary(positionFilter);
+      // 处理订单数据
+      if (ordersRes.status === 'fulfilled') {
+        setOrders(ordersRes.value.items || []);
+      } else {
+        console.error('加载订单失败:', ordersRes.reason);
+        setOrders([]);
+      }
 
-      setOrders(mockOrders);
-      setPositions(mockPositions);
-      setSummary(mockSummary);
+      // 处理成交数据
+      if (fillsRes.status === 'fulfilled') {
+        setFills(fillsRes.value.items || []);
+      } else {
+        console.error('加载成交记录失败:', fillsRes.reason);
+        setFills([]);
+      }
+
+      // 处理持仓数据
+      if (positionsRes.status === 'fulfilled') {
+        setPositions(positionsRes.value.items || []);
+      } else {
+        console.error('加载持仓失败:', positionsRes.reason);
+        setPositions([]);
+      }
+
+      // 处理交易日历数据
+      if (tradingDaysRes.status === 'fulfilled') {
+        setTradingDays(tradingDaysRes.value.items || []);
+      } else {
+        console.error('加载交易日历失败:', tradingDaysRes.reason);
+        // 使用本地生成作为备用
+        setTradingDays(generateLocalTradingDays());
+      }
+
+      // 处理交易统计数据
+      if (statsRes.status === 'fulfilled') {
+        setDailyStats(statsRes.value.items || []);
+      } else {
+        console.error('加载交易统计失败:', statsRes.reason);
+        setDailyStats([]);
+      }
+
     } catch (error) {
+      console.error('加载数据失败:', error);
       message.error('加载数据失败');
-      console.error(error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [mode]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // 创建订单
-  const handleCreateOrder = async (_values: any) => {
+  const handleCreateOrder = async (values: any) => {
+    setSubmitting(true);
     try {
-      // TODO: 调用真实 API
-      // await tradingApi.createOrder({
-      //   ...values,
-      //   execution_mode: mode,
-      // });
+      const orderData: OrderCreate = {
+        symbol: values.symbol,
+        side: values.side,
+        order_type: values.order_type || 'LIMIT',
+        quantity: values.quantity,
+        price: values.price || 0,
+        execution_mode: mode as ExecutionMode,
+      };
 
+      await tradingService.createOrder(orderData);
       message.success('订单创建成功');
       setCreateOrderVisible(false);
       form.resetFields();
       loadData();
     } catch (error) {
-      message.error('订单创建失败');
+      console.error('创建订单失败:', error);
+      // 错误信息已在 apiRequest 中处理
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // 撤销订单
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      await tradingService.cancelOrder(orderId);
+      message.success('订单已撤销');
+      loadData();
+    } catch (error) {
+      console.error('撤销订单失败:', error);
     }
   };
 
   // 订单表格列
-  const orderColumns = [
+  const orderColumns: ColumnsType<Order> = [
+    { title: '订单ID', dataIndex: 'id', key: 'id', width: 80, ellipsis: true },
+    { title: '股票代码', dataIndex: 'symbol', key: 'symbol' },
     {
-      title: '股票代码',
-      dataIndex: 'symbol',
-      key: 'symbol',
+      title: '方向', dataIndex: 'side', key: 'side',
+      render: (side) => <Tag color={side === 'BUY' ? 'green' : 'red'}>{side === 'BUY' ? '买入' : '卖出'}</Tag>
     },
+    { title: '数量', dataIndex: 'quantity', key: 'quantity' },
+    { title: '价格', dataIndex: 'price', key: 'price', render: (v) => `¥${Number(v).toFixed(2)}` },
     {
-      title: '方向',
-      dataIndex: 'side',
-      key: 'side',
-      render: (side: string) => (
-        <Tag color={side === 'BUY' ? 'green' : 'red'}>
-          {side === 'BUY' ? '买入' : '卖出'}
-        </Tag>
-      ),
-    },
-    {
-      title: '数量',
-      dataIndex: 'quantity',
-      key: 'quantity',
-    },
-    {
-      title: '价格',
-      dataIndex: 'price',
-      key: 'price',
-      render: (price: number) => `¥${price.toFixed(2)}`,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        const colorMap: Record<string, string> = {
-          PENDING: 'blue',
-          PARTIAL: 'orange',
-          FILLED: 'green',
-          CANCELED: 'default',
-          REJECTED: 'red',
+      title: '状态', dataIndex: 'status', key: 'status',
+      render: (status) => {
+        const map: Record<string, { color: string; text: string }> = {
+          PENDING: { color: 'blue', text: '待成交' },
+          PARTIAL: { color: 'orange', text: '部分成交' },
+          FILLED: { color: 'green', text: '已成交' },
+          CANCELED: { color: 'default', text: '已撤销' },
+          REJECTED: { color: 'red', text: '已拒绝' },
         };
-        const labelMap: Record<string, string> = {
-          PENDING: '待成交',
-          PARTIAL: '部分成交',
-          FILLED: '已成交',
-          CANCELED: '已撤销',
-          REJECTED: '已拒绝',
-        };
-        return <Tag color={colorMap[status]}>{labelMap[status]}</Tag>;
-      },
+        const s = map[status] || { color: 'default', text: status };
+        return <Tag color={s.color}>{s.text}</Tag>;
+      }
     },
     {
-      title: '模式',
-      dataIndex: 'execution_mode',
-      key: 'execution_mode',
-      render: (execMode: TradingMode) => (
-        <Tag color={execMode === 'PAPER' ? 'green' : 'red'}>
-          {execMode === 'PAPER' ? '🧪 模拟' : '⚡ 实盘'}
-        </Tag>
-      ),
+      title: '下单时间', dataIndex: 'create_time', key: 'create_time',
+      render: (v) => v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-'
     },
     {
-      title: '下单时间',
-      dataIndex: 'order_time',
-      key: 'order_time',
+      title: '操作', key: 'action',
+      render: (_, record) => (
+        record.status === 'PENDING' && (
+          <Button type="link" danger size="small" onClick={() => handleCancelOrder(record.id)}>
+            撤销
+          </Button>
+        )
+      )
     },
   ];
 
-  // 持仓表格列
-  const positionColumns = [
+  // 成交记录表格列
+  const fillColumns: ColumnsType<Fill> = [
+    { title: '成交ID', dataIndex: 'id', key: 'id', width: 100, ellipsis: true },
+    { title: '订单ID', dataIndex: 'order_id', key: 'order_id', width: 80, ellipsis: true },
+    { title: '股票代码', dataIndex: 'symbol', key: 'symbol' },
     {
-      title: '股票代码',
-      dataIndex: 'symbol',
-      key: 'symbol',
+      title: '方向', dataIndex: 'side', key: 'side',
+      render: (side) => <Tag color={side === 'BUY' ? 'green' : 'red'}>{side === 'BUY' ? '买入' : '卖出'}</Tag>
+    },
+    { title: '数量', dataIndex: 'quantity', key: 'quantity' },
+    { title: '价格', dataIndex: 'price', key: 'price', render: (v) => `¥${Number(v).toFixed(2)}` },
+    { title: '成交金额', dataIndex: 'fill_amount', key: 'fill_amount', render: (v) => `¥${Number(v).toFixed(2)}` },
+    {
+      title: '佣金', dataIndex: 'commission', key: 'commission',
+      render: (v) => <span style={{ color: '#faad14' }}>¥{Number(v).toFixed(2)}</span>
     },
     {
-      title: '持仓数量',
-      dataIndex: 'quantity',
-      key: 'quantity',
+      title: '印花税', dataIndex: 'stamp_duty', key: 'stamp_duty',
+      render: (v) => <span style={{ color: '#faad14' }}>¥{Number(v).toFixed(2)}</span>
     },
     {
-      title: '成本价',
-      dataIndex: 'avg_price',
-      key: 'avg_price',
-      render: (price: number) => `¥${price.toFixed(2)}`,
+      title: '总费用', dataIndex: 'total_fees', key: 'total_fees',
+      render: (v) => <span style={{ color: '#ff4d4f' }}>¥{Number(v).toFixed(2)}</span>
     },
     {
-      title: '现价',
-      dataIndex: 'current_price',
-      key: 'current_price',
-      render: (price: number) => `¥${price.toFixed(2)}`,
-    },
-    {
-      title: '市值',
-      dataIndex: 'market_value',
-      key: 'market_value',
-      render: (value: number) => `¥${value.toFixed(2)}`,
-    },
-    {
-      title: '浮动盈亏',
-      dataIndex: 'unrealized_pnl',
-      key: 'unrealized_pnl',
-      render: (pnl: number) => (
-        <span style={{ color: pnl >= 0 ? '#ff4d4f' : '#52c41a' }}>
-          {pnl >= 0 ? '+' : ''}¥{pnl.toFixed(2)}
-        </span>
-      ),
-    },
-    {
-      title: '模式',
-      dataIndex: 'execution_mode',
-      key: 'execution_mode',
-      render: (execMode: TradingMode) => (
-        <Tag color={execMode === 'PAPER' ? 'green' : 'red'}>
-          {execMode === 'PAPER' ? '🧪 模拟' : '⚡ 实盘'}
-        </Tag>
-      ),
+      title: '成交时间', dataIndex: 'fill_time', key: 'fill_time', width: 160,
+      render: (v) => v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-'
     },
   ];
+
+  // 交易统计表格列
+  const statsColumns: ColumnsType<DailyStats> = [
+    { title: '日期', dataIndex: 'date', key: 'date' },
+    { title: '总订单', dataIndex: 'total_orders', key: 'total_orders' },
+    { title: '成交订单', dataIndex: 'filled_orders', key: 'filled_orders' },
+    { title: '买入次数', dataIndex: 'buy_count', key: 'buy_count' },
+    { title: '卖出次数', dataIndex: 'sell_count', key: 'sell_count' },
+    {
+      title: '买入金额', dataIndex: 'buy_amount', key: 'buy_amount',
+      render: (v) => `¥${Number(v).toLocaleString()}`
+    },
+    {
+      title: '卖出金额', dataIndex: 'sell_amount', key: 'sell_amount',
+      render: (v) => `¥${Number(v).toLocaleString()}`
+    },
+    {
+      title: '总佣金', dataIndex: 'total_commission', key: 'total_commission',
+      render: (v) => <span style={{ color: '#faad14' }}>¥{Number(v).toFixed(2)}</span>
+    },
+    {
+      title: '日盈亏', dataIndex: 'daily_pnl', key: 'daily_pnl',
+      render: (v) => <span style={{ color: v >= 0 ? '#ff4d4f' : '#52c41a' }}>{v >= 0 ? '+' : ''}¥{Number(v).toFixed(2)}</span>
+    },
+  ];
+
+  // 日历单元格渲染
+  const dateCellRender = (date: Dayjs) => {
+    const dateStr = date.format('YYYY-MM-DD');
+    const day = tradingDays.find(d => d.date === dateStr);
+    if (!day) return null;
+
+    return (
+      <div style={{ padding: '4px 0' }}>
+        {day.is_trading_day ? (
+          <Badge status="success" text={<span style={{ fontSize: 12 }}>交易日</span>} />
+        ) : day.holiday_name ? (
+          <Badge status="error" text={<span style={{ fontSize: 12 }}>{day.holiday_name}</span>} />
+        ) : (
+          <Badge status="default" text={<span style={{ fontSize: 12, color: '#999' }}>休市</span>} />
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div>
-      <div style={{ marginBottom: 16 }}>
-        <h1>{t('trading.title')}</h1>
-        <Space>
-          <span>当前模式：</span>
-          <Tag color={isPaperTrading ? 'green' : 'red'} style={{ fontSize: 14 }}>
-            {isPaperTrading ? '🧪 模拟交易' : '⚡ 实盘交易'}
-          </Tag>
-        </Space>
+    <div className="trading-page">
+      <div style={{ marginBottom: 24 }}>
+        <Row justify="space-between" align="middle">
+          <Col>
+            <Title level={3} style={{ margin: 0 }}><ThunderboltOutlined style={{ marginRight: 8, color: 'var(--bb-accent-primary)' }} />交易管理</Title>
+            <Text type="secondary">订单管理 · 成交记录 · 交易日历 · 交易统计</Text>
+          </Col>
+          <Col>
+            <Space>
+              <span>当前模式：</span>
+              <Tag color={isPaperTrading ? 'green' : 'red'} style={{ fontSize: 14 }}>
+                {isPaperTrading ? '🧪 模拟交易' : '⚡ 实盘交易'}
+              </Tag>
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOrderVisible(true)}>创建订单</Button>
+              <Button icon={<SwapOutlined />} onClick={loadData} loading={loading}>刷新</Button>
+            </Space>
+          </Col>
+        </Row>
       </div>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         {/* 订单管理 */}
-        <TabPane tab="订单管理" key="orders">
-          <Card>
-            <Space style={{ marginBottom: 16 }}>
-              <span>模式过滤：</span>
-              <Select
-                value={orderFilter}
-                onChange={setOrderFilter}
-                style={{ width: 150 }}
-              >
-                <Option value="ALL">全部</Option>
-                <Option value="PAPER">🧜 模拟交易</Option>
-                <Option value="LIVE">⚡ 实盘交易</Option>
-              </Select>
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOrderVisible(true)}>
-                创建订单
-              </Button>
-              <Button icon={<SwapOutlined />} onClick={loadData}>
-                刷新
-              </Button>
-            </Space>
+        <TabPane tab={<span><FileTextOutlined /> 订单管理</span>} key="orders">
+          <Spin spinning={loading}>
+            <Table columns={orderColumns} dataSource={orders} rowKey="id" pagination={{ pageSize: 10 }}
+              locale={{ emptyText: <Empty description="暂无订单数据" /> }}
+            />
+          </Spin>
+        </TabPane>
 
-            <Spin spinning={loading}>
-              <Table
-                columns={orderColumns}
-                dataSource={orders}
-                rowKey="id"
-                pagination={{ pageSize: 10 }}
-              />
-            </Spin>
-          </Card>
+        {/* 成交记录 */}
+        <TabPane tab={<span><CheckCircleOutlined /> 成交记录</span>} key="fills">
+          <Spin spinning={loading}>
+            <Card size="small" style={{ marginBottom: 16 }}>
+              <Row gutter={16}>
+                <Col span={4}><Statistic title="今日成交" value={fills.length} suffix="笔" /></Col>
+                <Col span={4}><Statistic title="买入金额" value={fills.filter(f => f.side === 'BUY').reduce((s, f) => s + (f.fill_amount || 0), 0)} prefix="¥" /></Col>
+                <Col span={4}><Statistic title="卖出金额" value={fills.filter(f => f.side === 'SELL').reduce((s, f) => s + (f.fill_amount || 0), 0)} prefix="¥" /></Col>
+                <Col span={4}><Statistic title="总佣金" value={fills.reduce((s, f) => s + (f.commission || 0), 0)} prefix="¥" precision={2} valueStyle={{ color: '#faad14' }} /></Col>
+                <Col span={4}><Statistic title="总印花税" value={fills.reduce((s, f) => s + (f.stamp_duty || 0), 0)} prefix="¥" precision={2} valueStyle={{ color: '#faad14' }} /></Col>
+                <Col span={4}><Statistic title="总费用" value={fills.reduce((s, f) => s + (f.total_fees || 0), 0)} prefix="¥" precision={2} valueStyle={{ color: '#ff4d4f' }} /></Col>
+              </Row>
+            </Card>
+            <Table columns={fillColumns} dataSource={fills} rowKey="id" pagination={{ pageSize: 10 }} scroll={{ x: 1200 }}
+              locale={{ emptyText: <Empty description="暂无成交记录" /> }}
+            />
+          </Spin>
+        </TabPane>
+
+        {/* 交易日历 */}
+        <TabPane tab={<span><CalendarOutlined /> 交易日历</span>} key="calendar">
+          <Row gutter={24}>
+            <Col span={18}>
+              <Card>
+                <Calendar
+                  value={selectedDate}
+                  onSelect={setSelectedDate}
+                  cellRender={(date) => dateCellRender(date)}
+                />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card title="交易日详情" size="small">
+                {(() => {
+                  const dateStr = selectedDate.format('YYYY-MM-DD');
+                  const day = tradingDays.find(d => d.date === dateStr);
+                  if (!day) return <Empty description="暂无数据" />;
+                  return (
+                    <Descriptions column={1} size="small">
+                      <Descriptions.Item label="日期">{day.date}</Descriptions.Item>
+                      <Descriptions.Item label="状态">
+                        <Tag color={day.is_trading_day ? 'green' : 'red'}>
+                          {day.is_trading_day ? '交易日' : day.holiday_name || '休市'}
+                        </Tag>
+                      </Descriptions.Item>
+                      {day.is_trading_day && (
+                        <>
+                          <Descriptions.Item label="开盘时间">{day.open_time}</Descriptions.Item>
+                          <Descriptions.Item label="收盘时间">{day.close_time}</Descriptions.Item>
+                        </>
+                      )}
+                    </Descriptions>
+                  );
+                })()}
+              </Card>
+              <Divider />
+              <Card title="本月统计" size="small">
+                <Statistic title="交易日" value={tradingDays.filter(d => d.is_trading_day && d.date.startsWith(selectedDate.format('YYYY-MM'))).length} suffix="天" />
+                <Divider />
+                <Statistic title="休市日" value={tradingDays.filter(d => !d.is_trading_day && d.date.startsWith(selectedDate.format('YYYY-MM'))).length} suffix="天" />
+              </Card>
+            </Col>
+          </Row>
+        </TabPane>
+
+        {/* 交易统计 */}
+        <TabPane tab={<span><BarChartOutlined /> 交易统计</span>} key="stats">
+          <Spin spinning={loading}>
+            <Card size="small" style={{ marginBottom: 16 }}>
+              <Row gutter={16}>
+                {[
+                  { label: '总订单数', value: dailyStats.reduce((s, d) => s + d.total_orders, 0) },
+                  { label: '成交订单', value: dailyStats.reduce((s, d) => s + d.filled_orders, 0) },
+                  { label: '买入次数', value: dailyStats.reduce((s, d) => s + d.buy_count, 0) },
+                  { label: '卖出次数', value: dailyStats.reduce((s, d) => s + d.sell_count, 0) },
+                  { label: '累计盈亏', value: dailyStats.reduce((s, d) => s + d.daily_pnl, 0), prefix: '¥' },
+                  { label: '累计佣金', value: dailyStats.reduce((s, d) => s + d.total_commission, 0), prefix: '¥' },
+                ].map((item, i) => (
+                  <Col span={4} key={i}>
+                    <Statistic title={item.label} value={item.value} prefix={item.prefix} precision={item.prefix ? 2 : 0} />
+                  </Col>
+                ))}
+              </Row>
+            </Card>
+            <Table columns={statsColumns} dataSource={dailyStats} rowKey="date" pagination={{ pageSize: 10 }}
+              locale={{ emptyText: <Empty description="暂无统计数据" /> }}
+            />
+          </Spin>
         </TabPane>
 
         {/* 持仓管理 */}
-        <TabPane tab="持仓管理" key="positions">
-          <Card>
-            <Space style={{ marginBottom: 16 }}>
-              <span>模式过滤：</span>
-              <Select
-                value={positionFilter}
-                onChange={setPositionFilter}
-                style={{ width: 150 }}
-              >
-                <Option value="PAPER">🧜 模拟交易</Option>
-                <Option value="LIVE">⚡ 实盘交易</Option>
-              </Select>
-              <Button icon={<SwapOutlined />} onClick={loadData}>
-                刷新
-              </Button>
-            </Space>
-
-            {summary && (
-              <Row gutter={16} style={{ marginBottom: 16 }}>
-                <Col span={6}>
-                  <Statistic
-                    title="总市值"
-                    value={summary.total_market_value}
-                    precision={2}
-                    prefix="¥"
-                  />
-                </Col>
-                <Col span={6}>
-                  <Statistic
-                    title="浮动盈亏"
-                    value={summary.total_unrealized_pnl}
-                    precision={2}
-                    prefix="¥"
-                    valueStyle={{ color: summary.total_unrealized_pnl >= 0 ? '#ff4d4f' : '#52c41a' }}
-                  />
-                </Col>
-                <Col span={6}>
-                  <Statistic
-                    title="已实现盈亏"
-                    value={summary.total_realized_pnl}
-                    precision={2}
-                    prefix="¥"
-                    valueStyle={{ color: summary.total_realized_pnl >= 0 ? '#ff4d4f' : '#52c41a' }}
-                  />
-                </Col>
-                <Col span={6}>
-                  <Statistic
-                    title="持仓数量"
-                    value={summary.position_count}
-                    suffix="只"
-                  />
-                </Col>
-              </Row>
-            )}
-
-            <Spin spinning={loading}>
-              <Table
-                columns={positionColumns}
-                dataSource={positions}
-                rowKey="id"
-                pagination={{ pageSize: 10 }}
-              />
-            </Spin>
-          </Card>
+        <TabPane tab={<span><HistoryOutlined /> 持仓管理</span>} key="positions">
+          <Spin spinning={loading}>
+            <Table
+              columns={[
+                { title: '股票代码', dataIndex: 'symbol' },
+                { title: '持仓数量', dataIndex: 'quantity' },
+                { title: '成本价', dataIndex: 'avg_price', render: (v) => `¥${Number(v).toFixed(2)}` },
+                { title: '现价', dataIndex: 'current_price', render: (v) => v ? `¥${Number(v).toFixed(2)}` : '-' },
+                { title: '市值', dataIndex: 'market_value', render: (v) => v ? `¥${Number(v).toFixed(2)}` : '-' },
+                {
+                  title: '浮动盈亏', dataIndex: 'unrealized_pnl',
+                  render: (v) => v !== undefined && v !== null
+                    ? <span style={{ color: v >= 0 ? '#ff4d4f' : '#52c41a' }}>{v >= 0 ? '+' : ''}¥{Number(v).toFixed(2)}</span>
+                    : '-'
+                },
+              ]}
+              dataSource={positions}
+              rowKey="id"
+              pagination={{ pageSize: 10 }}
+              locale={{ emptyText: <Empty description="暂无持仓数据" /> }}
+            />
+          </Spin>
         </TabPane>
       </Tabs>
 
-      {/* 创建订单对话框 */}
-      {createOrderVisible && (
-        <Card
-          title="创建订单"
-          style={{ marginTop: 16 }}
-          extra={
-            <Button onClick={() => setCreateOrderVisible(false)}>关闭</Button>
-          }
-        >
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleCreateOrder}
-          >
-            <Form.Item
-              label="股票代码"
-              name="symbol"
-              rules={[{ required: true, message: '请输入股票代码' }]}
-            >
-              <input placeholder="例如: 000001" />
-            </Form.Item>
-
-            <Form.Item
-              label="交易方向"
-              name="side"
-              rules={[{ required: true, message: '请选择交易方向' }]}
-            >
-              <Select>
-                <Option value="BUY">买入</Option>
-                <Option value="SELL">卖出</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label="数量"
-              name="quantity"
-              rules={[{ required: true, message: '请输入数量' }]}
-            >
-              <InputNumber min={100} step={100} style={{ width: '100%' }} />
-            </Form.Item>
-
-            <Form.Item
-              label="价格"
-              name="price"
-              rules={[{ required: true, message: '请输入价格' }]}
-            >
-              <InputNumber min={0} step={0.01} precision={2} style={{ width: '100%' }} />
-            </Form.Item>
-
-            <Form.Item>
-              <Space>
-                <Button type="primary" htmlType="submit">
-                  提交订单
-                </Button>
-                <Button onClick={() => form.resetFields()}>
-                  重置
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Card>
-      )}
+      {/* 创建订单弹窗 */}
+      <Modal
+        title="创建订单"
+        open={createOrderVisible}
+        onCancel={() => setCreateOrderVisible(false)}
+        onOk={() => form.submit()}
+        confirmLoading={submitting}
+      >
+        <Form form={form} layout="vertical" onFinish={handleCreateOrder}>
+          <Form.Item label="股票代码" name="symbol" rules={[{ required: true, message: '请输入股票代码' }]}>
+            <input placeholder="例如: 000001.SZ" style={{ width: '100%', padding: '4px 11px', border: '1px solid #d9d9d9', borderRadius: 6 }} />
+          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="交易方向" name="side" rules={[{ required: true, message: '请选择交易方向' }]}>
+                <Select placeholder="请选择">
+                  <Option value="BUY">买入</Option>
+                  <Option value="SELL">卖出</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="订单类型" name="order_type" initialValue="LIMIT">
+                <Select>
+                  <Option value="LIMIT">限价单</Option>
+                  <Option value="MARKET">市价单</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="数量" name="quantity" rules={[{ required: true, message: '请输入数量' }]}>
+                <InputNumber min={100} step={100} style={{ width: '100%' }} placeholder="100股起" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="价格" name="price">
+                <InputNumber min={0} step={0.01} precision={2} style={{ width: '100%' }} placeholder="限价单必填" />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </div>
   );
 };
 
-// 生成模拟订单数据
-const generateMockOrders = (filter: TradingMode | 'ALL'): Order[] => {
-  const allOrders: Order[] = [
-    {
-      id: '1',
-      symbol: '000001',
-      side: 'BUY',
-      quantity: 1000,
-      price: 15.50,
-      status: 'FILLED',
-      execution_mode: 'PAPER',
-      order_time: '2026-03-08 10:30:00',
-    },
-    {
-      id: '2',
-      symbol: '000002',
-      side: 'SELL',
-      quantity: 500,
-      price: 20.30,
-      status: 'PENDING',
-      execution_mode: 'PAPER',
-      order_time: '2026-03-08 11:00:00',
-    },
-    {
-      id: '3',
-      symbol: '600000',
-      side: 'BUY',
-      quantity: 2000,
-      price: 8.80,
-      status: 'PARTIAL',
-      execution_mode: 'LIVE',
-      order_time: '2026-03-08 13:15:00',
-    },
-  ];
+// 本地生成交易日历备用
+const generateLocalTradingDays = (): TradingDay[] => {
+  const days: TradingDay[] = [];
+  const now = dayjs();
+  const startOfMonth = now.startOf('month');
+  const endOfMonth = now.endOf('month');
 
-  if (filter === 'ALL') return allOrders;
-  return allOrders.filter((o) => o.execution_mode === filter);
-};
-
-// 生成模拟持仓数据
-const generateMockPositions = (filter: TradingMode): Position[] => {
-  const allPositions: Position[] = [
-    {
-      id: '1',
-      symbol: '000001',
-      quantity: 1000,
-      avg_price: 15.00,
-      current_price: 15.50,
-      market_value: 15500,
-      unrealized_pnl: 500,
-      execution_mode: 'PAPER',
-    },
-    {
-      id: '2',
-      symbol: '600000',
-      quantity: 2000,
-      avg_price: 8.50,
-      current_price: 8.80,
-      market_value: 17600,
-      unrealized_pnl: 600,
-      execution_mode: 'LIVE',
-    },
-  ];
-
-  return allPositions.filter((p) => p.execution_mode === filter);
-};
-
-// 生成模拟汇总数据
-const generateMockSummary = (filter: TradingMode): PositionSummary => {
-  const summaries: Record<TradingMode, PositionSummary> = {
-    PAPER: {
-      total_market_value: 15500,
-      total_unrealized_pnl: 500,
-      total_realized_pnl: 1200,
-      position_count: 1,
-    },
-    LIVE: {
-      total_market_value: 17600,
-      total_unrealized_pnl: 600,
-      total_realized_pnl: 800,
-      position_count: 1,
-    },
-  };
-
-  return summaries[filter];
+  for (let i = 0; i <= endOfMonth.diff(startOfMonth, 'day'); i++) {
+    const date = startOfMonth.add(i, 'day');
+    const dayOfWeek = date.day();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    days.push({
+      date: date.format('YYYY-MM-DD'),
+      is_trading_day: !isWeekend,
+      is_half_day: false,
+      open_time: isWeekend ? undefined : '09:30',
+      close_time: isWeekend ? undefined : '15:00',
+      holiday_name: undefined,
+    });
+  }
+  return days;
 };
 
 export default Trading;

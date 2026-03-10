@@ -1,0 +1,16 @@
+{
+  "short_name": "QuantTrade",
+  "name": "Quant-Trade System",
+  "description": "专业级量化交易系统",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0284c7",
+  "background_color": "#f8f9fb"
+}

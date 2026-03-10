@@ -1,0 +1,323 @@
+/**
+ * 策略工作室样式
+ */
+
+.strategy-studio {
+  height: calc(100vh - 64px);
+  background: #0d0d0d;
+}
+
+/* 文件浏览器 */
+.file-explorer {
+  border-right: 1px solid #303030;
+  display: flex;
+  flex-direction: column;
+}
+
+.explorer-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #303030;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #141414;
+}
+
+.file-tree {
+  flex: 1;
+  overflow: auto;
+  padding: 8px;
+}
+
+.file-tree .ant-tree {
+  background: transparent;
+  color: #d9d9d9;
+}
+
+.file-tree .ant-tree .ant-tree-node-content-wrapper:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.file-tree .ant-tree .ant-tree-node-selected {
+  background: rgba(24, 144, 255, 0.2) !important;
+}
+
+.file-tree .ant-tree-iconEle {
+  color: #8c8c8c;
+}
+
+.quick-actions {
+  padding: 12px;
+  border-top: 1px solid #303030;
+  background: #141414;
+}
+
+/* 编辑器内容区 */
+.editor-content {
+  display: flex;
+  flex-direction: column;
+  background: #0d0d0d;
+}
+
+.editor-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-header {
+  padding: 8px 16px;
+  background: #141414;
+  border-bottom: 1px solid #303030;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.empty-editor {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0d0d0d;
+}
+
+/* 日志面板 */
+.log-panel {
+  height: 200px;
+  background: #0a0a0a;
+  border-top: 1px solid #303030;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-header {
+  padding: 8px 16px;
+  background: #141414;
+  border-bottom: 1px solid #303030;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.log-content {
+  flex: 1;
+  overflow: auto;
+  padding: 8px 16px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.log-entry {
+  display: flex;
+  align-items: flex-start;
+  padding: 2px 0;
+}
+
+.log-time {
+  color: #595959;
+  margin-right: 8px;
+}
+
+.log-level {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.log-message {
+  color: #d9d9d9;
+}
+
+.log-success .log-message {
+  color: #52c41a;
+}
+
+.log-error .log-message {
+  color: #ff4d4f;
+}
+
+.log-warning .log-message {
+  color: #faad14;
+}
+
+/* 策略信息侧边栏 */
+.strategy-info {
+  border-left: 1px solid #303030;
+  background: #141414;
+}
+
+.strategy-info .ant-tabs {
+  height: 100%;
+}
+
+.strategy-info .ant-tabs-content {
+  height: calc(100% - 46px);
+  overflow: auto;
+  padding: 16px;
+}
+
+.strategy-info .ant-descriptions-item-label {
+  color: #8c8c8c;
+}
+
+.strategy-info .ant-list-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #262626;
+}
+
+.strategy-info .ant-list-item:last-child {
+  border-bottom: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+  .strategy-info {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .file-explorer {
+    display: none;
+  }
+}
+
+/* ==========================================
+   浅色主题适配 - 高对比度文字
+   ========================================== */
+
+[data-theme="light"] .strategy-studio {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .file-explorer {
+  border-right-color: #e2e8f0;
+}
+
+[data-theme="light"] .explorer-header {
+  background: #ffffff;
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .explorer-header,
+[data-theme="light"] .explorer-header span {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .file-tree {
+  background: #ffffff;
+}
+
+[data-theme="light"] .file-tree .ant-tree {
+  color: #1e293b;
+}
+
+[data-theme="light"] .file-tree .ant-tree .ant-tree-node-content-wrapper:hover {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .file-tree .ant-tree .ant-tree-node-selected {
+  background: #e0f2fe !important;
+}
+
+[data-theme="light"] .file-tree .ant-tree-iconEle {
+  color: #64748b;
+}
+
+[data-theme="light"] .quick-actions {
+  background: #ffffff;
+  border-top-color: #e2e8f0;
+}
+
+[data-theme="light"] .editor-content {
+  background: #ffffff;
+}
+
+[data-theme="light"] .editor-header {
+  background: #ffffff;
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .editor-header,
+[data-theme="light"] .editor-header span {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .empty-editor {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .empty-editor .ant-empty-description {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .log-panel {
+  background: #f8fafc;
+  border-top-color: #e2e8f0;
+}
+
+[data-theme="light"] .log-header {
+  background: #ffffff;
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .log-header,
+[data-theme="light"] .log-header span {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .log-content {
+  background: #ffffff;
+  color: #1e293b;
+}
+
+[data-theme="light"] .log-time {
+  color: #64748b;
+}
+
+[data-theme="light"] .log-message {
+  color: #334155;
+}
+
+[data-theme="light"] .log-success .log-message {
+  color: #16a34a;
+}
+
+[data-theme="light"] .log-error .log-message {
+  color: #dc2626;
+}
+
+[data-theme="light"] .log-warning .log-message {
+  color: #d97706;
+}
+
+[data-theme="light"] .strategy-info {
+  background: #ffffff;
+  border-left-color: #e2e8f0;
+}
+
+[data-theme="light"] .strategy-info .ant-tabs-tab {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .strategy-info .ant-tabs-tab-active {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .strategy-info .ant-descriptions-item-label {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .strategy-info .ant-descriptions-item-content {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .strategy-info .ant-list-item {
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme="light"] .strategy-info .ant-list-item-content {
+  color: #0f172a !important;
+}

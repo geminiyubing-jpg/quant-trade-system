@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quant-Trade System 系统架构文档</title>
+    <style>
+        :root {
+            --primary-color: #0284c7;
+            --secondary-color: #d97706;
+            --success-color: #16a34a;
+            --warning-color: #f59e0b;
+            --danger-color: #dc2626;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 32px;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .header .version {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .header .meta {
+            display: flex;
+            gap: 24px;
+            margin-top: 8px;
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .summary-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .summary-card .label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .summary-card.completed .number { color: var(--success-color); }
+        .summary-card.partial .number { color: var(--warning-color); }
+        .summary-card.pending .number { color: var(--danger-color); }
+
+        /* Section */
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-category {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .tech-category h4 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .tech-list {
+            list-style: none;
+        }
+
+        .tech-list li {
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tech-list li::before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Feature Tables */
+        .feature-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .feature-table th,
+        .feature-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .feature-table th {
+            background: var(--bg-color);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .feature-table tr:hover {
+            background: var(--bg-color);
+        }
+
+        .feature-name {
+            font-weight: 500;
+        }
+
+        .feature-path {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Status Badge */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status.completed {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success-color);
+        }
+
+        .status.partial {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status.pending {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.completed { background: var(--success-color); }
+        .progress-fill.partial { background: var(--warning-color); }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .architecture-diagram h3 {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .arch-layers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .arch-layer {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .arch-layer h4 {
+            color: var(--secondary-color);
+            margin-bottom: 12px;
+        }
+
+        .arch-layer ul {
+            list-style: none;
+            font-size: 0.875rem;
+        }
+
+        .arch-layer li {
+            padding: 4px 0;
+            opacity: 0.9;
+        }
+
+        /* File Tree */
+        .file-tree {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .file-tree .folder {
+            color: #60a5fa;
+        }
+
+        .file-tree .file {
+            color: #94a3b8;
+        }
+
+        .file-tree .indent-1 { padding-left: 20px; }
+        .file-tree .indent-2 { padding-left: 40px; }
+        .file-tree .indent-3 { padding-left: 60px; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .arch-layers {
+                grid-template-columns: 1fr;
+            }
+
+            .header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .header { background: #1e3a5f !important; }
+            .section { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div>
+                <h1>📊 Quant-Trade System</h1>
+                <div class="meta">
+                    <span>版本: v2.5.0</span>
+                    <span>更新日期: 2026-03-10</span>
+                    <span>团队: QuantDev</span>
+                </div>
+            </div>
+            <span class="version">系统架构文档</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Summary -->
+        <div class="summary-grid">
+            <div class="summary-card completed">
+                <div class="number">85%</div>
+                <div class="label">整体完成度</div>
+            </div>
+            <div class="summary-card completed">
+                <div class="number">18</div>
+                <div class="label">已完成模块</div>
+            </div>
+            <div class="summary-card partial">
+                <div class="number">6</div>
+                <div class="label">部分完成</div>
+            </div>
+            <div class="summary-card pending">
+                <div class="number">5</div>
+                <div class="label">待开发</div>
+            </div>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="architecture-diagram">
+            <h3>🏛️ 系统架构总览</h3>
+            <div class="arch-layers">
+                <div class="arch-layer">
+                    <h4>前端层 (Frontend)</h4>
+                    <ul>
+                        <li>React 18 + TypeScript</li>
+                        <li>Ant Design 5.12</li>
+                        <li>Redux Toolkit</li>
+                        <li>WebSocket Client</li>
+                        <li>ECharts / Recharts</li>
+                    </ul>
+                </div>
+                <div class="arch-layer">
+                    <h4>后端层 (Backend)</h4>
+                    <ul>
+                        <li>FastAPI 0.109</li>
+                        <li>SQLAlchemy 2.0</li>
+                        <li>JWT Authentication</li>
+                        <li>WebSocket Server</li>
+                        <li>Celery Tasks</li>
+                    </ul>
+                </div>
+                <div class="arch-layer">
+                    <h4>数据层 (Data)</h4>
+                    <ul>
+                        <li>PostgreSQL 15</li>
+                        <li>TimescaleDB</li>
+                        <li>Redis 7</li>
+                        <li>RabbitMQ</li>
+                        <li>AkShare 数据源</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="section">
+            <h2 class="section-title">⚙️ 技术栈详情</h2>
+            <div class="tech-grid">
+                <div class="tech-category">
+                    <h4>后端技术</h4>
+                    <ul class="tech-list">
+                        <li>Python 3.11+ - 主语言</li>
+                        <li>FastAPI 0.109 - Web框架</li>
+                        <li>SQLAlchemy 2.0 - ORM</li>
+                        <li>Pydantic - 数据验证</li>
+                        <li>Celery - 异步任务</li>
+                        <li>JWT - 认证机制</li>
+                        <li>WebSocket - 实时通信</li>
+                        <li>Loguru - 日志系统</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h4>前端技术</h4>
+                    <ul class="tech-list">
+                        <li>React 18 - UI框架</li>
+                        <li>TypeScript 5.3 - 类型系统</li>
+                        <li>Ant Design 5.12 - UI组件</li>
+                        <li>Redux Toolkit - 状态管理</li>
+                        <li>React Router 6 - 路由</li>
+                        <li>i18next - 国际化</li>
+                        <li>ECharts - 图表可视化</li>
+                        <li>IndexedDB - 本地存储</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h4>基础设施</h4>
+                    <ul class="tech-list">
+                        <li>PostgreSQL 15 - 主数据库</li>
+                        <li>TimescaleDB - 时序数据</li>
+                        <li>Redis 7 - 缓存</li>
+                        <li>RabbitMQ - 消息队列</li>
+                        <li>Docker - 容器化</li>
+                        <li>Prometheus - 监控</li>
+                        <li>Grafana - 可视化</li>
+                        <li>GitHub Actions - CI/CD</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h4>数据源</h4>
+                    <ul class="tech-list">
+                        <li>AkShare - A股数据</li>
+                        <li>Yahoo Finance - 国际市场</li>
+                        <li>Tushare - 金融数据</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backend Features -->
+        <div class="section">
+            <h2 class="section-title">🔧 后端功能模块</h2>
+
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>后端完成度</span>
+                    <span>90%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill completed" style="width: 90%"></div>
+                </div>
+            </div>
+
+            <table class="feature-table">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>文件路径</th>
+                        <th>状态</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="feature-name">🔐 认证系统</td>
+                        <td class="feature-path">backend/src/core/security.py</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>JWT认证、密码哈希、权限验证</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">👤 用户管理</td>
+                        <td class="feature-path">backend/src/api/v1/endpoints/users.py</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>用户CRUD、设置管理</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">📈 数据管理</td>
+                        <td class="feature-path">backend/src/services/data/</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>AkShare集成、数据验证</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">💹 交易系统</td>
+                        <td class="feature-path">backend/src/api/v1/endpoints/trading.py</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>双轨运行、订单管理</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🛡️ 风控系统</td>
+                        <td class="feature-path">backend/src/services/risk/</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>6个风控检查器、实时监控</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">📊 回测引擎</td>
+                        <td class="feature-path">backend/src/services/backtest/</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>策略回测、性能指标</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🔌 WebSocket</td>
+                        <td class="feature-path">backend/src/services/websocket/</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>实时行情推送</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">⭐ 自选股管理</td>
+                        <td class="feature-path">backend/src/api/v1/endpoints/watchlist.py</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>分组管理、批量操作</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🔔 价格预警</td>
+                        <td class="feature-path">backend/src/api/v1/endpoints/alerts.py</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>多类型预警、历史记录</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">📝 策略引擎</td>
+                        <td class="feature-path">backend/src/services/strategy/</td>
+                        <td><span class="status partial">⚠️ 部分</span></td>
+                        <td>框架完成，缺少具体策略</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🤖 AI服务</td>
+                        <td class="feature-path">backend/src/services/ai/</td>
+                        <td><span class="status partial">⚠️ 部分</span></td>
+                        <td>框架完成，缺少模型集成</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Frontend Features -->
+        <div class="section">
+            <h2 class="section-title">🎨 前端功能模块</h2>
+
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>前端完成度</span>
+                    <span>80%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill completed" style="width: 80%"></div>
+                </div>
+            </div>
+
+            <table class="feature-table">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>文件路径</th>
+                        <th>状态</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="feature-name">📊 实时行情</td>
+                        <td class="feature-path">frontend/src/pages/MarketRealtime.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>行情表格、K线图、预警</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🕯️ K线图表</td>
+                        <td class="feature-path">frontend/src/components/CandlestickChart.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>日/周/月K、MA/EMA/MACD</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🔔 价格预警</td>
+                        <td class="feature-path">frontend/src/components/PriceAlertModal.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>价格/涨跌幅/成交量预警</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">⭐ 自选股</td>
+                        <td class="feature-path">frontend/src/services/watchlist.ts</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>收藏、分组、批量导入</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">📤 数据导出</td>
+                        <td class="feature-path">frontend/src/services/export.ts</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>CSV/Excel导出</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">⌨️ 快捷键</td>
+                        <td class="feature-path">frontend/src/utils/keyboardShortcuts.ts</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>Ctrl+K/E/D等快捷操作</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🌙 主题系统</td>
+                        <td class="feature-path">frontend/src/contexts/ThemeContext.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>白天/夜晚/自动模式</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🌐 国际化</td>
+                        <td class="feature-path">frontend/src/i18n/</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>中英文支持</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🔀 交易模式</td>
+                        <td class="feature-path">frontend/src/contexts/TradingModeContext.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>模拟/实盘切换</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">📝 策略管理</td>
+                        <td class="feature-path">frontend/src/pages/StrategyManagement.tsx</td>
+                        <td><span class="status partial">⚠️ 部分</span></td>
+                        <td>UI框架完成，缺业务逻辑</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">📈 回测页面</td>
+                        <td class="feature-path">frontend/src/pages/Backtest.tsx</td>
+                        <td><span class="status partial">⚠️ 部分</span></td>
+                        <td>UI框架完成，缺配置交互</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">💹 交易页面</td>
+                        <td class="feature-path">frontend/src/pages/Trading.tsx</td>
+                        <td><span class="status partial">⚠️ 部分</span></td>
+                        <td>UI框架完成，缺订单管理</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pending Features -->
+        <div class="section">
+            <h2 class="section-title">📋 待开发功能</h2>
+
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>待开发功能</span>
+                    <span>5个模块</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%; background: var(--danger-color)"></div>
+                </div>
+            </div>
+
+            <table class="feature-table">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>优先级</th>
+                        <th>状态</th>
+                        <th>功能描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="feature-name">📊 市场数据API</td>
+                        <td><span class="status completed">P1</span></td>
+                        <td><span class="status pending">❌ 未开始</span></td>
+                        <td>股票列表、详情、板块分析接口</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🤖 AI实验室</td>
+                        <td><span class="status partial">P2</span></td>
+                        <td><span class="status pending">❌ 未开始</span></td>
+                        <td>AI策略生成、智能选股、市场分析</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">💼 投资组合</td>
+                        <td><span class="status partial">P2</span></td>
+                        <td><span class="status pending">❌ 未开始</span></td>
+                        <td>组合构建、风险归因、绩效分析</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🔧 策略工作室</td>
+                        <td><span class="status partial">P2</span></td>
+                        <td><span class="status pending">❌ 未开始</span></td>
+                        <td>代码编辑器、策略调试、优化</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">👥 社区功能</td>
+                        <td><span class="status pending">P3</span></td>
+                        <td><span class="status pending">❌ 未开始</span></td>
+                        <td>策略分享、讨论区、问答</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Project Structure -->
+        <div class="section">
+            <h2 class="section-title">📁 项目目录结构</h2>
+            <div class="file-tree">
+<pre><span class="folder">quant-trade-system/</span>
+<span class="indent-1 folder">backend/</span>
+<span class="indent-2 folder">src/</span>
+<span class="indent-3 folder">api/v1/endpoints/</span>     <span class="file"># API端点 (10个模块)</span>
+<span class="indent-3 folder">core/</span>                   <span class="file"># 核心模块 (config, database, security)</span>
+<span class="indent-3 folder">models/</span>                 <span class="file"># 数据模型 (7个模型)</span>
+<span class="indent-3 folder">schemas/</span>                <span class="file"># Pydantic模式</span>
+<span class="indent-3 folder">services/</span>               <span class="file"># 业务服务 (data, trading, risk, backtest, ws)</span>
+<span class="indent-3 folder">repositories/</span>           <span class="file"># 数据仓库</span>
+<span class="indent-2 folder">migrations/</span>              <span class="file"># 数据库迁移</span>
+<span class="indent-2 folder">tests/</span>                  <span class="file"># 测试文件</span>
+<span class="indent-1 folder">frontend/</span>
+<span class="indent-2 folder">src/</span>
+<span class="indent-3 folder">components/</span>             <span class="file"># UI组件 (15+组件)</span>
+<span class="indent-3 folder">pages/</span>                  <span class="file"># 页面 (6个页面)</span>
+<span class="indent-3 folder">services/</span>               <span class="file"># API服务</span>
+<span class="indent-3 folder">hooks/</span>                  <span class="file"># 自定义Hooks</span>
+<span class="indent-3 folder">store/</span>                  <span class="file"># Redux Store</span>
+<span class="indent-3 folder">contexts/</span>               <span class="file"># React Context</span>
+<span class="indent-3 folder">i18n/</span>                   <span class="file"># 国际化</span>
+<span class="indent-3 folder">types/</span>                  <span class="file"># TypeScript类型</span>
+<span class="indent-3 folder">utils/</span>                  <span class="file"># 工具函数</span>
+<span class="indent-1 folder">docs/</span>                    <span class="file"># 文档</span>
+<span class="indent-1 folder">database/</span>                <span class="file"># 数据库脚本</span>
+<span class="indent-1 folder">scripts/</span>                 <span class="file"># 工具脚本</span>
+</pre>
+            </div>
+        </div>
+
+        <!-- Technical Highlights -->
+        <div class="section">
+            <h2 class="section-title">✨ 技术亮点</h2>
+            <div class="tech-grid">
+                <div class="tech-category">
+                    <h4>🔒 安全特性</h4>
+                    <ul class="tech-list">
+                        <li>JWT Token认证</li>
+                        <li>密码bcrypt哈希</li>
+                        <li>CORS配置</li>
+                        <li>审计日志追踪</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h4>⚡ 性能优化</h4>
+                    <ul class="tech-list">
+                        <li>WebSocket实时推送</li>
+                        <li>Redis缓存</li>
+                        <li>TimescaleDB时序分区</li>
+                        <li>前端IndexedDB缓存</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h4>🎨 用户体验</h4>
+                    <ul class="tech-list">
+                        <li>Bloomberg专业主题</li>
+                        <li>价格闪烁动画</li>
+                        <li>键盘快捷键</li>
+                        <li>多语言支持</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h4>🛠️ 运维支持</h4>
+                    <ul class="tech-list">
+                        <li>Docker一键部署</li>
+                        <li>Prometheus监控</li>
+                        <li>结构化日志</li>
+                        <li>健康检查接口</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Quant-Trade System v2.5.0 | © 2026 QuantDev Team</p>
+            <p>最后更新: 2026-03-10</p>
+        </footer>
+    </div>
+</body>
+</html>

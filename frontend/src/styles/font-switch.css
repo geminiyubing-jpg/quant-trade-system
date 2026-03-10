@@ -1,0 +1,19 @@
+/**
+ * 动态字体切换样式
+ * 根据语言自动切换中英文字体
+ */
+
+/* 中文界面 - 彭博等宽风格 */
+body[data-font="zh"] {
+  --font-primary: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', monospace;
+}
+
+/* 英文界面 - 专业无衬线字体 */
+body[data-font="en"] {
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-primary);
+  transition: font-family 0.3s ease;
+}

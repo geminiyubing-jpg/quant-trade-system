@@ -1,0 +1,1401 @@
+/**
+ * ==============================================
+ * 浅色主题增强样式 - Light Theme Enhanced
+ * ==============================================
+ * 基于 Frontend Design Ultimate 原则
+ * 精致的视觉效果 + 协调的色彩搭配
+ * 确保所有组件在浅色模式下都是协调的白色/浅灰色
+ * 重点优化：文字与背景的对比度，确保可读性
+ *
+ * 设计理念：
+ * - 干净、专业、金融风格
+ * - 高对比度确保可读性
+ * - 精致的阴影和圆角
+ * - 协调的蓝色系主题色
+ */
+
+/* ==========================================
+   浅色主题全局增强
+   ========================================== */
+
+[data-theme="light"] {
+  /* 全局背景渐变 */
+  --app-bg: var(--gradient-primary);
+  /* 覆盖彭博变量 - 确保浅色 */
+  --bb-bg-primary: #f8fafc;
+  --bb-bg-secondary: #ffffff;
+  --bb-bg-card: #ffffff;
+  --bb-bg-table: #fafbfc;
+  /* 文字颜色 - 提高对比度 */
+  --bb-text-primary: #0f172a;
+  --bb-text-secondary: #334155;
+  --bb-text-muted: #64748b;
+  --bb-border: #e2e8f0;
+  --bb-accent-primary: #0284c7;
+}
+
+/* 全局文字优化 - 确保在白色背景上的文字清晰可见 */
+[data-theme="light"] body,
+[data-theme="light"] .app,
+[data-theme="light"] .App {
+  color: #0f172a !important;
+}
+
+/* 页面背景增强 - 精致的灰白渐变 */
+[data-theme="light"] .app-content,
+[data-theme="light"] .App,
+[data-theme="light"] .market-realtime-container {
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%) !important;
+  position: relative;
+}
+
+/* 背景纹理 - 细腻的点状纹理 */
+[data-theme="light"] .app-content::before,
+[data-theme="light"] .market-realtime-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.02) 1px, transparent 0);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ==========================================
+   卡片组件增强 - 纯白背景 + 高对比度文字
+   ========================================== */
+
+[data-theme="light"] .ant-card,
+[data-theme="light"] .market-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="light"] .ant-card:hover,
+[data-theme="light"] .market-card:hover {
+  box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.04) !important;
+  transform: translateY(-2px);
+  border-color: #cbd5e1 !important;
+}
+
+/* 卡片标题 - 更深的颜色 */
+[data-theme="light"] .ant-card-head-title,
+[data-theme="light"] .ant-card-meta-title {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+/* 卡片头部 */
+[data-theme="light"] .ant-card-head {
+  background: transparent !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* 卡片内容文字 */
+[data-theme="light"] .ant-card-body {
+  color: #1e293b !important;
+  background: transparent !important;
+}
+
+/* ==========================================
+   回测页面专用样式 - 高对比度
+   ========================================== */
+
+/* 回测页面表单 */
+[data-theme="light"] .ant-form-item-label > label {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .ant-form-item-explain-error {
+  color: #dc2626 !important;
+}
+
+/* 回测页面描述列表 */
+[data-theme="light"] .ant-descriptions-item-label {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .ant-descriptions-item-content {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+/* 回测页面 Tabs */
+[data-theme="light"] .ant-tabs-tab {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-tabs-tab:hover {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-tabs-tab-active {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-tabs-ink-bar {
+  background: #0284c7 !important;
+}
+
+/* 回测页面进度条 */
+[data-theme="light"] .ant-progress-text {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-progress-bg {
+  background-color: #0284c7 !important;
+}
+
+/* 回测页面空状态 */
+[data-theme="light"] .ant-empty-description {
+  color: #475569 !important;
+}
+
+/* 回测页面 Alert */
+[data-theme="light"] .ant-alert {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-alert-message {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .ant-alert-description {
+  color: #334155 !important;
+}
+
+/* 回测页面 Divider */
+[data-theme="light"] .ant-divider {
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .ant-divider-inner-text {
+  color: #0f172a !important;
+}
+
+/* 回测页面 Typography */
+[data-theme="light"] .ant-typography {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-typography h1,
+[data-theme="light"] .ant-typography h2,
+[data-theme="light"] .ant-typography h3,
+[data-theme="light"] .ant-typography h4 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-typography h5,
+[data-theme="light"] .ant-typography h6 {
+  color: #1e293b !important;
+}
+
+/* 回测页面 Text */
+[data-theme="light"] .ant-typography.ant-typography-secondary {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-typography.ant-typography-success {
+  color: #16a34a !important;
+}
+
+[data-theme="light"] .ant-typography.ant-typography-warning {
+  color: #d97706 !important;
+}
+
+[data-theme="light"] .ant-typography.ant-typography-danger {
+  color: #dc2626 !important;
+}
+
+/* 回测页面 Tooltip */
+[data-theme="light"] .ant-tooltip-inner {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="light"] .ant-tooltip-arrow-content {
+  background: #1e293b !important;
+}
+
+/* 卡片顶部装饰线 */
+[data-theme="light"] .ant-card::before,
+[data-theme="light"] .market-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0284c7, #0891b2, #0284c7);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-theme="light"] .ant-card:hover::before,
+[data-theme="light"] .market-card:hover::before {
+  opacity: 1;
+}
+
+/* ==========================================
+   表格容器 - 纯白背景
+   ========================================== */
+
+[data-theme="light"] .table-wrapper,
+[data-theme="light"] .loading-container {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* ==========================================
+   统计卡片 - 浅色风格
+   ========================================== */
+
+[data-theme="light"] .stat-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+}
+
+[data-theme="light"] .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .stat-card.stat-total {
+  border-left: 3px solid #0284c7;
+}
+
+[data-theme="light"] .stat-card.stat-rising {
+  border-left: 3px solid #16a34a;
+}
+
+[data-theme="light"] .stat-card.stat-falling {
+  border-left: 3px solid #dc2626;
+}
+
+[data-theme="light"] .stat-card.stat-flat {
+  border-left: 3px solid #6b7280;
+}
+
+/* ==========================================
+   按钮组件增强
+   ========================================== */
+
+/* 主按钮 */
+[data-theme="light"] .ant-btn-primary,
+[data-theme="light"] .subscribe-btn {
+  background: #0284c7 !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2) !important;
+  color: #ffffff !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[data-theme="light"] .ant-btn-primary:hover,
+[data-theme="light"] .subscribe-btn:hover {
+  background: #0369a1 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(2, 132, 199, 0.3) !important;
+}
+
+/* 默认按钮 */
+[data-theme="light"] .ant-btn-default,
+[data-theme="light"] .refresh-btn,
+[data-theme="light"] .batch-import-btn,
+[data-theme="light"] .export-btn {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="light"] .ant-btn-default:hover,
+[data-theme="light"] .refresh-btn:hover,
+[data-theme="light"] .batch-import-btn:hover,
+[data-theme="light"] .export-btn:hover {
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+  background: #f8fafc !important;
+}
+
+/* 链接按钮 */
+[data-theme="light"] .ant-btn-link {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-btn-link:hover {
+  color: #0369a1 !important;
+}
+
+/* ==========================================
+   输入框组件增强 - 高对比度
+   ========================================== */
+
+[data-theme="light"] .ant-input,
+[data-theme="light"] .ant-input-affix-wrapper,
+[data-theme="light"] .symbol-input {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="light"] .ant-input:hover,
+[data-theme="light"] .ant-input-affix-wrapper:hover,
+[data-theme="light"] .symbol-input:hover {
+  border-color: #9ca3af !important;
+}
+
+[data-theme="light"] .ant-input:focus,
+[data-theme="light"] .ant-input-affix-wrapper-focused,
+[data-theme="light"] .symbol-input:focus {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-input::placeholder,
+[data-theme="light"] .symbol-input::placeholder {
+  color: #6b7280 !important;
+}
+
+/* 输入框前缀/后缀图标 */
+[data-theme="light"] .ant-input-prefix,
+[data-theme="light"] .ant-input-suffix {
+  color: #6b7280 !important;
+}
+
+/* 文本域 */
+[data-theme="light"] .ant-input-textarea textarea {
+  color: #0f172a !important;
+}
+
+/* ==========================================
+   表格组件增强 - 纯白风格 + 高对比度文字
+   强制覆盖 Ant Design 深色主题
+   ========================================== */
+
+/* 表格容器 */
+[data-theme="light"] .ant-table-wrapper,
+[data-theme="light"] .market-table {
+  background: transparent !important;
+}
+
+/* 表格主体 */
+[data-theme="light"] .ant-table,
+[data-theme="light"] .ant-table-container,
+[data-theme="light"] .ant-table-content,
+[data-theme="light"] .market-table {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+/* 表格内层 */
+[data-theme="light"] .ant-table-body,
+[data-theme="light"] .ant-table-content table {
+  background: #ffffff !important;
+}
+
+/* 表头 */
+[data-theme="light"] .ant-table-thead > tr > th,
+[data-theme="light"] .market-table .ant-table-thead > tr > th {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  letter-spacing: 0.5px !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+}
+
+/* 表格行 */
+[data-theme="light"] .ant-table-tbody > tr,
+[data-theme="light"] .market-table .ant-table-tbody > tr {
+  background: #ffffff !important;
+}
+
+/* 表格单元格 */
+[data-theme="light"] .ant-table-tbody > tr > td,
+[data-theme="light"] .market-table .ant-table-tbody > tr > td {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+/* 表格行悬停 */
+[data-theme="light"] .ant-table-tbody > tr:hover > td,
+[data-theme="light"] .market-table .ant-table-tbody > tr:hover > td {
+  background: #f8fafc !important;
+}
+
+/* 表格placeholder（空数据） */
+[data-theme="light"] .ant-table-placeholder {
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .ant-table-placeholder .ant-empty-description {
+  color: #64748b !important;
+}
+
+/* 表格边框 */
+[data-theme="light"] .ant-table,
+[data-theme="light"] .ant-table-container {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="light"] .ant-table-thead {
+  border-radius: 11px 11px 0 0 !important;
+  overflow: hidden;
+}
+
+/* 表格内链接颜色 */
+[data-theme="light"] .ant-table a,
+[data-theme="light"] .market-table a {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-table a:hover,
+[data-theme="light"] .market-table a:hover {
+  color: #0369a1 !important;
+}
+
+/* 上涨行 - 红色（中国市场习惯：红涨绿跌） */
+[data-theme="light"] .row-rising,
+[data-theme="light"] .market-table .row-rising {
+  background: rgba(220, 38, 38, 0.06) !important;
+}
+
+/* 下跌行 - 绿色 */
+[data-theme="light"] .row-falling,
+[data-theme="light"] .market-table .row-falling {
+  background: rgba(22, 163, 74, 0.06) !important;
+}
+
+/* 涨跌价格颜色 */
+[data-theme="light"] .price-up,
+[data-theme="light"] .text-up,
+[data-theme="light"] .change-up {
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] .price-down,
+[data-theme="light"] .text-down,
+[data-theme="light"] .change-down {
+  color: #16a34a !important;
+}
+
+/* ==========================================
+   分页组件增强
+   ========================================== */
+
+[data-theme="light"] .ant-pagination,
+[data-theme="light"] .market-table .ant-pagination {
+  background: transparent !important;
+}
+
+[data-theme="light"] .ant-pagination-item,
+[data-theme="light"] .market-table .ant-pagination-item {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="light"] .ant-pagination-item a,
+[data-theme="light"] .market-table .ant-pagination-item a {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-pagination-item:hover,
+[data-theme="light"] .market-table .ant-pagination-item:hover {
+  border-color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-pagination-item:hover a,
+[data-theme="light"] .market-table .ant-pagination-item:hover a {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-pagination-item-active,
+[data-theme="light"] .market-table .ant-pagination-item-active {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-pagination-item-active a,
+[data-theme="light"] .market-table .ant-pagination-item-active a {
+  color: #ffffff !important;
+}
+
+/* ==========================================
+   标签组件增强 - 高对比度文字
+   ========================================== */
+
+[data-theme="light"] .ant-tag {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 6px !important;
+  color: #1e293b !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="light"] .ant-tag:hover {
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+/* 成功/错误/警告标签 */
+[data-theme="light"] .ant-tag-green {
+  background: rgba(22, 163, 74, 0.1) !important;
+  border-color: rgba(22, 163, 74, 0.3) !important;
+  color: #15803d !important;
+}
+
+[data-theme="light"] .ant-tag-red {
+  background: rgba(220, 38, 38, 0.1) !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+  color: #b91c1c !important;
+}
+
+[data-theme="light"] .ant-tag-blue {
+  background: rgba(2, 132, 199, 0.1) !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .ant-tag-orange {
+  background: rgba(217, 119, 6, 0.1) !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+  color: #b45309 !important;
+}
+
+/* ==========================================
+   统计数字增强 - 高对比度
+   ========================================== */
+
+[data-theme="light"] .ant-statistic-title {
+  color: #475569 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .ant-statistic-content {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+/* 统计卡片文字 */
+[data-theme="light"] .stat-card .stat-value,
+[data-theme="light"] .stat-card .stat-label {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .stat-card .stat-label {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+/* ==========================================
+   弹窗组件增强 - 高对比度文字
+   ========================================== */
+
+[data-theme="light"] .ant-modal-content,
+[data-theme="light"] .chart-modal .ant-modal-content {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 10px 10px -5px rgba(15, 23, 42, 0.04) !important;
+}
+
+[data-theme="light"] .ant-modal-header,
+[data-theme="light"] .chart-modal .ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+[data-theme="light"] .ant-modal-title,
+[data-theme="light"] .chart-modal .ant-modal-title {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="light"] .ant-modal-close,
+[data-theme="light"] .chart-modal .ant-modal-close {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .ant-modal-close:hover,
+[data-theme="light"] .chart-modal .ant-modal-close:hover {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-modal-body,
+[data-theme="light"] .chart-modal .ant-modal-body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .ant-modal-footer,
+[data-theme="light"] .chart-modal .ant-modal-footer {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+/* ==========================================
+   下拉菜单增强 - 高对比度文字
+   ========================================== */
+
+[data-theme="light"] .ant-dropdown-menu,
+[data-theme="light"] .ant-select-dropdown {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05) !important;
+  padding: 4px !important;
+}
+
+[data-theme="light"] .ant-dropdown-menu-item,
+[data-theme="light"] .ant-select-item {
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+  color: #1e293b !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .ant-dropdown-menu-item:hover,
+[data-theme="light"] .ant-select-item-option-active {
+  background: #f1f5f9 !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-select-item-option-selected {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+  font-weight: 600 !important;
+}
+
+/* 下拉菜单标题 */
+[data-theme="light"] .ant-dropdown-menu-title-content {
+  color: #1e293b !important;
+}
+
+/* ==========================================
+   选择器增强 - 高对比度
+   ========================================== */
+
+[data-theme="light"] .ant-select-selector {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="light"] .ant-select:hover .ant-select-selector {
+  border-color: #9ca3af !important;
+}
+
+[data-theme="light"] .ant-select-focused .ant-select-selector {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+[data-theme="light"] .ant-select-selection-item {
+  color: #0f172a !important;
+  font-weight: 500 !important;
+}
+
+[data-theme="light"] .ant-select-selection-placeholder {
+  color: #6b7280 !important;
+}
+
+/* ==========================================
+   消息提示增强
+   ========================================== */
+
+[data-theme="light"] .ant-message-notice-content {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-message-success .anticon {
+  color: #16a34a !important;
+}
+
+[data-theme="light"] .ant-message-error .anticon {
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] .ant-message-info .anticon {
+  color: #0284c7 !important;
+}
+
+/* ==========================================
+   加载动画增强
+   ========================================== */
+
+[data-theme="light"] .ant-spin-dot-item {
+  background-color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-spin-text {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .loading-container .ant-spin-text {
+  color: #0284c7 !important;
+}
+
+/* ==========================================
+   滚动条美化
+   ========================================== */
+
+[data-theme="light"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+/* ==========================================
+   动画关键帧
+   ========================================== */
+
+/* 淡入动画 */
+@keyframes light-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 缩放动画 */
+@keyframes light-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 闪烁动画 - 上涨（红色 - 中国市场习惯） */
+@keyframes light-flash-up {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(220, 38, 38, 0.15); }
+  100% { background-color: transparent; }
+}
+
+/* 闪烁动画 - 下跌（绿色 - 中国市场习惯） */
+@keyframes light-flash-down {
+  0% { background-color: transparent; }
+  30% { background-color: rgba(22, 163, 74, 0.15); }
+  100% { background-color: transparent; }
+}
+
+/* 应用动画 */
+[data-theme="light"] .ant-card,
+[data-theme="light"] .market-card {
+  animation: light-fade-in 0.3s ease-out;
+}
+
+[data-theme="light"] .ant-modal-content,
+[data-theme="light"] .chart-modal .ant-modal-content {
+  animation: light-scale-in 0.2s ease-out;
+}
+
+[data-theme="light"] .price-flash-up {
+  animation: light-flash-up 0.8s ease-out;
+}
+
+[data-theme="light"] .price-flash-down {
+  animation: light-flash-down 0.8s ease-out;
+}
+
+/* ==========================================
+   响应式调整
+   ========================================== */
+
+@media (max-width: 768px) {
+  [data-theme="light"] .ant-card,
+  [data-theme="light"] .market-card {
+    border-radius: 8px !important;
+    margin: 8px;
+  }
+
+  [data-theme="light"] .ant-card:hover,
+  [data-theme="light"] .market-card:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================
+   日期选择器增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-picker {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-picker:hover {
+  border-color: #9ca3af !important;
+}
+
+[data-theme="light"] .ant-picker-focused {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+[data-theme="light"] .ant-picker-input > input {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-picker-input > input::placeholder {
+  color: #6b7280 !important;
+}
+
+[data-theme="light"] .ant-picker-separator {
+  color: #64748b !important;
+}
+
+/* 日期选择器下拉面板 */
+[data-theme="light"] .ant-picker-dropdown {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="light"] .ant-picker-panel-container {
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .ant-picker-header {
+  color: #0f172a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .ant-picker-header button {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-picker-header button:hover {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-picker-body {
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .ant-picker-content th {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-picker-cell {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end) > .ant-picker-cell-inner {
+  background: #f1f5f9 !important;
+}
+
+[data-theme="light"] .ant-picker-cell-selected > .ant-picker-cell-inner {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .ant-picker-cell-in-view {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-picker-cell-disabled {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================
+   数字输入框增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-input-number {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-input-number:hover {
+  border-color: #9ca3af !important;
+}
+
+[data-theme="light"] .ant-input-number-focused {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+[data-theme="light"] .ant-input-number-input {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-input-number-handler-wrap {
+  background: #f8fafc !important;
+}
+
+[data-theme="light"] .ant-input-number-handler {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-input-number-handler:hover {
+  color: #0284c7 !important;
+}
+
+/* ==========================================
+   单选/复选框增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-radio-wrapper {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-radio-inner {
+  border-color: #d1d5db !important;
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .ant-radio-checked .ant-radio-inner {
+  border-color: #0284c7 !important;
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .ant-radio-checked .ant-radio-inner::after {
+  background: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-checkbox-wrapper {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-checkbox-inner {
+  border-color: #d1d5db !important;
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .ant-checkbox-checked .ant-checkbox-inner {
+  border-color: #0284c7 !important;
+  background: #0284c7 !important;
+}
+
+/* ==========================================
+   开关增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-switch {
+  background: #cbd5e1 !important;
+}
+
+[data-theme="light"] .ant-switch-checked {
+  background: #0284c7 !important;
+}
+
+/* ==========================================
+   滑块增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-slider-rail {
+  background: #e2e8f0 !important;
+}
+
+[data-theme="light"] .ant-slider-track {
+  background: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-slider-handle {
+  border-color: #0284c7 !important;
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .ant-slider-mark-text {
+  color: #475569 !important;
+}
+
+/* ==========================================
+   折叠面板增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-collapse {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+
+[data-theme="light"] .ant-collapse-header {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-radius: 8px !important;
+}
+
+[data-theme="light"] .ant-collapse-content {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .ant-collapse-content > .ant-collapse-content-box {
+  color: #1e293b !important;
+}
+
+/* ==========================================
+   步骤条增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-steps-item-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-steps-item-description {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-steps-item-icon {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .ant-steps-item-icon .ant-steps-icon {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-steps-item-process .ant-steps-item-icon {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-steps-item-finish .ant-steps-item-icon {
+  background: #ffffff !important;
+  border-color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+  color: #0284c7 !important;
+}
+
+/* ==========================================
+   骨架屏增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-skeleton-title {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%) !important;
+}
+
+[data-theme="light"] .ant-skeleton-paragraph > li {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%) !important;
+}
+
+/* ==========================================
+   抽屉组件增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-drawer-content {
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .ant-drawer-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .ant-drawer-title {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .ant-drawer-close {
+  color: #64748b !important;
+}
+
+[data-theme="light"] .ant-drawer-close:hover {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-drawer-body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+/* ==========================================
+   时间轴增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-timeline-item-content {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .ant-timeline-item-tail {
+  border-left-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .ant-timeline-item-head {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-timeline-item-head-blue {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================
+   树形控件增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-tree {
+  background: transparent !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-tree .ant-tree-node-content-wrapper {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .ant-tree .ant-tree-node-content-wrapper:hover {
+  background: #f1f5f9 !important;
+}
+
+[data-theme="light"] .ant-tree .ant-tree-node-selected {
+  background: #e0f2fe !important;
+}
+
+[data-theme="light"] .ant-tree .ant-tree-treenode-checkbox-checked .ant-tree-node-content-wrapper {
+  background: #e0f2fe !important;
+}
+
+[data-theme="light"] .ant-tree-iconEle {
+  color: #64748b !important;
+}
+
+/* ==========================================
+   通知组件增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-notification-notice {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="light"] .ant-notification-notice-message {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .ant-notification-notice-description {
+  color: #475569 !important;
+}
+
+/* ==========================================
+   结果页增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-result-title {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .ant-result-subtitle {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-result-content {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+}
+
+/* ==========================================
+   面包屑增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-breadcrumb {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .ant-breadcrumb a {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-breadcrumb a:hover {
+  color: #0369a1 !important;
+}
+
+[data-theme="light"] .ant-breadcrumb > span:last-child {
+  color: #0f172a !important;
+}
+
+/* ==========================================
+   头像增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-avatar {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .ant-avatar-string {
+  color: #ffffff !important;
+}
+
+/* ==========================================
+   徽标增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-badge-count {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .ant-badge-dot {
+  background: #dc2626 !important;
+}
+
+/* ==========================================
+   评分增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-rate-star {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .ant-rate-star-full {
+  color: #fbbf24 !important;
+}
+
+[data-theme="light"] .ant-rate-star-half .ant-rate-star-first {
+  color: #fbbf24 !important;
+}
+
+/* ==========================================
+   传送门/气泡卡片增强 - 浅色主题
+   ========================================== */
+
+[data-theme="light"] .ant-popover {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1) !important;
+}
+
+[data-theme="light"] .ant-popover-title {
+  color: #0f172a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="light"] .ant-popover-inner-content {
+  color: #1e293b !important;
+}
+
+[data-theme="light"] .ant-popover-arrow-content {
+  background: #ffffff !important;
+}
+
+/* ==========================================
+   全局文字颜色强制覆盖
+   确保所有文字在白色背景上清晰可见
+   ========================================== */
+
+/* 强制覆盖所有 Ant Design 组件的默认文字颜色 */
+[data-theme="light"] .ant-layout,
+[data-theme="light"] .ant-layout-content,
+[data-theme="light"] .ant-layout-header,
+[data-theme="light"] .ant-layout-sider,
+[data-theme="light"] .ant-layout-footer {
+  color: #0f172a;
+}
+
+/* 表格排序图标 */
+[data-theme="light"] .ant-table-column-sorter-up,
+[data-theme="light"] .ant-table-column-sorter-down {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .ant-table-column-sorter-up.active,
+[data-theme="light"] .ant-table-column-sorter-down.active {
+  color: #0284c7 !important;
+}
+
+/* 表格筛选图标 */
+[data-theme="light"] .ant-table-filter-trigger {
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .ant-table-filter-trigger:hover {
+  color: #0284c7 !important;
+}
+
+[data-theme="light"] .ant-table-filter-trigger.active {
+  color: #0284c7 !important;
+}
+
+/* ==========================================
+   页面标题样式增强
+   ========================================== */
+
+[data-theme="light"] .page-title,
+[data-theme="light"] .page-header h1,
+[data-theme="light"] .page-header h2 {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+[data-theme="light"] .page-subtitle,
+[data-theme="light"] .page-header p {
+  color: #475569 !important;
+}

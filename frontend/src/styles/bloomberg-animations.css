@@ -1,0 +1,221 @@
+/**
+ * 彭博终端主题 - 动画效果系统
+ * Bloomberg Terminal Animation System
+ */
+
+:root {
+  /* 动画时长 */
+  --bb-transition-fast: 100ms;
+  --bb-transition-base: 200ms;
+  --bb-transition-slow: 300ms;
+
+  /* 缓动函数 */
+  --bb-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --bb-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --bb-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   价格闪烁动画
+   （用于实时行情价格变化）
+   ======================================== */
+
+@keyframes flash-up {
+  0% {
+    background-color: var(--bb-up-bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes flash-down {
+  0% {
+    background-color: var(--bb-down-bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.flash-up {
+  animation: flash-up 0.5s ease-out;
+}
+
+.flash-down {
+  animation: flash-down 0.5s ease-out;
+}
+
+/* ========================================
+   脉冲动画
+   （用于重要状态提示）
+   ======================================== */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ========================================
+   淡入淡出动画
+   ======================================== */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fade-in var(--bb-transition-base) var(--bb-ease-out);
+}
+
+.fade-out {
+  animation: fade-out var(--bb-transition-base) var(--bb-ease-in);
+}
+
+/* ========================================
+   滑动动画
+   ======================================== */
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slide-in-right {
+  animation: slide-in-right var(--bb-transition-base) var(--bb-ease-out);
+}
+
+.slide-in-left {
+  animation: slide-in-left var(--bb-transition-base) var(--bb-ease-out);
+}
+
+/* ========================================
+   缩放动画
+   ======================================== */
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.scale-in {
+  animation: scale-in var(--bb-transition-base) var(--bb-ease-out);
+}
+
+/* ========================================
+   加载动画
+   ======================================== */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--bb-border);
+  border-top-color: var(--bb-accent-primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* ========================================
+   打字机效果
+   （用于终端风格文本显示）
+   ======================================== */
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: var(--bb-accent-primary);
+  }
+}
+
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--bb-accent-primary);
+  animation: typing 3.5s steps(40, end),
+             blink-caret 0.75s step-end infinite;
+}
+
+/* ========================================
+   过渡工具类
+   ======================================== */
+
+.transition-all {
+  transition: all var(--bb-transition-base) var(--bb-ease-out);
+}
+
+.transition-colors {
+  transition: color var(--bb-transition-fast) var(--bb-ease-out),
+              background-color var(--bb-transition-fast) var(--bb-ease-out),
+              border-color var(--bb-transition-fast) var(--bb-ease-out);
+}
+
+.transition-opacity {
+  transition: opacity var(--bb-transition-base) var(--bb-ease-out);
+}
+
+.transition-transform {
+  transition: transform var(--bb-transition-base) var(--bb-ease-out);
+}

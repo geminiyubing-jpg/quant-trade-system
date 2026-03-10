@@ -1,0 +1,536 @@
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-header, var(--bb-bg-secondary));
+  border-bottom: 1px solid var(--bg-header-border, var(--bb-border));
+  padding: 0 24px;
+  height: 64px;
+  font-family: var(--font-sans);
+}
+
+/* 左侧：系统 Logo */
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  min-width: 220px;
+}
+
+.system-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: var(--bb-radius-md);
+  transition: all var(--bb-transition-base) var(--bb-ease-out);
+}
+
+.system-logo:hover {
+  background: var(--bb-bg-hover);
+  transform: translateX(2px);
+}
+
+/* Logo 图标容器 - 双圈设计 */
+.logo-icon-wrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 外圈 - 橙色光晕 */
+.logo-icon-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--bb-accent-primary);
+  opacity: 0.3;
+  animation: ring-pulse 3s ease-in-out infinite;
+}
+
+@keyframes ring-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.1;
+  }
+}
+
+/* 内圈 - 深色背景 */
+.logo-icon-inner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+  border: 1.5px solid var(--bb-accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 15px rgba(255, 107, 0, 0.2),
+              inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Logo 图标 - 上升箭头 */
+.logo-icon-symbol {
+  font-size: 18px;
+  color: var(--bb-accent-primary);
+  filter: drop-shadow(0 0 4px rgba(255, 107, 0, 0.5));
+  animation: symbol-float 4s ease-in-out infinite;
+}
+
+@keyframes symbol-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* 装饰点 - 科技感 */
+.logo-icon-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--bb-accent-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--bb-accent-primary);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+.logo-icon-dot.top-right {
+  top: 2px;
+  right: 4px;
+  animation-delay: 0s;
+}
+
+.logo-icon-dot.bottom-left {
+  bottom: 2px;
+  left: 4px;
+  animation-delay: 1s;
+}
+
+@keyframes dot-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Logo 文字 */
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 主标题 - Quant | Trade */
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1;
+  font-family: var(--font-sans);
+}
+
+.logo-main {
+  color: var(--bb-text-primary);
+  font-weight: 800;
+  font-size: 17px;
+  font-family: var(--font-sans);
+  letter-spacing: -0.3px;
+}
+
+.logo-divider {
+  color: var(--bb-accent-primary);
+  font-weight: 300;
+  font-size: 18px;
+  opacity: 0.8;
+  font-family: var(--font-sans);
+}
+
+.logo-accent {
+  color: var(--bb-accent-primary);
+  font-weight: 800;
+  font-size: 17px;
+  text-shadow: 0 0 12px rgba(255, 107, 0, 0.4);
+  letter-spacing: -0.2px;
+  font-family: var(--font-sans);
+}
+
+/* 副标题 */
+.logo-subtitle {
+  display: flex;
+  align-items: center;
+  font-size: 8px;
+  color: var(--bb-text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+.top-bar-left h2 {
+  display: none; /* 隐藏原来的标题 */
+}
+
+/* 中央：搜索框 */
+.top-bar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.top-bar-search .ant-input {
+  background: var(--bb-bg-input);
+  border: 1px solid var(--bb-border);
+  color: var(--bb-text-primary);
+}
+
+.top-bar-search .ant-input::placeholder {
+  color: var(--bb-text-muted);
+}
+
+.top-bar-search .ant-input:focus {
+  border-color: var(--bb-border-focus);
+  box-shadow: var(--bb-glow);
+}
+
+/* 右侧：功能按钮 */
+.top-bar-right {
+  display: flex;
+  align-items: center;
+}
+
+.top-bar-icon {
+  font-size: 18px;
+  color: var(--bb-text-secondary);
+  cursor: pointer;
+  transition: color var(--bb-transition-fast);
+}
+
+.top-bar-icon:hover {
+  color: var(--bb-text-primary);
+}
+
+/* 用户头像 */
+.top-bar-avatar {
+  background: var(--bb-accent-primary);
+  cursor: pointer;
+  transition: all var(--bb-transition-fast);
+}
+
+.top-bar-avatar:hover {
+  background: var(--bb-accent-primary-hover);
+}
+
+/* 移动端菜单按钮 */
+.mobile-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  color: var(--bb-text-secondary);
+  cursor: pointer;
+  border-radius: var(--bb-radius-sm);
+  transition: all var(--bb-transition-fast);
+  margin-right: 8px;
+}
+
+.mobile-menu-btn:hover {
+  background: var(--bb-bg-hover);
+  color: var(--bb-accent-primary);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .top-bar {
+    padding: 0 12px;
+  }
+
+  .top-bar-left {
+    min-width: auto;
+  }
+
+  .system-logo {
+    padding: 8px;
+  }
+
+  .logo-icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo-icon-inner {
+    width: 28px;
+    height: 28px;
+  }
+
+  .logo-icon-symbol {
+    font-size: 14px;
+  }
+
+  .top-bar-right .ant-space {
+    gap: 8px !important;
+  }
+
+  .top-bar-icon {
+    font-size: 16px;
+  }
+
+  .top-bar-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ==========================================
+   TopBar 统一控件样式
+   ========================================== */
+
+/* 统一边框变量 - 所有控件使用完全相同的边框 */
+:root {
+  --topbar-border-color: rgba(255, 255, 255, 0.15);
+  --topbar-border-color-hover: rgba(255, 255, 255, 0.3);
+  --topbar-border-width: 1px;
+  --topbar-border-radius: 6px;
+}
+
+/* 交易模式切换器 Tag - 统一高度和样式 */
+.trading-mode-tag {
+  background: transparent !important;
+  border: var(--topbar-border-width) solid var(--topbar-border-color) !important;
+  border-radius: var(--topbar-border-radius) !important;
+  box-sizing: border-box !important;
+  transition: all var(--bb-transition-fast) var(--bb-ease-out);
+  height: 28px !important;
+  padding: 4px 8px 4px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+.trading-mode-tag:hover {
+  border: var(--topbar-border-width) solid var(--topbar-border-color-hover) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 强制覆盖 Ant Design Tag 默认样式 */
+.trading-mode-tag.ant-tag {
+  border-width: var(--topbar-border-width) !important;
+  border-style: solid !important;
+}
+
+/* 交易模式切换按钮 - 统一高度和样式 */
+.trading-mode-switch-btn {
+  background: transparent !important;
+  border: var(--topbar-border-width) solid var(--topbar-border-color) !important;
+  border-radius: var(--topbar-border-radius) !important;
+  color: var(--bb-text-secondary) !important;
+  box-sizing: border-box !important;
+  transition: all var(--bb-transition-fast) var(--bb-ease-out);
+  height: 28px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  line-height: 1 !important;
+}
+
+.trading-mode-switch-btn:hover {
+  border: var(--topbar-border-width) solid var(--topbar-border-color-hover) !important;
+  color: var(--bb-text-primary) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 强制覆盖 Ant Design Button 默认样式 */
+.trading-mode-switch-btn.ant-btn {
+  border-width: var(--topbar-border-width) !important;
+  border-style: solid !important;
+}
+
+/* 统一按钮内的图标大小和垂直对齐 */
+.trading-mode-switch-btn .anticon,
+.trading-mode-tag .anticon {
+  font-size: 13px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* 确保按钮内的文字垂直对齐 */
+.trading-mode-switch-btn > span,
+.trading-mode-tag > span {
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
+}
+
+/* 语言切换器 */
+.language-switcher .ant-select-selector {
+  background-color: transparent !important;
+  border: var(--topbar-border-width) solid var(--topbar-border-color) !important;
+  border-radius: var(--topbar-border-radius) !important;
+  box-sizing: border-box !important;
+  transition: all var(--bb-transition-fast) var(--bb-ease-out);
+}
+
+.language-switcher:hover .ant-select-selector {
+  border: var(--topbar-border-width) solid var(--topbar-border-color-hover) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 语言选项高亮 */
+.language-switcher .ant-select-selection-item {
+  color: var(--bb-text-primary);
+}
+
+/* ==========================================
+   浅色主题适配
+   优化文字可读性，确保所有文字在深蓝背景上清晰可见
+   ========================================== */
+[data-theme="light"] .top-bar {
+  background: var(--bg-header, #1e3a5f);
+  border-bottom: 1px solid var(--bg-header-border, #2d4a6f);
+}
+
+[data-theme="light"] .system-logo:hover {
+  background: var(--bg-sidebar-hover, #2d4a6f);
+}
+
+/* Logo 文字 - 浅色主题下使用纯白色 */
+[data-theme="light"] .logo-main {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .logo-accent {
+  color: #93c5fd !important;
+  text-shadow: 0 0 12px rgba(147, 197, 253, 0.5) !important;
+}
+
+[data-theme="light"] .logo-divider {
+  color: #93c5fd !important;
+}
+
+/* 副标题 - 更亮的颜色 */
+[data-theme="light"] .logo-subtitle {
+  color: #cbd5e1 !important;
+}
+
+/* Logo 内圈 - 浅色主题 */
+[data-theme="light"] .logo-icon-inner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  border: 1.5px solid #93c5fd !important;
+  box-shadow: 0 0 15px rgba(147, 197, 253, 0.4),
+              inset 0 0 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="light"] .logo-icon-symbol {
+  color: #93c5fd !important;
+  filter: drop-shadow(0 0 4px rgba(147, 197, 253, 0.6)) !important;
+}
+
+[data-theme="light"] .logo-icon-ring {
+  border-color: #93c5fd !important;
+}
+
+[data-theme="light"] .logo-icon-dot {
+  background: #93c5fd !important;
+  box-shadow: 0 0 8px #93c5fd !important;
+}
+
+/* 浅色主题下的控件边框颜色 - 在深蓝背景上使用更明显的边框 */
+[data-theme="light"] {
+  --topbar-border-color: rgba(255, 255, 255, 0.3);
+  --topbar-border-color-hover: rgba(255, 255, 255, 0.5);
+}
+
+/* 控件文字 - 纯白色确保可读性 */
+[data-theme="light"] .trading-mode-tag,
+[data-theme="light"] .trading-mode-switch-btn,
+[data-theme="light"] .language-switcher .ant-select-selector {
+  border-color: var(--topbar-border-color) !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .trading-mode-tag:hover,
+[data-theme="light"] .trading-mode-switch-btn:hover,
+[data-theme="light"] .language-switcher:hover .ant-select-selector {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: var(--topbar-border-color-hover) !important;
+  color: #ffffff !important;
+}
+
+/* 语言选择器下拉选项 */
+[data-theme="light"] .language-switcher .ant-select-selection-item {
+  color: #ffffff !important;
+}
+
+/* 搜索框浅色主题 - 更明显的输入框 */
+[data-theme="light"] .top-bar-search .ant-input {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .top-bar-search .ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-theme="light"] .top-bar-search .ant-input:focus {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.25) !important;
+}
+
+/* 头像浅色主题 */
+[data-theme="light"] .top-bar-avatar {
+  background: #93c5fd !important;
+}
+
+[data-theme="light"] .top-bar-avatar:hover {
+  background: #60a5fa !important;
+}
+
+/* 图标浅色主题 - 更亮的颜色 */
+[data-theme="light"] .top-bar-icon {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .top-bar-icon:hover {
+  color: #93c5fd !important;
+}
+
+/* 移动端菜单按钮 */
+[data-theme="light"] .mobile-menu-btn {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .mobile-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #93c5fd !important;
+}

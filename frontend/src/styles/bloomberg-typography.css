@@ -1,0 +1,130 @@
+/**
+ * 彭博终端主题 - 字体系统
+ * Bloomberg Terminal Typography System
+ */
+
+/* 引入 Inter 字体 - 专业金融系统首选 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* 字体家族 */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Liberation Mono', monospace;
+  --font-numeric: 'Roboto Mono', 'SF Mono', 'Consolas', monospace;
+
+  /* 字号 - 彭博终端风格（较小字号，高信息密度） */
+  --text-xs: 11px;        /* 超小文本 */
+  --text-sm: 12px;        /* 小文本 */
+  --text-base: 13px;      /* 基础文本 */
+  --text-lg: 14px;        /* 大文本 */
+  --text-xl: 16px;        /* 超大文本 */
+  --text-2xl: 18px;       /* 标题 */
+  --text-3xl: 20px;       /* 大标题 */
+
+  /* 行高 */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* 字重 */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* 字母间距 */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+}
+
+/* ========================================
+   数字字体优化 - 专为金融数据设计
+   ======================================== */
+
+.numeric {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;  /* 等宽数字 */
+  letter-spacing: 0.02em;
+  font-feature-settings: "tnum";       /* 表格数字 */
+}
+
+/* 价格显示样式 */
+.price {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-semibold);
+}
+
+.price-large {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+}
+
+.price-small {
+  font-size: var(--text-sm);
+  font-weight: var(--font-normal);
+}
+
+/* 百分比样式 */
+.percentage {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+}
+
+.percentage::after {
+  content: "%";
+  margin-left: 2px;
+}
+
+/* 货币样式 */
+.currency::before {
+  content: "¥";
+  margin-right: 2px;
+}
+
+/* 数据精度控制 */
+.precision-2 {
+  font-variant-numeric: tabular-nums fixed-digits;
+}
+
+/* ========================================
+   终端风格文本
+   ======================================== */
+
+.terminal-text {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-normal);
+}
+
+/* ========================================
+   标题样式
+   ======================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-mono);
+  font-weight: var(--font-semibold);
+  color: var(--bb-text-primary);
+  margin-bottom: var(--bb-space-sm);
+}
+
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+h5 { font-size: var(--text-base); }
+h6 { font-size: var(--text-sm); }
+
+/* ========================================
+   段落样式
+   ======================================== */
+
+p {
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--bb-text-primary);
+  margin-bottom: var(--bb-space-md);
+}

@@ -1,6 +1,7 @@
 # Quant-Trade System - 快速开始指南
 
 > **5 分钟快速启动** | 从零到运行
+> **版本**: v2.2.0 | **更新日期**: 2026-03-10
 
 ---
 
@@ -131,28 +132,34 @@ npm start
 
 安装完成后，您可以：
 
-### 1. 获取数据
-```python
-from backend.src.services.data import DataManager
-
-manager = DataManager()
-data = manager.get_stock_data(
-    symbol="000001.SZ",
-    start_date="2024-01-01",
-    end_date="2024-12-31"
-)
-```
+### 1. 获取实时行情
+访问 http://localhost:3000/market/realtime，订阅实时股票行情。
 
 ### 2. 创建策略
 访问 http://localhost:3000/strategy，创建您的第一个交易策略。
 
 ### 3. 运行回测
 访问 http://localhost:3000/backtest，测试策略历史表现。
+- 支持因子分析（IC、IC_IR、因子收益）
+- 支持归因分析（配置效应、选股效应）
+- 支持扩展指标（Sortino、Calmar、Alpha、Beta、VaR）
 
-### 4. 阅读文档
-- [开发指南](./DEVELOPMENT.md)
+### 4. 管理投资组合
+访问 http://localhost:3000/portfolio，管理您的投资组合。
+- 组合持仓管理
+- 风险度量（VaR、CVaR、集中度）
+- 组合优化（均值方差、风险平价、最大夏普）
+
+### 5. 模拟交易
+访问 http://localhost:3000/trading，体验模拟交易。
+- 订单管理
+- 成交记录
+- 交易日历
+
+### 6. 阅读文档
+- [系统架构](./SYSTEM_ARCHITECTURE.md)
 - [API 文档](./API.md)
-- [数据库设计](./DATABASE.md)
+- [WebSocket 架构](../backend/docs/WEBSOCKET_ARCHITECTURE.md)
 
 ---
 
@@ -230,12 +237,27 @@ npm config set registry https://registry.npmmirror.com
 
 ## 🎉 开始使用
 
-恭喜！您已经成功启动 Quant-Trade System。
+恭喜！您已经成功启动 Quant-Trade System v2.2.0。
 
 现在可以：
-- 📊 探索数据管理功能
+- 📊 探索实时行情功能
 - 🧮 创建您的第一个策略
-- 📈 运行历史回测
+- 📈 运行历史回测（支持因子分析和归因分析）
+- 💼 管理投资组合
 - 💹 开始模拟交易
+- 🤖 体验 AI 增强功能
+
+### 功能概览
+
+| 功能模块 | 页面路由 | 状态 |
+|----------|----------|:----:|
+| 用户认证 | /login | ✅ |
+| 仪表盘 | /dashboard | ✅ |
+| 策略管理 | /strategy | ✅ |
+| 策略回测 | /backtest | ✅ |
+| 交易管理 | /trading | ✅ |
+| 投资组合 | /portfolio | ✅ |
+| 实时行情 | /market/realtime | ✅ |
+| AI 实验室 | /ai-lab | ✅ |
 
 **祝您交易愉快！** 🚀

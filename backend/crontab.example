@@ -1,0 +1,77 @@
+# Quant-Trade System 定时任务配置
+
+# 每日收盘后自动更新股票数据
+# 默认时间：每个交易日 15:30（A股收盘后）
+
+# 环境变量
+PROJECT_PATH="/Users/yubing/quant-trade-system/backend"
+PYTHON_PATH="/usr/bin/python3"
+LOG_PATH="$PROJECT_PATH/logs"
+
+# 确保日志目录存在
+mkdir -p $LOG_PATH
+
+# ==============================================
+# Cron 任务配置
+# ==============================================
+
+# 每日 15:30 执行增量更新（周一到周五）
+# 30 15 * * 1-5 cd $PROJECT_PATH && $PYTHON_PATH scripts/incremental_update.py >> $LOG_PATH/incremental_update.log 2>&1
+
+# 每周六 02:00 执行全量更新（补充数据）
+# 0 2 * * 6 cd $PROJECT_PATH && $PYTHON_PATH scripts/batch_import_stock_data.py --all >> $LOG_PATH/batch_update.log 2>&1
+
+# 每周日 03:00 执行数据质量检查
+# 0 3 * * 0 cd $PROJECT_PATH && $PYTHON_PATH scripts/data_quality_check.py >> $LOG_PATH/quality_check.log 2>&1
+
+# ==============================================
+# 使用说明
+# ==============================================
+
+# 1. 将此文件复制到系统 crontab:
+#    crontab -e
+#    然后复制上面的任务配置（去掉注释）
+
+# 2. 或者使用 systemd timer（推荐）:
+#    sudo cp quant-trading-data-update.service /etc/systemd/system/
+#    sudo cp quant-trading-data-update.timer /etc/systemd/system/
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable quant-trading-data-update.timer
+#    sudo systemctl start quant-trading-data-update.timer
+
+# 3. 测试定时任务:
+#    # 模拟运行（不实际更新）
+#    python3 scripts/incremental_update.py --dry-run
+#
+#    # 手动运行增量更新
+#    python3 scripts/incremental_update.py
+
+# ==============================================
+# 监控和告警
+# ==============================================
+
+# 日志文件位置:
+# - 增量更新日志: logs/incremental_update.log
+# - 批量更新日志: logs/batch_update.log
+# - 数据质量日志: logs/quality_check.log
+
+# 查看最近日志:
+# tail -f logs/incremental_update.log
+
+# 检查任务是否运行:
+# ps aux | grep incremental_update
+
+# ==============================================
+# 故障排查
+# ==============================================
+
+# 如果任务没有运行:
+# 1. 检查 crontab: crontab -l
+# 2. 检查日志: tail logs/incremental_update.log
+# 3. 检查 Python 路径: which python3
+# 4. 手动运行测试: python3 scripts/incremental_update.py
+
+# 如果数据更新失败:
+# 1. 检查网络连接: ping akshare.akfamily.xyz
+# 2. 检查数据库连接: python3 -c "from src.core.database import engine; print(engine.connect())"
+# 3. 查看详细错误日志
