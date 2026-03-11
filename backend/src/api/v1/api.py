@@ -14,6 +14,7 @@ from src.api.v1.endpoints import (
     strategy,
     backtest,
     trading,
+    market_dynamics,
 )
 
 
@@ -44,3 +45,6 @@ api_router.include_router(backtest.router, prefix="/backtest", tags=["Backtest"]
 
 # 交易
 api_router.include_router(trading.router, prefix="/trading", tags=["Trading"])
+
+# 市场动态
+api_router.include_router(market_dynamics.router, tags=["Market Dynamics"])

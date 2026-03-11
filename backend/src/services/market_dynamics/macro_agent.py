@@ -211,7 +211,8 @@ class MacroAgent:
 
         # 提取国家
         country = 'CN'  # 默认中国
-        if '美国' in query or 'US' in query_upper := query.upper():
+        query_upper = query.upper()
+        if '美国' in query or 'US' in query_upper:
             country = 'US'
         elif '欧盟' in query or '欧洲' in query:
             country = 'EU'

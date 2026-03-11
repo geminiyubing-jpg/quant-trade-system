@@ -16,18 +16,14 @@ import {
   Space,
   Tabs,
   List,
-  Select,
   message,
   Typography,
-  Divider,
   Card,
-  Empty,
   Tooltip,
 } from 'antd';
 import {
   SearchOutlined,
   PlusOutlined,
-  CloseOutlined,
   ClearOutlined,
   ImportOutlined,
   AppstoreOutlined,
@@ -184,7 +180,7 @@ const StockSelector: React.FC<StockSelectorProps> = ({
   };
 
   // 板块批量添加
-  const handleSectorSelect = (sectorName: string, stocks: string[]) => {
+  const handleSectorSelect = (_sectorName: string, stocks: string[]) => {
     const newCodes = stocks.filter((s) => !value.includes(s));
     if (newCodes.length === 0) {
       message.info('该板块股票已全部在列表中');

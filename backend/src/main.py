@@ -280,6 +280,10 @@ app.include_router(data_engine.router, prefix="/api/v1/data-engine", tags=["数�
 from .api.v1.endpoints import sector
 app.include_router(sector.router, prefix="/api/v1/data", tags=["板块分析"])
 
+# 市场动态路由（美林时钟 + 宏观分析）
+from .api.v1.endpoints import market_dynamics
+app.include_router(market_dynamics.router, tags=["Market Dynamics"])
+
 
 # ==============================================
 # 启动命令

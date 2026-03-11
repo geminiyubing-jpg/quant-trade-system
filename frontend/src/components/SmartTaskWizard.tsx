@@ -51,6 +51,9 @@ const { Text, Paragraph } = Typography;
 // 类型定义
 // ==============================================
 
+// 任务类型
+type TaskType = 'stock_daily' | 'stock_info' | 'factor' | 'index' | 'custom';
+
 interface SmartTaskWizardProps {
   visible: boolean;
   onClose: () => void;
@@ -60,7 +63,7 @@ interface SmartTaskWizardProps {
 
 export interface TaskCreateParams {
   name: string;
-  task_type: string;
+  task_type: TaskType;
   config: Record<string, any>;
   schedule?: string;
 }

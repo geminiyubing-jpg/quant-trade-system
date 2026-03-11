@@ -58,7 +58,10 @@ COMMENT ON TABLE asset_allocations IS '基于美林时钟的资产配置推荐';
 -- 3. 宏观指标数据表
 -- ============================================================================
 
-CREATE TABLE IF NOT EXISTS macro_indicators (
+-- 删除旧表（如果存在且结构不同）
+DROP TABLE IF EXISTS macro_indicators CASCADE;
+
+CREATE TABLE macro_indicators (
     id SERIAL PRIMARY KEY,
     indicator_id VARCHAR(50) NOT NULL,
     country VARCHAR(20) NOT NULL,

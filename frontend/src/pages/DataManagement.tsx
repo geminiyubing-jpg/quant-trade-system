@@ -16,9 +16,6 @@ import {
   Button,
   Space,
   Tag,
-  Modal,
-  Form,
-  Input,
   Select,
   message,
   Progress,
@@ -26,7 +23,6 @@ import {
   Row,
   Col,
   Typography,
-  Divider,
 } from 'antd';
 import {
   DatabaseOutlined,
@@ -45,24 +41,20 @@ import {
   DeleteOutlined,
   SyncOutlined,
   ThunderboltOutlined,
-  LineChartOutlined,
-  StockOutlined,
-  CalculatorOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import dataService, {
   ETLTask,
   ETLTaskStatus,
-  ETLTaskCreate,
   DataSource,
   QualityReport,
 } from '../services/data';
 import SmartTaskWizard, { TaskCreateParams } from '../components/SmartTaskWizard';
-import { QUICK_TEMPLATES, getTaskConfig, getDateRangeFromPreset } from '../config/taskSchemas';
+import { QUICK_TEMPLATES, getDateRangeFromPreset } from '../config/taskSchemas';
 import './DataManagement.css';
 
-const { Title, Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -100,7 +92,6 @@ const DataManagement: React.FC = () => {
   const [etlTasks, setEtlTasks] = useState<ETLTask[]>([]);
   const [etlLoading, setEtlLoading] = useState(false);
   const [wizardVisible, setWizardVisible] = useState(false);
-  const [etlForm] = Form.useForm();
 
   // 数据源相关状态
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
@@ -252,7 +243,7 @@ const DataManagement: React.FC = () => {
   // 创建 ETL 任务
   const handleCreateETLTask = async (params: TaskCreateParams) => {
     try {
-      await dataService.createETLTask(params);
+      await dataService.createETLTask(params as any);
       message.success('任务创建成功');
       loadETLTasks();
     } catch (error) {
