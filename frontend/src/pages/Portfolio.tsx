@@ -19,7 +19,8 @@ import {
   PieChartOutlined, PlusOutlined, SafetyOutlined,
   ThunderboltOutlined,
   FileTextOutlined, HistoryOutlined, CalculatorOutlined,
-  ReloadOutlined, LineChartOutlined, TrophyOutlined, RiseOutlined, FallOutlined
+  ReloadOutlined, LineChartOutlined, TrophyOutlined, RiseOutlined, FallOutlined,
+  DownloadOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -61,6 +62,10 @@ const PortfolioPage: React.FC = () => {
     start_date: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
     end_date: dayjs().format('YYYY-MM-DD'),
   });
+
+  // 优化记录详情弹窗状态
+  const [optDetailModalVisible, setOptDetailModalVisible] = useState(false);
+  const [selectedOptimization, setSelectedOptimization] = useState<OptimizationResult | null>(null);
 
   // 加载投资组合列表
   const loadPortfolios = useCallback(async () => {
@@ -218,6 +223,44 @@ const PortfolioPage: React.FC = () => {
     });
   };
 
+  // 导出持仓
+  const handleExportPositions = () => {
+    if (portfolioPositions.length === 0) {
+      message.warning('暂无持仓数据可导出');
+      return;
+    }
+
+    // 生成CSV内容
+    const headers = ['股票代码', '持仓数量', '成本价', '现价', '市值', '权重', '目标权重', '行业', '浮动盈亏'];
+    const rows = portfolioPositions.map(p => [
+      p.symbol,
+      p.quantity,
+      p.avg_cost?.toFixed(2) || '',
+      p.current_price?.toFixed(2) || '',
+      p.market_value?.toFixed(2) || '',
+      ((p.weight || 0) * 100).toFixed(2) + '%',
+      ((p.target_weight || 0) * 100).toFixed(2) + '%',
+      p.sector || '',
+      p.unrealized_pnl?.toFixed(2) || '',
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `portfolio_positions_${selectedPortfolio?.name || 'export'}_${dayjs().format('YYYYMMDD')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    message.success('持仓数据导出成功');
+  };
+
+  // 查看优化记录详情
+  const handleViewOptDetail = (opt: OptimizationResult) => {
+    setSelectedOptimization(opt);
+    setOptDetailModalVisible(true);
+  };
+
   // 持仓表格列
   const positionColumns: ColumnsType<PortfolioPosition> = [
     { title: '股票代码', dataIndex: 'symbol', key: 'symbol' },
@@ -280,10 +323,12 @@ const PortfolioPage: React.FC = () => {
     },
     {
       title: '操作', key: 'action',
-      render: (_, r) => r.status === 'PENDING' && (
+      render: (_, r) => (
         <Space>
-          <Button type="link" size="small" onClick={() => handleApplyOptimization(r.id)}>应用</Button>
-          <Button type="link" size="small">详情</Button>
+          {r.status === 'PENDING' && (
+            <Button type="link" size="small" onClick={() => handleApplyOptimization(r.id)}>应用</Button>
+          )}
+          <Button type="link" size="small" onClick={() => handleViewOptDetail(r)}>详情</Button>
         </Space>
       )
     },
@@ -408,7 +453,7 @@ const PortfolioPage: React.FC = () => {
         <TabPane tab={<span><FileTextOutlined /> 概览</span>} key="overview">
           <Row gutter={16}>
             <Col span={16}>
-              <Card title="持仓列表" extra={<Button type="link">导出</Button>}>
+              <Card title="持仓列表" extra={<Button type="link" icon={<DownloadOutlined />} onClick={handleExportPositions}>导出</Button>}>
                 <Spin spinning={loading}>
                   <Table
                     columns={positionColumns}
@@ -720,6 +765,61 @@ const PortfolioPage: React.FC = () => {
           </Row>
           <Alert message="优化将基于历史数据计算最优权重配置，结果仅供参考" type="info" showIcon />
         </Form>
+      </Modal>
+
+      {/* 优化记录详情弹窗 */}
+      <Modal
+        title="优化记录详情"
+        open={optDetailModalVisible}
+        onCancel={() => setOptDetailModalVisible(false)}
+        footer={null}
+        width={800}
+      >
+        {selectedOptimization && (
+          <Descriptions bordered column={2} size="small">
+            <Descriptions.Item label="优化ID">{selectedOptimization.id}</Descriptions.Item>
+            <Descriptions.Item label="优化方法">
+              <Tag color="blue">
+                {selectedOptimization.optimization_method === 'MEAN_VARIANCE' ? '均值方差' :
+                 selectedOptimization.optimization_method === 'RISK_PARITY' ? '风险平价' :
+                 selectedOptimization.optimization_method === 'MIN_VARIANCE' ? '最小方差' :
+                 selectedOptimization.optimization_method === 'MAX_SHARPE' ? '最大夏普' :
+                 selectedOptimization.optimization_method}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="预期收益">
+              <span style={{ color: '#ff4d4f' }}>
+                {selectedOptimization.expected_return?.toFixed(2) || '-'}%
+              </span>
+            </Descriptions.Item>
+            <Descriptions.Item label="预期风险">
+              {selectedOptimization.expected_risk?.toFixed(2) || '-'}%
+            </Descriptions.Item>
+            <Descriptions.Item label="预期夏普">
+              <span style={{ color: (selectedOptimization.expected_sharpe || 0) >= 1 ? '#52c41a' : undefined }}>
+                {selectedOptimization.expected_sharpe?.toFixed(2) || '-'}
+              </span>
+            </Descriptions.Item>
+            <Descriptions.Item label="状态">
+              <Tag color={
+                selectedOptimization.status === 'PENDING' ? 'orange' :
+                selectedOptimization.status === 'APPLIED' ? 'green' : 'red'
+              }>
+                {selectedOptimization.status === 'PENDING' ? '待应用' :
+                 selectedOptimization.status === 'APPLIED' ? '已应用' : '已拒绝'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="优化后权重配置" span={2}>
+              {selectedOptimization.optimal_weights ? (
+                <div style={{ maxHeight: 200, overflow: 'auto' }}>
+                  <pre style={{ background: '#1a1a1a', padding: 12, borderRadius: 6, color: '#fff' }}>
+                    {JSON.stringify(selectedOptimization.optimal_weights, null, 2)}
+                  </pre>
+                </div>
+              ) : '-'}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </div>
   );

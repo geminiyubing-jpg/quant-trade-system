@@ -120,6 +120,14 @@ export async function updateStrategyStatus(
   await put(`/api/v1/strategy-registry/${strategyId}/status`, { status });
 }
 
+// 更新策略配置
+export async function updateStrategyConfig(
+  strategyId: string,
+  params: Record<string, any>
+): Promise<void> {
+  await put(`/api/v1/strategy-registry/${strategyId}/config`, { params });
+}
+
 // 获取所有策略实例
 export async function getInstances(): Promise<StrategyInstance[]> {
   try {
@@ -194,6 +202,7 @@ const strategyRegistryService = {
   getTags,
   getStrategiesByStatus,
   updateStrategyStatus,
+  updateStrategyConfig,
   getInstances,
   getInstance,
   createInstance,

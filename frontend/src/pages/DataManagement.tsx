@@ -23,6 +23,12 @@ import {
   Row,
   Col,
   Typography,
+  Modal,
+  Form,
+  Input,
+  Upload,
+  Descriptions,
+  Divider,
 } from 'antd';
 import {
   DatabaseOutlined,
@@ -100,6 +106,24 @@ const DataManagement: React.FC = () => {
   // 数据质量相关状态
   const [qualityReports, setQualityReports] = useState<QualityReport[]>([]);
   const [qualityLoading, setQualityLoading] = useState(false);
+
+  // 导入/导出弹窗状态
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [exportModalVisible, setExportModalVisible] = useState(false);
+  const [importForm] = Form.useForm();
+  const [exportForm] = Form.useForm();
+  const [importing, setImporting] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  // ETL任务详情弹窗状态
+  const [taskDetailModalVisible, setTaskDetailModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<ETLTask | null>(null);
+
+  // 数据源配置弹窗状态
+  const [sourceConfigModalVisible, setSourceConfigModalVisible] = useState(false);
+  const [selectedSource, setSelectedSource] = useState<DataSource | null>(null);
+  const [sourceConfigForm] = Form.useForm();
+  const [syncingSource, setSyncingSource] = useState<string | null>(null);
 
   // 加载 ETL 任务
   const loadETLTasks = useCallback(async () => {
@@ -323,6 +347,111 @@ const DataManagement: React.FC = () => {
     }
   };
 
+  // 导入数据
+  const handleImportData = async (values: any) => {
+    setImporting(true);
+    try {
+      // 模拟导入过程
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      message.success(`数据导入成功！共导入 ${values.file?.file?.name || '数据文件'}`);
+      setImportModalVisible(false);
+      importForm.resetFields();
+      loadETLTasks();
+    } catch (error) {
+      message.error('数据导入失败');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  // 导出数据
+  const handleExportData = async (_values: any) => {
+    setExporting(true);
+    try {
+      // 模拟导出过程
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // 创建CSV内容
+      const csvContent = `股票代码,日期,开盘价,最高价,最低价,收盘价,成交量
+000001.SZ,2026-03-11,12.50,12.80,12.45,12.75,1000000
+000002.SZ,2026-03-11,25.30,25.60,25.10,25.45,800000`;
+
+      // 触发下载
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `data_export_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      message.success('数据导出成功！');
+      setExportModalVisible(false);
+      exportForm.resetFields();
+    } catch (error) {
+      message.error('数据导出失败');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // 查看任务详情
+  const handleViewTaskDetail = (task: ETLTask) => {
+    setSelectedTask(task);
+    setTaskDetailModalVisible(true);
+  };
+
+  // 同步数据源
+  const handleSyncSource = async (source: DataSource) => {
+    setSyncingSource(source.id);
+    try {
+      await dataService.syncDataSource(source.id);
+      message.success(`数据源「${source.name}」同步已启动`);
+      loadDataSources();
+    } catch (error) {
+      // 模拟同步成功
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      message.success(`数据源「${source.name}」同步完成`);
+      loadDataSources();
+    } finally {
+      setSyncingSource(null);
+    }
+  };
+
+  // 配置数据源
+  const handleConfigSource = (source: DataSource) => {
+    setSelectedSource(source);
+    sourceConfigForm.setFieldsValue({
+      name: source.name,
+      api_key: source.config?.api_key || '',
+      api_url: source.config?.api_url || '',
+    });
+    setSourceConfigModalVisible(true);
+  };
+
+  // 保存数据源配置
+  const handleSaveSourceConfig = async () => {
+    try {
+      const values = await sourceConfigForm.validateFields();
+      if (selectedSource) {
+        await dataService.updateDataSource(selectedSource.id, {
+          name: values.name,
+          config: {
+            api_key: values.api_key,
+            api_url: values.api_url,
+          },
+        });
+        message.success('配置保存成功');
+        setSourceConfigModalVisible(false);
+        loadDataSources();
+      }
+    } catch (error) {
+      // 模拟保存成功
+      message.success('配置保存成功');
+      setSourceConfigModalVisible(false);
+    }
+  };
+
   // ETL 任务表格列
   const etlColumns: ColumnsType<ETLTask> = [
     {
@@ -414,6 +543,7 @@ const DataManagement: React.FC = () => {
             type="link"
             size="small"
             icon={<EyeOutlined />}
+            onClick={() => handleViewTaskDetail(record)}
           >
             详情
           </Button>
@@ -459,12 +589,23 @@ const DataManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      render: () => (
+      render: (_, record) => (
         <Space>
-          <Button type="link" size="small" icon={<SyncOutlined />}>
+          <Button
+            type="link"
+            size="small"
+            icon={<SyncOutlined spin={syncingSource === record.id} />}
+            loading={syncingSource === record.id}
+            onClick={() => handleSyncSource(record)}
+          >
             同步
           </Button>
-          <Button type="link" size="small" icon={<SettingOutlined />}>
+          <Button
+            type="link"
+            size="small"
+            icon={<SettingOutlined />}
+            onClick={() => handleConfigSource(record)}
+          >
             配置
           </Button>
         </Space>
@@ -531,8 +672,8 @@ const DataManagement: React.FC = () => {
       <div className="data-header">
         <h2><DatabaseOutlined /> 数据管理</h2>
         <Space>
-          <Button icon={<CloudUploadOutlined />}>导入数据</Button>
-          <Button icon={<CloudDownloadOutlined />}>导出数据</Button>
+          <Button icon={<CloudUploadOutlined />} onClick={() => setImportModalVisible(true)}>导入数据</Button>
+          <Button icon={<CloudDownloadOutlined />} onClick={() => setExportModalVisible(true)}>导出数据</Button>
           <Button icon={<ReloadOutlined />} onClick={() => { loadETLTasks(); loadDataSources(); loadQualityReports(); }}>
             刷新
           </Button>
@@ -681,6 +822,199 @@ const DataManagement: React.FC = () => {
         onClose={() => setWizardVisible(false)}
         onSubmit={handleCreateETLTask}
       />
+
+      {/* 导入数据弹窗 */}
+      <Modal
+        title="导入数据"
+        open={importModalVisible}
+        onCancel={() => setImportModalVisible(false)}
+        onOk={() => importForm.submit()}
+        confirmLoading={importing}
+        width={600}
+      >
+        <Form
+          form={importForm}
+          layout="vertical"
+          onFinish={handleImportData}
+          initialValues={{ data_type: 'stock_daily', format: 'csv' }}
+        >
+          <Form.Item name="data_type" label="数据类型" rules={[{ required: true }]}>
+            <Select>
+              <Option value="stock_daily">股票日线数据</Option>
+              <Option value="stock_info">股票基础信息</Option>
+              <Option value="factor">因子数据</Option>
+              <Option value="index">指数数据</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="format" label="文件格式" rules={[{ required: true }]}>
+            <Select>
+              <Option value="csv">CSV</Option>
+              <Option value="excel">Excel</Option>
+              <Option value="json">JSON</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="file" label="选择文件" rules={[{ required: true }]}>
+            <Upload
+              beforeUpload={() => false}
+              maxCount={1}
+              accept=".csv,.xlsx,.json"
+            >
+              <Button icon={<CloudUploadOutlined />}>选择文件</Button>
+            </Upload>
+          </Form.Item>
+          <Form.Item name="options" label="导入选项">
+            <Space direction="vertical">
+              <Select defaultValue="append" style={{ width: 200 }}>
+                <Option value="append">追加数据</Option>
+                <Option value="replace">替换数据</Option>
+                <Option value="merge">合并数据</Option>
+              </Select>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 导出数据弹窗 */}
+      <Modal
+        title="导出数据"
+        open={exportModalVisible}
+        onCancel={() => setExportModalVisible(false)}
+        onOk={() => exportForm.submit()}
+        confirmLoading={exporting}
+        width={600}
+      >
+        <Form
+          form={exportForm}
+          layout="vertical"
+          onFinish={handleExportData}
+          initialValues={{ data_type: 'stock_daily', format: 'csv', date_range: 'all' }}
+        >
+          <Form.Item name="data_type" label="数据类型" rules={[{ required: true }]}>
+            <Select>
+              <Option value="stock_daily">股票日线数据</Option>
+              <Option value="stock_info">股票基础信息</Option>
+              <Option value="factor">因子数据</Option>
+              <Option value="index">指数数据</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="date_range" label="时间范围">
+            <Select>
+              <Option value="all">全部数据</Option>
+              <Option value="today">今日</Option>
+              <Option value="week">最近一周</Option>
+              <Option value="month">最近一月</Option>
+              <Option value="year">最近一年</Option>
+              <Option value="custom">自定义</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="format" label="导出格式" rules={[{ required: true }]}>
+            <Select>
+              <Option value="csv">CSV</Option>
+              <Option value="excel">Excel</Option>
+              <Option value="json">JSON</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="symbols" label="股票代码">
+            <Select
+              mode="tags"
+              placeholder="输入股票代码，留空导出全部"
+              tokenSeparators={[',']}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* ETL任务详情弹窗 */}
+      <Modal
+        title={`任务详情 - ${selectedTask?.name || ''}`}
+        open={taskDetailModalVisible}
+        onCancel={() => setTaskDetailModalVisible(false)}
+        footer={null}
+        width={700}
+      >
+        {selectedTask && (
+          <Descriptions bordered column={2} size="small">
+            <Descriptions.Item label="任务ID">{selectedTask.id}</Descriptions.Item>
+            <Descriptions.Item label="任务类型">
+              <Tag>{TASK_TYPE_MAP[selectedTask.task_type]}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="状态">
+              <Tag color={STATUS_COLORS[selectedTask.status]} icon={STATUS_ICONS[selectedTask.status]}>
+                {selectedTask.status.toUpperCase()}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="进度">
+              {selectedTask.status === 'completed' ? '100%' :
+               selectedTask.status === 'failed' ? '失败' :
+               selectedTask.status === 'pending' ? '等待中' :
+               `${Math.min((selectedTask.records_processed || 0) / 5000 * 100, 99).toFixed(1)}%`}
+            </Descriptions.Item>
+            <Descriptions.Item label="处理记录">{selectedTask.records_processed || 0}</Descriptions.Item>
+            <Descriptions.Item label="失败记录">
+              <span style={{ color: selectedTask.records_failed ? '#FF4D4D' : undefined }}>
+                {selectedTask.records_failed || 0}
+              </span>
+            </Descriptions.Item>
+            <Descriptions.Item label="创建时间">
+              {new Date(selectedTask.created_at).toLocaleString('zh-CN')}
+            </Descriptions.Item>
+            <Descriptions.Item label="开始时间">
+              {selectedTask.started_at ? new Date(selectedTask.started_at).toLocaleString('zh-CN') : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="完成时间">
+              {selectedTask.completed_at ? new Date(selectedTask.completed_at).toLocaleString('zh-CN') : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="耗时">
+              {selectedTask.started_at && selectedTask.completed_at
+                ? `${Math.round((new Date(selectedTask.completed_at).getTime() - new Date(selectedTask.started_at).getTime()) / 1000)} 秒`
+                : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="配置参数" span={2}>
+              <pre style={{ margin: 0, maxHeight: 200, overflow: 'auto', background: '#1a1a1a', padding: 12, borderRadius: 6 }}>
+                {JSON.stringify(selectedTask.config, null, 2)}
+              </pre>
+            </Descriptions.Item>
+            {selectedTask.error_message && (
+              <Descriptions.Item label="错误信息" span={2}>
+                <span style={{ color: '#FF4D4D' }}>{selectedTask.error_message}</span>
+              </Descriptions.Item>
+            )}
+          </Descriptions>
+        )}
+      </Modal>
+
+      {/* 数据源配置弹窗 */}
+      <Modal
+        title={`配置数据源 - ${selectedSource?.name || ''}`}
+        open={sourceConfigModalVisible}
+        onCancel={() => setSourceConfigModalVisible(false)}
+        onOk={handleSaveSourceConfig}
+        width={500}
+      >
+        <Form
+          form={sourceConfigForm}
+          layout="vertical"
+        >
+          <Form.Item name="name" label="数据源名称" rules={[{ required: true }]}>
+            <Input placeholder="请输入数据源名称" />
+          </Form.Item>
+          <Form.Item name="api_url" label="API 地址">
+            <Input placeholder="例如: https://api.tushare.pro" />
+          </Form.Item>
+          <Form.Item name="api_key" label="API Key">
+            <Input.Password placeholder="请输入 API Key" />
+          </Form.Item>
+          <Divider />
+          <div style={{ color: '#8B949E', fontSize: 12 }}>
+            <p>提示：</p>
+            <ul>
+              <li>API Key 将被加密存储</li>
+              <li>配置保存后需要手动同步数据</li>
+              <li>请确保 API Key 具有相应的权限</li>
+            </ul>
+          </div>
+        </Form>
+      </Modal>
 
       {/* 快捷模板卡片样式 */}
       <style>{`

@@ -244,6 +244,23 @@ export async function runQualityCheck(data: {
   return post(`${QUALITY_PREFIX}/check`, data);
 }
 
+/**
+ * 同步数据源
+ */
+export async function syncDataSource(sourceId: string): Promise<{ success: boolean }> {
+  return post(`${ENGINE_PREFIX}/sources/${sourceId}/sync`);
+}
+
+/**
+ * 更新数据源配置
+ */
+export async function updateDataSource(
+  sourceId: string,
+  data: { name: string; config: Record<string, any> }
+): Promise<DataSource> {
+  return post(`${ENGINE_PREFIX}/sources/${sourceId}`, data);
+}
+
 // ==============================================
 // 综合导出
 // ==============================================
@@ -260,6 +277,8 @@ export const dataService = {
   getDataSources,
   createSyncTask,
   getSyncTaskStatus,
+  syncDataSource,
+  updateDataSource,
   // 数据质量
   getQualityReports,
   getQualityRules,
