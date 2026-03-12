@@ -12,6 +12,7 @@ import {
   DatabaseOutlined,
   TeamOutlined,
   FileTextOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -23,9 +24,10 @@ type SidebarProps = {
 
 // 子菜单路径配置 - 统一管理
 const SUBMENU_CONFIG: Record<string, string[]> = {
-  'market-group': ['/market/realtime', '/market/stocks', '/market/sectors', '/market/futures'],
+  'market-group': ['/market/realtime', '/market/stocks', '/market/sectors', '/market/futures', '/market/pulse'],
   'strategy-group': ['/strategy/library', '/strategy/studio'],
   'ai-group': ['/ai/generate', '/ai/pick', '/ai/analyze'],
+  'workspace-group': ['/workspace'],
 };
 
 // 根据路径查找所属的子菜单组
@@ -73,6 +75,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
         label: t('nav.dashboard'),
       },
       {
+        key: '/workspace',
+        icon: <AppstoreOutlined />,
+        label: t('nav.workspace'),
+      },
+      {
         type: 'divider' as const,
       },
       {
@@ -80,6 +87,10 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
         icon: <LineChartOutlined />,
         label: t('nav.market'),
         children: [
+          {
+            key: '/market/pulse',
+            label: t('marketPulse.title'),
+          },
           {
             key: '/market/realtime',
             label: t('market.realtime'),

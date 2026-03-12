@@ -14,7 +14,7 @@ import {
   DeleteOutlined, PlayCircleOutlined,
   MoreOutlined, RocketOutlined,
   FileTextOutlined, SettingOutlined,
-  CheckOutlined, ReloadOutlined, AppstoreAddOutlined
+  CheckOutlined, ReloadOutlined, AppstoreAddOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { MenuProps } from 'antd';
@@ -77,6 +77,7 @@ const StrategyManagement: React.FC = () => {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [instanceDetailModalVisible, setInstanceDetailModalVisible] = useState(false);
   const [configModalVisible, setConfigModalVisible] = useState(false);
+  const [configSaving, setConfigSaving] = useState(false);
 
   // 过滤条件
   const [filterStatus, setFilterStatus] = useState('all');
@@ -372,8 +373,46 @@ const StrategyManagement: React.FC = () => {
 
   const handleConfig = (strategy: StrategyMetadata) => {
     setSelectedStrategy(strategy);
-    configForm.setFieldsValue(strategy.default_params);
+    configForm.setFieldsValue({
+      params: JSON.stringify(strategy.default_params || {}, null, 2),
+    });
     setConfigModalVisible(true);
+  };
+
+  // 保存策略配置
+  const handleSaveConfig = async () => {
+    if (!selectedStrategy) return;
+
+    setConfigSaving(true);
+    try {
+      const values = await configForm.validateFields();
+      let params;
+      try {
+        params = JSON.parse(values.params);
+      } catch {
+        message.error('参数配置格式错误，请输入有效的 JSON');
+        return;
+      }
+
+      // 调用后端 API 保存配置
+      try {
+        await strategyRegistryService.updateStrategyConfig(selectedStrategy.strategy_id, params);
+        message.success('配置保存成功');
+      } catch (error) {
+        console.error('后端保存失败，使用本地保存:', error);
+        // 如果后端 API 不可用，保存到本地存储
+        localStorage.setItem(`strategy_config_${selectedStrategy.strategy_id}`, JSON.stringify(params));
+        message.success('配置已保存到本地');
+      }
+
+      setConfigModalVisible(false);
+      loadData();
+    } catch (error) {
+      console.error('保存配置失败:', error);
+      message.error('保存配置失败');
+    } finally {
+      setConfigSaving(false);
+    }
   };
 
   const handleViewInstanceDetail = (instance: StrategyInstance) => {
@@ -617,7 +656,17 @@ const StrategyManagement: React.FC = () => {
               <Alert
                 message="默认参数"
                 description={
-                  <pre style={{ margin: 0, maxHeight: 300, overflow: 'auto' }}>
+                  <pre style={{
+                    margin: 0,
+                    maxHeight: 300,
+                    overflow: 'auto',
+                    background: 'rgba(30, 30, 30, 0.95)',
+                    padding: 12,
+                    borderRadius: 6,
+                    color: '#ffffff',
+                    fontSize: 12,
+                    lineHeight: 1.6,
+                  }}>
                     {JSON.stringify(selectedStrategy.default_params, null, 2)}
                   </pre>
                 }
@@ -625,7 +674,17 @@ const StrategyManagement: React.FC = () => {
               />
             </TabPane>
             <TabPane tab="参数Schema" key="schema">
-              <pre style={{ maxHeight: 400, overflow: 'auto', background: '#f5f5f5', padding: 16 }}>
+              <pre style={{
+                maxHeight: 400,
+                overflow: 'auto',
+                background: 'rgba(30, 30, 30, 0.95)',
+                padding: 16,
+                borderRadius: 8,
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#ffffff',
+                fontSize: 13,
+                lineHeight: 1.6,
+              }}>
                 {JSON.stringify(selectedStrategy.params_schema, null, 2)}
               </pre>
             </TabPane>
@@ -685,17 +744,38 @@ const StrategyManagement: React.FC = () => {
         title={`配置参数 - ${selectedStrategy?.name}`}
         open={configModalVisible}
         onCancel={() => setConfigModalVisible(false)}
-        onOk={() => { message.success('配置已保存'); setConfigModalVisible(false); }}
+        onOk={handleSaveConfig}
+        confirmLoading={configSaving}
         width={600}
       >
         <Alert
-          message="此功能用于修改策略的默认参数配置"
+          message="此功能用于修改策略的默认参数配置，修改后需要重新创建实例才能生效"
           type="info"
           style={{ marginBottom: 16 }}
         />
         <Form form={configForm} layout="vertical">
-          <Form.Item name="params" label="参数配置">
-            <TextArea rows={10} />
+          <Form.Item
+            name="params"
+            label="参数配置 (JSON 格式)"
+            rules={[
+              { required: true, message: '请输入参数配置' },
+              {
+                validator: (_, value) => {
+                  try {
+                    JSON.parse(value);
+                    return Promise.resolve();
+                  } catch {
+                    return Promise.reject(new Error('请输入有效的 JSON 格式'));
+                  }
+                },
+              },
+            ]}
+          >
+            <TextArea
+              rows={10}
+              placeholder='{"param1": "value1", "param2": 100}'
+              style={{ fontFamily: 'monospace' }}
+            />
           </Form.Item>
         </Form>
       </Modal>
@@ -718,7 +798,18 @@ const StrategyManagement: React.FC = () => {
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="参数">
-              <pre style={{ margin: 0, maxHeight: 200, overflow: 'auto' }}>
+              <pre style={{
+                margin: 0,
+                maxHeight: 200,
+                overflow: 'auto',
+                background: 'rgba(30, 30, 30, 0.95)',
+                padding: 12,
+                borderRadius: 6,
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#ffffff',
+                fontSize: 12,
+                lineHeight: 1.5,
+              }}>
                 {JSON.stringify(selectedInstance.parameters, null, 2)}
               </pre>
             </Descriptions.Item>

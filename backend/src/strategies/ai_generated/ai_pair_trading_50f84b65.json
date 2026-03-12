@@ -1,0 +1,27 @@
+{
+  "strategy_id": "ai_pair_trading_50f84b65",
+  "name": "AIPair_tradingStrategy",
+  "version": "1.0.0",
+  "author": "AI Generator",
+  "description": "",
+  "category": "pair_trading",
+  "frequency": "1d",
+  "status": "development",
+  "tags": [
+    "AI生成",
+    "pair_trading"
+  ],
+  "risk_level": "medium",
+  "market_condition": "市场处于下跌趋势，避险情绪浓厚",
+  "generated_at": "2026-03-11T22:21:49.742592",
+  "content": {
+    "raw_content": "```json\n{\n  \"strategy_name\": \"动态对冲统计套利策略\",\n  \"strategy_principle\": \"本策略基于配对交易原理，利用两个高度相关资产的价格相关性进行均值回归交易。在市场下跌且避险情绪浓厚时，资产间的相关性往往会增强，但这同时也伴随着相关性破裂的风险。因此，本策略引入动态协整检验和波动率调整机制。核心逻辑是：如果两只资产历史价格走势高度相关，当它们的价差偏离均衡状态时，我们预期价差会回归均值。\",\n  \"entry_conditions\": {\n    \"asset_selection\": {\n      \"criteria\": \"选择同一行业或具有强基本面联系的龙头资产A与B（如行业内龙头股或上下游商品）。\",\n      \"correlation_filter\": \"过去60日Pearson相关系数 > 0.85。\",\n      \"cointegration_test\": \"Engle-Granger协整检验p-value < 0.05，确保长期均衡关系。\"\n    },\n    \"signal_generation\": {\n      \"spread_calculation\": \"计算对数价格价差：Spread = log(Price_A) - β * log(Price_B)，其中β通过OLS回归动态计算。\",\n      \"z_score_calculation\": \"Z_Score = (Spread - Spread_Mean) / Spread_StdDev，窗口期为20个交易日。\",\n      \"entry_long_spread\": \"Z_Score < -2.0（价差向下偏离2个标准差，预期回归）。操作：买入Asset A，卖出Asset B。\",\n      \"entry_short_spread\": \"Z_Score > 2.0（价差向上偏离2个标准差，预期回归）。操作：卖出Asset A，买入Asset B。\"\n    }\n  },\n  \"exit_conditions\": {\n    \"take_profit\": \"Z_Score 回归至 0 附近（如 -0.2 < Z_Score < 0.2）时平仓止盈。\",\n    \"stop_loss\": {\n      \"parameter_stop\": \"Z_Score 突破反向阈值（如 Z_Score > 3.0 或 Z_Score < -3.0），表明均值回归失效，立即平仓。\",\n      \"correlation_breakdown\": \"滚动30日相关系数跌破 0.6，视为相关性结构破坏，无条件平仓所有仓位。\"\n    },\n    \"time_stop\": \"持仓时间超过10个交易日且未达止盈止损标准，强制平仓，避免长期占用保证金。\"\n  },\n  \"risk_management\": {\n    \"position_sizing\": {\n      \"method\": \"波动率倒数法\",\n      \"rule\": \"根据价差的历史波动率调整仓位。单个配对组合的总风险敞口不超过总资金的20%。\",\n      \"leverage_limit\": \"考虑到市场下跌风险，总杠杆倍数严格限制在 1.5 倍以内。\"\n    },\n    \"hedging_rules\": {\n      \"market_neutral\": \"始终保持美元中性或Beta中性。通过调整Asset A与Asset B的手数，使组合Beta值接近0，对冲市场系统性风险。\"\n    },\n    \"max_drawdown_control\": \"策略层面",
+    "strategy_type": "pair_trading"
+  },
+  "default_params": {},
+  "params_schema": {},
+  "min_history_bars": 100,
+  "supported_markets": [
+    "A股"
+  ]
+}

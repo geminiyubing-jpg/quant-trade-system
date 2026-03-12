@@ -6,6 +6,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "workspace": "Workspace",
     "market": "Market Dynamics",
     "strategy": "Quant Strategy",
     "strategyLibrary": "Library",
@@ -27,7 +28,49 @@
     "title": "Workspace",
     "dashboard": "Dashboard",
     "quickAccess": "Quick Access",
-    "recentActivity": "Recent Activity"
+    "recentActivity": "Recent Activity",
+    "newWorkspace": "New Workspace",
+    "openWorkspace": "Open Workspace",
+    "addPanel": "Add Panel",
+    "save": "Save",
+    "saved": "Workspace saved",
+    "deleted": "Workspace deleted",
+    "duplicated": "Copy created",
+    "loaded": "Loaded",
+    "unnamedWorkspace": "Unnamed Workspace",
+    "panels": "panels",
+    "autoSaveEnabled": "Auto-save enabled",
+    "aiAssistant": "AI Assistant",
+    "emptyTitle": "Welcome to Workspace",
+    "emptyDesc": "Choose a template to start, or create a blank workspace",
+    "blankWorkspace": "Blank Workspace",
+    "blankWorkspaceDesc": "Start from scratch",
+    "noSavedWorkspaces": "No saved workspaces",
+    "inputWorkspaceName": "Please enter workspace name",
+    "inputWorkspaceNamePlaceholder": "Enter workspace name",
+    "saveWorkspaceTitle": "Save Workspace",
+    "newWorkspaceTitle": "New Workspace",
+    "create": "Create",
+    "deleteConfirm": "Are you sure you want to delete this workspace?",
+    "selectPanelType": "Please select panel type",
+    "panel": "Panel",
+    "panelTypes": {
+      "chart": "Chart",
+      "table": "Data Table",
+      "news": "News",
+      "watchlist": "Watchlist",
+      "capitalFlow": "Capital Flow",
+      "heatmap": "Heatmap",
+      "custom": "Custom"
+    },
+    "templates": {
+      "trading": "Trading Monitor",
+      "tradingDesc": "Real-time quotes and trading",
+      "analysis": "Market Analysis",
+      "analysisDesc": "Technical analysis and heatmaps",
+      "portfolio": "Portfolio Management",
+      "portfolioDesc": "Positions and capital flow"
+    }
   },
   "market": {
     "title": "Market Dynamics",
@@ -321,6 +364,79 @@
     },
     "tab": {
       "all": "All"
+    }
+  },
+  "marketPulse": {
+    "title": "Market Dynamics",
+    "loading": "Loading market data...",
+    "lastUpdate": "Last Update",
+    "noData": "No data available",
+    "noMatch": "No matching market data found",
+    "searchPlaceholder": "Search symbol/name...",
+    "categories": {
+      "all": "All",
+      "watchlist": "Watchlist",
+      "cn-hk": "A-Share/HK",
+      "forex-commodities": "Forex/Commodities",
+      "ftse": "FTSE Indices",
+      "msci": "MSCI Indices",
+      "global": "Global Indices",
+      "crypto": "Cryptocurrency",
+      "bonds": "Bond Yields"
+    },
+    "categoryNames": {
+      "watchlist": "Popular Indices",
+      "cn-hk": "A-Share/HK Stocks",
+      "forex-commodities": "Forex/Commodities",
+      "ftse": "FTSE Indices",
+      "msci": "MSCI Indices",
+      "global": "Global Indices",
+      "crypto": "Cryptocurrency",
+      "bonds": "Bond Yields"
+    },
+    "heatmap": {
+      "title": "Global Asset Performance",
+      "up": "Up",
+      "down": "Down"
+    },
+    "section": {
+      "more": "More",
+      "manage": "Manage"
+    },
+    "detail": {
+      "overview": "Overview",
+      "chart": "Chart",
+      "currentPrice": "Current Price",
+      "changePercent": "Change %",
+      "todayHigh": "Today's High",
+      "todayLow": "Today's Low",
+      "exchange": "Exchange",
+      "volatility": "Volatility",
+      "changePoints": "Change Points",
+      "time": "Time",
+      "price": "Price",
+      "watched": "Watched",
+      "watch": "Watch",
+      "removeWatch": "Remove from watchlist",
+      "addWatch": "Add to watchlist",
+      "setAlert": "Set price alert",
+      "alert": "Alert",
+      "removedFromWatchlist": "Removed {name} from watchlist",
+      "addedToWatchlist": "Added {name} to watchlist",
+      "alertDeveloping": "Price alert feature in development: {name}"
+    },
+    "watchlist": {
+      "title": "Manage Watchlist",
+      "myWatchlist": "My Watchlist",
+      "addItem": "Add Items",
+      "noWatchlist": "No items in watchlist",
+      "noAvailable": "No items available",
+      "noMatch": "No matching items found",
+      "searchPlaceholder": "Search indices/commodities...",
+      "tip": "Tip: Click the star icon to quickly add/remove",
+      "done": "Done",
+      "removeFromWatchlist": "Remove from watchlist",
+      "addToWatchlist": "Add to watchlist"
     }
   },
   "alerts": {

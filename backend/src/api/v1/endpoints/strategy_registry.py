@@ -2,12 +2,15 @@
 策略注册表 API 端点
 
 提供策略注册、发现、实例化和管理的 REST API。
+支持数据库持久化存储。
 """
 
+import logging
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Query, Body
+from fastapi import APIRouter, HTTPException, Query, Body, Depends
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from src.services.strategy.registry import (
     StrategyRegistry,
@@ -17,9 +20,23 @@ from src.services.strategy.registry import (
     strategy_registry,
 )
 from src.services.strategy.base import StrategyConfig, StrategyStatus
+from src.core.database import get_db
 
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+# 启动时从数据库加载策略的标志
+_db_loaded = False
+
+
+def ensure_db_loaded(db: Session = Depends(get_db)):
+    """确保从数据库加载策略（只加载一次）"""
+    global _db_loaded
+    if not _db_loaded:
+        strategy_registry.load_from_database(db)
+        _db_loaded = True
 
 
 # ==============================================
@@ -41,6 +58,9 @@ class StrategyCreateRequest(BaseModel):
     min_history_bars: int = Field(default=0, description="最小历史 K 线数量")
     supported_markets: List[str] = Field(default=["A股"], description="支持的市场")
     risk_level: str = Field(default="medium", description="风险等级")
+    code: Optional[str] = Field(default=None, description="策略代码")
+    user_id: Optional[str] = Field(default=None, description="用户ID")
+    save_to_db: bool = Field(default=True, description="是否保存到数据库")
 
 
 class StrategyInstanceCreateRequest(BaseModel):
@@ -75,12 +95,19 @@ async def list_strategies(
     status: Optional[str] = Query(None, description="按状态过滤"),
     frequency: Optional[str] = Query(None, description="按频率过滤"),
     tags: Optional[str] = Query(None, description="按标签过滤（逗号分隔）"),
+    db: Session = Depends(get_db),
 ):
     """
     获取已注册的策略列表
 
     支持按分类、状态、频率和标签过滤。
+    策略来源：内置策略（装饰器注册）+ 数据库持久化策略
     """
+    global _db_loaded
+    if not _db_loaded:
+        strategy_registry.load_from_database(db)
+        _db_loaded = True
+
     try:
         # 处理过滤参数
         status_enum = None
@@ -146,20 +173,54 @@ async def get_strategy(strategy_id: str):
 
 
 @router.post("/", summary="注册策略（手动）")
-async def register_strategy(request: StrategyCreateRequest = Body(...)):
+async def register_strategy(
+    request: StrategyCreateRequest = Body(...),
+    db: Session = Depends(get_db),
+):
     """
     手动注册一个策略
 
-    注意：通常策略通过装饰器自动注册，此接口用于动态注册。
+    此接口用于动态注册策略，支持保存到数据库。
+    适用于 AI 生成的策略或用户自定义策略。
     """
     try:
-        # 这里需要动态导入策略类
-        # 实际应用中，可能需要从数据库或文件系统加载策略代码
-        raise HTTPException(
-            status_code=501,
-            detail="手动注册策略需要提供策略类，请使用装饰器方式或文件扫描"
-        )
+        # 从字典创建策略元数据
+        metadata = strategy_registry.register_from_dict({
+            "strategy_id": request.strategy_id,
+            "name": request.name,
+            "version": request.version,
+            "author": request.author,
+            "description": request.description,
+            "category": request.category,
+            "frequency": request.frequency,
+            "tags": request.tags,
+            "params_schema": request.params_schema,
+            "default_params": request.default_params,
+            "min_history_bars": request.min_history_bars,
+            "supported_markets": request.supported_markets,
+            "risk_level": request.risk_level,
+        })
+
+        # 保存到数据库
+        if request.save_to_db:
+            success = strategy_registry.save_to_database(
+                metadata=metadata,
+                db_session=db,
+                user_id=request.user_id,
+                code=request.code,
+            )
+            if not success:
+                logger.warning(f"策略 {request.strategy_id} 保存到数据库失败")
+
+        return {
+            "success": True,
+            "data": metadata.to_dict(),
+            "message": f"策略 {request.strategy_id} 注册成功",
+        }
+    except HTTPException:
+        raise
     except Exception as e:
+        logger.error(f"注册策略失败: {e}")
         raise HTTPException(status_code=500, detail=f"注册策略失败: {str(e)}")
 
 
@@ -186,6 +247,7 @@ async def unregister_strategy(strategy_id: str):
 async def update_strategy_status(
     strategy_id: str,
     request: StrategyStatusUpdateRequest = Body(...),
+    db: Session = Depends(get_db),
 ):
     """
     更新策略的生命周期状态
@@ -206,6 +268,19 @@ async def update_strategy_status(
 
     if not success:
         raise HTTPException(status_code=404, detail=f"策略不存在: {strategy_id}")
+
+    # 同步更新数据库
+    try:
+        from src.models import Strategy as DBStrategy
+        db_strategy = db.query(DBStrategy).filter(
+            DBStrategy.name == strategy_id
+        ).first()
+        if db_strategy:
+            db_strategy.status = strategy_registry._map_lifecycle_to_db_status(new_status)
+            db_strategy.updated_at = datetime.utcnow()
+            db.commit()
+    except Exception as e:
+        logger.warning(f"同步更新数据库策略状态失败: {e}")
 
     return {
         "success": True,

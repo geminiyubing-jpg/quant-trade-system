@@ -47,6 +47,10 @@ import {
   DeleteOutlined,
   SyncOutlined,
   ThunderboltOutlined,
+  SearchOutlined,
+  ApiOutlined,
+  LineChartOutlined,
+  GlobalOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
@@ -54,7 +58,9 @@ import dataService, {
   ETLTask,
   ETLTaskStatus,
   DataSource,
-  QualityReport,
+  QualityReportDetail,
+  OpenBBStatus,
+  OpenBBProviders,
 } from '../services/data';
 import SmartTaskWizard, { TaskCreateParams } from '../components/SmartTaskWizard';
 import { QUICK_TEMPLATES, getDateRangeFromPreset } from '../config/taskSchemas';
@@ -104,7 +110,7 @@ const DataManagement: React.FC = () => {
   const [sourcesLoading, setSourcesLoading] = useState(false);
 
   // 数据质量相关状态
-  const [qualityReports, setQualityReports] = useState<QualityReport[]>([]);
+  const [qualityReports, setQualityReports] = useState<QualityReportDetail[]>([]);
   const [qualityLoading, setQualityLoading] = useState(false);
 
   // 导入/导出弹窗状态
@@ -124,6 +130,16 @@ const DataManagement: React.FC = () => {
   const [selectedSource, setSelectedSource] = useState<DataSource | null>(null);
   const [sourceConfigForm] = Form.useForm();
   const [syncingSource, setSyncingSource] = useState<string | null>(null);
+
+  // OpenBB 状态
+  const [openbbStatus, setOpenbbStatus] = useState<OpenBBStatus | null>(null);
+  const [openbbProviders, setOpenbbProviders] = useState<OpenBBProviders | null>(null);
+
+  // 数据查询弹窗状态
+  const [dataQueryModalVisible, setDataQueryModalVisible] = useState(false);
+  const [queryForm] = Form.useForm();
+  const [querying, setQuerying] = useState(false);
+  const [queryResult, setQueryResult] = useState<any>(null);
 
   // 加载 ETL 任务
   const loadETLTasks = useCallback(async () => {
@@ -201,6 +217,33 @@ const DataManagement: React.FC = () => {
         },
         {
           id: '3',
+          name: 'OpenBB Platform',
+          source_type: 'openbb',
+          config: {
+            hub_pat: '***',
+            default_equity_provider: 'yfinance',
+            default_economy_provider: 'fred',
+          },
+          providers: {
+            equity: 'yfinance',
+            economy: 'fred',
+            technical: 'yfinance',
+          },
+          is_active: true,
+          last_sync: '2026-03-11T09:00:00Z',
+          created_at: '2026-03-01T00:00:00Z',
+        },
+        {
+          id: '4',
+          name: 'Yahoo Finance',
+          source_type: 'yahoo_finance',
+          config: {},
+          is_active: true,
+          last_sync: '2026-03-11T08:30:00Z',
+          created_at: '2026-02-01T00:00:00Z',
+        },
+        {
+          id: '5',
           name: '东方财富',
           source_type: 'eastmoney',
           config: {},
@@ -217,11 +260,7 @@ const DataManagement: React.FC = () => {
   const loadQualityReports = useCallback(async () => {
     setQualityLoading(true);
     try {
-      const response = await dataService.getQualityReports({});
-      setQualityReports(response.items);
-    } catch (error) {
-      console.error('加载质量报告失败:', error);
-      // 使用模拟数据
+      // 暂时使用模拟数据，后续实现真实 API
       setQualityReports([
         {
           id: '1',
@@ -253,8 +292,35 @@ const DataManagement: React.FC = () => {
           created_at: '2026-03-11T09:20:00Z',
         },
       ]);
+    } catch (error) {
+      console.error('加载质量报告失败:', error);
     } finally {
       setQualityLoading(false);
+    }
+  }, []);
+
+  // 加载 OpenBB 状态
+  const loadOpenBBStatus = useCallback(async () => {
+    try {
+      const status = await dataService.getOpenBBStatus();
+      setOpenbbStatus(status);
+      const providers = await dataService.getOpenBBProviders();
+      setOpenbbProviders(providers);
+    } catch (error) {
+      console.error('加载 OpenBB 状态失败:', error);
+      // 设置默认状态
+      setOpenbbStatus({
+        name: 'OpenBB Platform',
+        description: '开源金融数据平台',
+        is_connected: false,
+        supported_types: ['equity', 'economy', 'technical'],
+        providers: { equity: true, economy: true, technical: true },
+      });
+      setOpenbbProviders({
+        equity: { free: ['yfinance'], paid: ['fmp', 'polygon', 'intrinio'] },
+        economy: { free: ['fred'], paid: ['oecd', 'tradingeconomics'] },
+        news: { paid: ['benzinga', 'biztoc'] },
+      });
     }
   }, []);
 
@@ -262,7 +328,8 @@ const DataManagement: React.FC = () => {
     loadETLTasks();
     loadDataSources();
     loadQualityReports();
-  }, [loadETLTasks, loadDataSources, loadQualityReports]);
+    loadOpenBBStatus();
+  }, [loadETLTasks, loadDataSources, loadQualityReports, loadOpenBBStatus]);
 
   // 创建 ETL 任务
   const handleCreateETLTask = async (params: TaskCreateParams) => {
@@ -452,6 +519,61 @@ const DataManagement: React.FC = () => {
     }
   };
 
+  // 打开数据查询弹窗
+  const handleOpenDataQuery = () => {
+    setQueryResult(null);
+    queryForm.resetFields();
+    setDataQueryModalVisible(true);
+  };
+
+  // 执行数据查询
+  const handleDataQuery = async (values: any) => {
+    setQuerying(true);
+    setQueryResult(null);
+    try {
+      let result: any = null;
+      const { query_type, symbol, indicator, indicators, start_date, end_date, provider } = values;
+
+      switch (query_type) {
+        case 'quote':
+          result = await dataService.getOpenBBQuote(symbol, provider);
+          break;
+        case 'historical':
+          result = await dataService.getOpenBBHistorical(symbol, start_date, end_date, provider);
+          break;
+        case 'macro':
+          result = await dataService.getOpenBBMacro(indicator, start_date, end_date, provider);
+          break;
+        case 'technical':
+          result = await dataService.getOpenBBTechnical(
+            symbol,
+            indicators?.split(',').map((i: string) => i.trim()) || ['rsi', 'macd'],
+            start_date,
+            end_date,
+            provider
+          );
+          break;
+        default:
+          throw new Error('未知的查询类型');
+      }
+
+      setQueryResult(result);
+      message.success('查询成功');
+    } catch (error: any) {
+      console.error('数据查询失败:', error);
+      message.error(error?.message || '查询失败');
+      // 显示模拟结果
+      setQueryResult({
+        symbol: values.symbol || 'AAPL',
+        provider: 'yfinance',
+        note: '模拟数据（API 连接失败）',
+        data: [],
+      });
+    } finally {
+      setQuerying(false);
+    }
+  };
+
   // ETL 任务表格列
   const etlColumns: ColumnsType<ETLTask> = [
     {
@@ -559,6 +681,16 @@ const DataManagement: React.FC = () => {
     },
   ];
 
+  // 数据源类型颜色映射
+  const SOURCE_TYPE_COLORS: Record<string, string> = {
+    akshare: 'blue',
+    tushare: 'green',
+    eastmoney: 'orange',
+    openbb: 'purple',
+    yahoo_finance: 'cyan',
+    custom: 'default',
+  };
+
   // 数据源表格列
   const sourceColumns: ColumnsType<DataSource> = [
     {
@@ -570,7 +702,11 @@ const DataManagement: React.FC = () => {
       title: '类型',
       dataIndex: 'source_type',
       key: 'source_type',
-      render: (type: string) => <Tag>{type.toUpperCase()}</Tag>,
+      render: (type: string) => (
+        <Tag color={SOURCE_TYPE_COLORS[type] || 'default'}>
+          {type.toUpperCase()}
+        </Tag>
+      ),
     },
     {
       title: '状态',
@@ -614,7 +750,7 @@ const DataManagement: React.FC = () => {
   ];
 
   // 质量报告表格列
-  const qualityColumns: ColumnsType<QualityReport> = [
+  const qualityColumns: ColumnsType<QualityReportDetail> = [
     {
       title: '数据类型',
       dataIndex: 'data_type',
@@ -812,6 +948,180 @@ const DataManagement: React.FC = () => {
                 ),
               }}
             />
+          </Card>
+        </TabPane>
+
+        {/* 数据查询 - OpenBB */}
+        <TabPane
+          tab={<span><SearchOutlined /> 数据查询</span>}
+          key="query"
+        >
+          <Card
+            title={
+              <Space>
+                <ApiOutlined style={{ color: '#722ed1' }} />
+                <span>OpenBB 数据查询</span>
+                {openbbStatus && (
+                  <Tag color={openbbStatus.is_connected ? 'success' : 'error'}>
+                    {openbbStatus.is_connected ? '已连接' : '未连接'}
+                  </Tag>
+                )}
+              </Space>
+            }
+            extra={
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={handleOpenDataQuery}
+              >
+                新建查询
+              </Button>
+            }
+          >
+            {/* OpenBB 状态卡片 */}
+            {openbbStatus && (
+              <Row gutter={16} style={{ marginBottom: 16 }}>
+                <Col span={8}>
+                  <Card size="small" bordered={false} style={{ background: '#f5f5f5' }}>
+                    <Space direction="vertical" size={4}>
+                      <Text type="secondary">股票数据</Text>
+                      <Space>
+                        <LineChartOutlined style={{ color: '#1890ff' }} />
+                        <Text strong>{openbbStatus.providers.equity ? '可用' : '不可用'}</Text>
+                      </Space>
+                      {openbbProviders && (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          免费: {openbbProviders.equity.free.join(', ')}
+                        </Text>
+                      )}
+                    </Space>
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card size="small" bordered={false} style={{ background: '#f5f5f5' }}>
+                    <Space direction="vertical" size={4}>
+                      <Text type="secondary">宏观经济</Text>
+                      <Space>
+                        <GlobalOutlined style={{ color: '#52c41a' }} />
+                        <Text strong>{openbbStatus.providers.economy ? '可用' : '不可用'}</Text>
+                      </Space>
+                      {openbbProviders && (
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          免费: {openbbProviders.economy.free.join(', ')}
+                        </Text>
+                      )}
+                    </Space>
+                  </Card>
+                </Col>
+                <Col span={8}>
+                  <Card size="small" bordered={false} style={{ background: '#f5f5f5' }}>
+                    <Space direction="vertical" size={4}>
+                      <Text type="secondary">技术分析</Text>
+                      <Space>
+                        <ThunderboltOutlined style={{ color: '#faad14' }} />
+                        <Text strong>{openbbStatus.providers.technical ? '可用' : '不可用'}</Text>
+                      </Space>
+                    </Space>
+                  </Card>
+                </Col>
+              </Row>
+            )}
+
+            {/* 快捷查询卡片 */}
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12} md={6}>
+                <Card
+                  hoverable
+                  size="small"
+                  className="quick-template-card"
+                  onClick={() => {
+                    handleOpenDataQuery();
+                    setTimeout(() => {
+                      queryForm.setFieldsValue({ query_type: 'quote', symbol: 'AAPL' });
+                    }, 100);
+                  }}
+                >
+                  <Space direction="vertical" size={4}>
+                    <Space>
+                      <LineChartOutlined style={{ color: '#1890ff', fontSize: 18 }} />
+                      <Text strong>股票报价</Text>
+                    </Space>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      获取实时股票价格
+                    </Text>
+                  </Space>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card
+                  hoverable
+                  size="small"
+                  className="quick-template-card"
+                  onClick={() => {
+                    handleOpenDataQuery();
+                    setTimeout(() => {
+                      queryForm.setFieldsValue({ query_type: 'historical', symbol: 'AAPL' });
+                    }, 100);
+                  }}
+                >
+                  <Space direction="vertical" size={4}>
+                    <Space>
+                      <DatabaseOutlined style={{ color: '#52c41a', fontSize: 18 }} />
+                      <Text strong>历史价格</Text>
+                    </Space>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      获取历史 K 线数据
+                    </Text>
+                  </Space>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card
+                  hoverable
+                  size="small"
+                  className="quick-template-card"
+                  onClick={() => {
+                    handleOpenDataQuery();
+                    setTimeout(() => {
+                      queryForm.setFieldsValue({ query_type: 'macro', indicator: 'GDP' });
+                    }, 100);
+                  }}
+                >
+                  <Space direction="vertical" size={4}>
+                    <Space>
+                      <GlobalOutlined style={{ color: '#722ed1', fontSize: 18 }} />
+                      <Text strong>宏观指标</Text>
+                    </Space>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      GDP、CPI、失业率等
+                    </Text>
+                  </Space>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card
+                  hoverable
+                  size="small"
+                  className="quick-template-card"
+                  onClick={() => {
+                    handleOpenDataQuery();
+                    setTimeout(() => {
+                      queryForm.setFieldsValue({ query_type: 'technical', symbol: 'AAPL', indicators: 'rsi,macd' });
+                    }, 100);
+                  }}
+                >
+                  <Space direction="vertical" size={4}>
+                    <Space>
+                      <ThunderboltOutlined style={{ color: '#faad14', fontSize: 18 }} />
+                      <Text strong>技术指标</Text>
+                    </Space>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      RSI、MACD、布林带等
+                    </Text>
+                  </Space>
+                </Card>
+              </Col>
+            </Row>
           </Card>
         </TabPane>
       </Tabs>
@@ -1014,6 +1324,125 @@ const DataManagement: React.FC = () => {
             </ul>
           </div>
         </Form>
+      </Modal>
+
+      {/* 数据查询弹窗 */}
+      <Modal
+        title={
+          <Space>
+            <SearchOutlined />
+            <span>OpenBB 数据查询</span>
+          </Space>
+        }
+        open={dataQueryModalVisible}
+        onCancel={() => setDataQueryModalVisible(false)}
+        footer={null}
+        width={800}
+      >
+        <Form
+          form={queryForm}
+          layout="vertical"
+          onFinish={handleDataQuery}
+          initialValues={{ query_type: 'quote', provider: 'yfinance' }}
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="query_type" label="查询类型" rules={[{ required: true }]}>
+                <Select>
+                  <Option value="quote">股票报价</Option>
+                  <Option value="historical">历史价格</Option>
+                  <Option value="macro">宏观指标</Option>
+                  <Option value="technical">技术指标</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="provider" label="数据提供商">
+                <Select>
+                  <Option value="yfinance">Yahoo Finance (免费)</Option>
+                  <Option value="fmp">Financial Modeling Prep</Option>
+                  <Option value="polygon">Polygon.io</Option>
+                  <Option value="fred">FRED (宏观数据)</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => prevValues.query_type !== currentValues.query_type}
+          >
+            {({ getFieldValue }) => {
+              const queryType = getFieldValue('query_type');
+              if (queryType === 'macro') {
+                return (
+                  <Form.Item name="indicator" label="指标代码" rules={[{ required: true }]}>
+                    <Select placeholder="选择或输入指标代码">
+                      <Option value="GDP">GDP - 国内生产总值</Option>
+                      <Option value="CPI">CPI - 消费者物价指数</Option>
+                      <Option value="UNRATE">UNRATE - 失业率</Option>
+                      <Option value="FEDFUNDS">FEDFUNDS - 联邦基金利率</Option>
+                      <Option value="DGS10">DGS10 - 10年期国债收益率</Option>
+                    </Select>
+                  </Form.Item>
+                );
+              }
+              return (
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item name="symbol" label="股票代码" rules={[{ required: true }]}>
+                      <Input placeholder="例如: AAPL, MSFT, GOOGL" />
+                    </Form.Item>
+                  </Col>
+                  {queryType === 'technical' && (
+                    <Col span={12}>
+                      <Form.Item name="indicators" label="技术指标">
+                        <Input placeholder="rsi,macd,bbands (逗号分隔)" />
+                      </Form.Item>
+                    </Col>
+                  )}
+                </Row>
+              );
+            }}
+          </Form.Item>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="start_date" label="开始日期">
+                <Input type="date" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="end_date" label="结束日期">
+                <Input type="date" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={querying} icon={<SearchOutlined />}>
+              执行查询
+            </Button>
+          </Form.Item>
+        </Form>
+
+        {/* 查询结果 */}
+        {queryResult && (
+          <div style={{ marginTop: 16 }}>
+            <Divider>查询结果</Divider>
+            <pre style={{
+              background: '#1a1a1a',
+              padding: 16,
+              borderRadius: 8,
+              maxHeight: 400,
+              overflow: 'auto',
+              color: '#e6e6e6',
+              fontSize: 12,
+            }}>
+              {JSON.stringify(queryResult, null, 2)}
+            </pre>
+          </div>
+        )}
       </Modal>
 
       {/* 快捷模板卡片样式 */}

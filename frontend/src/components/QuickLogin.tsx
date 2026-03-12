@@ -36,7 +36,7 @@ const QuickLogin: React.FC = () => {
         }));
 
         message.success('✅ 登录成功！正在刷新...');
-        setTimeout(() => location.reload(), 1000);
+        setTimeout(() => window.location.reload(), 1000);
       } else {
         message.error('登录失败：' + JSON.stringify(data));
       }

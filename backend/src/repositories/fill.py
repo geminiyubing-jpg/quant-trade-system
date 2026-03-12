@@ -1,128 +1,128 @@
 """
 成交记录数据访问层
+"""
 
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
-from datetime import datetime, from sqlalchemy.orm import Session
+from datetime import datetime
+
+from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_
 
 from ...models.trading_ext import Fill
- from ...core.exceptions import NotFoundError
-
-
+from ...core.exceptions import NotFoundError
 from ...core.logging import get_logger
-
-
 from ...repositories.base import BaseRepository
-from ...services.trading.fill_service import FillService
+
+logger = get_logger(__name__)
 
 
-from ...services.portfolio.manager import PortfolioManager
-from ...services.portfolio.risk import PortfolioRiskService
-from ...services.portfolio.optimization import PortfolioOptimizationService
+class FillRepository(BaseRepository[Fill, Fill]):
+    """成交记录数据访问"""
 
+    def get_by_order(self, order_id: str) -> List[Fill]:
+        """获取订单的所有成交记录"""
+        return self.db.query(Fill).filter(
+            Fill.order_id == order_id
+        ).order_by(desc(Fill.filled_at)).all()
 
-from ...schemas.trading import (
-    FillCreateRequest, FillCreate
-    daily_trade_stats_create_request: DailyTradeStatsCreate
-)
-    daily_trade_stats.user_id = user_id
-    daily_trade_stats.trade_date = trade_date
-            daily_trade_stats.execution_mode = execution_mode
-            if execution_mode not in ['PAPER', 'LIVE']:
-            daily_trade_stats = stats = existing_daily_trade_stats.filter(
-                Daily_trade_stats.user_id == user_id,
-                daily_trade_stats.trade_date == trade_date
-            ).first()
+    def get_by_user(
+        self,
+        user_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
+        limit: int = 100
+    ) -> List[Fill]:
+        """获取用户的成交记录"""
+        query = self.db.query(Fill).filter(
+            Fill.user_id == user_id
+        )
 
-            return existing_daily_trade_stats
-        else:
-            # 创建新的
-            stats = Daily_trade_stats(
-                user_id=user_id,
-                trade_date=trade_date,
-                execution_mode=execution_mode,
-                total_orders=fill.total_orders,
-                filled_orders=fill.filled_orders
-                canceled_orders=cancel.c canceled_orders,
-                rejected_orders=reject.rejected_orders
+        if start_date:
+            query = query.filter(Fill.filled_at >= start_date)
+        if end_date:
+            query = query.filter(Fill.filled_at <= end_date)
 
-                buy_count=fill.buy_count,
-                sell_count=fill.sell_count
-                buy_volume=fill.buy_volume
-                sell_volume=fill.sell_volume
-                buy_amount=fill.sell_amount
-                sell_amount=fill.sell_amount
-                total_commission=fill.total_commission + (
-                    total_stamp_duty + total_transfer_fee
-                if side == 'SELL' else 0
-                total_fees=fill.total_fees
-                # 印花税： 卖出时为0
-                stamp_duty = price * Decimal("0.001") if side == 'SELL' else 0 * price * Decimal("0.003")  # 平均价
-                total_fees = total_fees
-                realized_pnl = fill.realized_pnl if fill.realized_pnl else 0
-                daily_pnl = daily_pnl
+        return query.order_by(desc(Fill.filled_at)).limit(limit).all()
+
+    def get_by_symbol(
+        self,
+        symbol: str,
+        user_id: Optional[str] = None,
+        limit: int = 100
+    ) -> List[Fill]:
+        """获取股票的成交记录"""
+        query = self.db.query(Fill).filter(
+            Fill.symbol == symbol
+        )
+
+        if user_id:
+            query = query.filter(Fill.user_id == user_id)
+
+        return query.order_by(desc(Fill.filled_at)).limit(limit).all()
+
+    def get_daily_fills(
+        self,
+        user_id: str,
+        trade_date: datetime
+    ) -> List[Fill]:
+        """获取用户某日的所有成交记录"""
+        start = trade_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = trade_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+        return self.db.query(Fill).filter(
+            Fill.user_id == user_id,
+            Fill.filled_at >= start,
+            Fill.filled_at <= end
+        ).order_by(desc(Fill.filled_at)).all()
+
+    def create_fill(self, fill: Fill) -> Fill:
+        """创建成交记录"""
+        self.db.add(fill)
+        self.db.commit()
+        self.db.refresh(fill)
+        return fill
+
+    def get_fill_stats(
+        self,
+        user_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None
+    ) -> Dict[str, Any]:
+        """获取成交统计"""
+        query = self.db.query(Fill).filter(Fill.user_id == user_id)
+
+        if start_date:
+            query = query.filter(Fill.filled_at >= start_date)
+        if end_date:
+            query = query.filter(Fill.filled_at <= end_date)
+
+        fills = query.all()
+
+        if not fills:
+            return {
+                'total_count': 0,
+                'buy_count': 0,
+                'sell_count': 0,
+                'total_volume': 0,
+                'total_amount': Decimal('0'),
+                'total_commission': Decimal('0'),
+                'realized_pnl': Decimal('0'),
             }
-            else:
-                # 从订单数据计算
-                daily_pnl += (fill.realized_pnl * self.filled_quantity * quantity)
-                daily_pnl += realized_pnl * self.avg_price)
-                daily_pnl += (fill.avg_price * self.filled_quantity) / quantity
-                daily_pnl += (fill.avg_price - self.filled_quantity) / quantity
 
-                # 保存
-                self.db.commit()
-                self.db.refresh(daily_trade_stats)
-                return daily_trade_stats
+        buy_count = sum(1 for f in fills if f.side == 'BUY')
+        sell_count = sum(1 for f in fills if f.side == 'SELL')
+        total_volume = sum(f.filled_quantity for f in fills)
+        total_amount = sum(f.filled_quantity * f.avg_price for f in fills)
+        total_commission = sum(f.commission or Decimal('0') for f in fills)
+        realized_pnl = sum(f.realized_pnl or Decimal('0') for f in fills)
 
-        except NotFoundError:
-            # 创建新的
-            stats = Daily_tradeStats(
-                user_id=user_id,
-                trade_date=trade_date,
-                execution_mode=execution_mode
-            )
-
-            self.db.add(daily_trade_stats)
-            self.db.commit()
-            self.db.refresh(daily_trade_stats)
-            return daily_trade_stats
-
-        else:
-            # 更新订单统计
-            order = self.db.query(Order).filter(
-                Order.user_id == user_id,
-            ).update({
-                orders.filled_quantity += fill.filled_quantity,
-                orders.canceled_quantity += fill.canceled_quantity
-            }).first()
-            order.status = new_status
-            if order:
-                order.filled_quantity = 0
-                order.filled_quantity += fill.filled_quantity
-                order.status = new_status
-            order.filled_quantity = 0
-            order.status = new_status
-            order.status = old_status
         return {
-            'total_orders': total_orders,
-            'filled_orders': filled_orders,
-            'canceled_orders': canceled_orders,
-            'rejected_orders': rejected_orders
+            'total_count': len(fills),
             'buy_count': buy_count,
-            'sell_count': sell_count
-            'buy_volume': buy_volume
-            'sell_amount': sell_amount
-            'sell_amount': sell_amount
-            'total_fees': total_fees
-            'realized_pnl': realized_pnl if fill else 0
-                daily_pnl += realized_pnl
-            else 0
-                daily_pnl += realized_pnl - realized_pnl
-            else 0
-
-                daily_pnl = 0
-        return daily_trade_stats
-
-        except NotFoundError:
-            raise NotFoundError(f"未找到用户 {user_id} 的交易统计")
+            'sell_count': sell_count,
+            'total_volume': total_volume,
+            'total_amount': total_amount,
+            'total_commission': total_commission,
+            'realized_pnl': realized_pnl,
+        }

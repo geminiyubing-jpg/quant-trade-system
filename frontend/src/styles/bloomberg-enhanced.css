@@ -326,6 +326,12 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
 }
 
+/* 深色主题消息提示文字颜色 - 高对比度 */
+[data-theme="dark"] .ant-message-notice-content,
+[data-theme="dark"] .ant-message .ant-message-custom-content > span:not(.anticon) {
+  color: #ffffff !important;
+}
+
 [data-theme="dark"] .ant-message-success .anticon {
   color: #ffd700 !important;
 }
@@ -336,6 +342,310 @@
 
 [data-theme="dark"] .ant-message-info .anticon {
   color: #00d4ff !important;
+}
+
+[data-theme="dark"] .ant-message-warning .anticon {
+  color: #ff9f43 !important;
+}
+
+[data-theme="dark"] .ant-message-loading .anticon {
+  color: #a0a0a0 !important;
+}
+
+/* ==========================================
+   Alert 提示框增强
+   ========================================== */
+
+[data-theme="dark"] .ant-alert-success {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border-color: rgba(34, 197, 94, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-alert-success .ant-alert-message {
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .ant-alert-success .ant-alert-description {
+  color: #86efac !important;
+}
+
+[data-theme="dark"] .ant-alert-success .ant-alert-icon {
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .ant-alert-error {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-alert-error .ant-alert-message {
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .ant-alert-error .ant-alert-description {
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .ant-alert-error .ant-alert-icon {
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .ant-alert-warning {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-alert-warning .ant-alert-message {
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .ant-alert-warning .ant-alert-description {
+  color: #fcd34d !important;
+}
+
+[data-theme="dark"] .ant-alert-warning .ant-alert-icon {
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .ant-alert-info {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-alert-info .ant-alert-message {
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .ant-alert-info .ant-alert-description {
+  color: #93c5fd !important;
+}
+
+[data-theme="dark"] .ant-alert-info .ant-alert-icon {
+  color: #60a5fa !important;
+}
+
+/* ==========================================
+   Tag 标签增强
+   ========================================== */
+
+[data-theme="dark"] .ant-tag {
+  color: #d1d5db !important;
+  background: rgba(75, 85, 99, 0.4) !important;
+  border-color: rgba(75, 85, 99, 0.6) !important;
+}
+
+[data-theme="dark"] .ant-tag-blue {
+  color: #93c5fd !important;
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-tag-green {
+  color: #86efac !important;
+  background: rgba(34, 197, 94, 0.2) !important;
+  border-color: rgba(34, 197, 94, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-tag-red {
+  color: #fca5a5 !important;
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-tag-orange {
+  color: #fdba74 !important;
+  background: rgba(249, 115, 22, 0.2) !important;
+  border-color: rgba(249, 115, 22, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-tag-purple {
+  color: #c4b5fd !important;
+  background: rgba(139, 92, 246, 0.2) !important;
+  border-color: rgba(139, 92, 246, 0.4) !important;
+}
+
+[data-theme="dark"] .ant-tag-gold {
+  color: #fde047 !important;
+  background: rgba(234, 179, 8, 0.2) !important;
+  border-color: rgba(234, 179, 8, 0.4) !important;
+}
+
+/* ==========================================
+   Badge 徽章增强
+   ========================================== */
+
+[data-theme="dark"] .ant-badge-status-success .ant-badge-status-dot {
+  background: #4ade80 !important;
+}
+
+[data-theme="dark"] .ant-badge-status-processing .ant-badge-status-dot {
+  background: #60a5fa !important;
+}
+
+[data-theme="dark"] .ant-badge-status-error .ant-badge-status-dot {
+  background: #f87171 !important;
+}
+
+[data-theme="dark"] .ant-badge-status-warning .ant-badge-status-dot {
+  background: #fbbf24 !important;
+}
+
+[data-theme="dark"] .ant-badge-status-text {
+  color: #d1d5db !important;
+}
+
+/* ==========================================
+   Notification 通知增强
+   ========================================== */
+
+[data-theme="dark"] .ant-notification-notice {
+  background: var(--bb-bg-secondary) !important;
+  border: 1px solid var(--bb-border) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .ant-notification-notice-message {
+  color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .ant-notification-notice-description {
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .ant-notification-notice-success .ant-notification-notice-icon {
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .ant-notification-notice-error .ant-notification-notice-icon {
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .ant-notification-notice-warning .ant-notification-notice-icon {
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .ant-notification-notice-info .ant-notification-notice-icon {
+  color: #60a5fa !important;
+}
+
+/* ==========================================
+   输入框增强
+   ========================================== */
+
+[data-theme="dark"] .ant-input::placeholder {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .ant-input-affix-wrapper > input::placeholder {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .ant-input:disabled,
+[data-theme="dark"] .ant-input-affix-wrapper-disabled {
+  color: #9ca3af !important;
+  background: rgba(30, 41, 59, 0.6) !important;
+}
+
+[data-theme="dark"] .ant-select-selection-placeholder {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .ant-select-disabled .ant-select-selector {
+  color: #9ca3af !important;
+}
+
+/* ==========================================
+   Modal 弹窗增强
+   ========================================== */
+
+[data-theme="dark"] .ant-modal-content {
+  background: var(--bb-bg-secondary) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .ant-modal-header {
+  background: var(--bb-bg-secondary) !important;
+  border-bottom-color: var(--bb-border) !important;
+}
+
+[data-theme="dark"] .ant-modal-title {
+  color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .ant-modal-close-x {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .ant-modal-close:hover .ant-modal-close-x {
+  color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .ant-modal-body {
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .ant-modal-footer {
+  border-top-color: var(--bb-border) !important;
+}
+
+/* ==========================================
+   Card 卡片增强
+   ========================================== */
+
+[data-theme="dark"] .ant-card {
+  background: var(--bb-bg-secondary) !important;
+  border-color: var(--bb-border) !important;
+}
+
+[data-theme="dark"] .ant-card-head {
+  background: transparent !important;
+  border-bottom-color: var(--bb-border) !important;
+}
+
+[data-theme="dark"] .ant-card-head-title {
+  color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .ant-card-meta-title {
+  color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .ant-card-meta-description {
+  color: #9ca3af !important;
+}
+
+/* ==========================================
+   Table 表格增强
+   ========================================== */
+
+[data-theme="dark"] .ant-table {
+  background: transparent !important;
+}
+
+[data-theme="dark"] .ant-table-thead > tr > th {
+  background: var(--bb-bg-tertiary) !important;
+  color: #d1d5db !important;
+  border-bottom-color: var(--bb-border) !important;
+}
+
+[data-theme="dark"] .ant-table-tbody > tr > td {
+  border-bottom-color: var(--bb-border) !important;
+}
+
+[data-theme="dark"] .ant-table-tbody > tr:hover > td {
+  background: rgba(255, 107, 0, 0.08) !important;
+}
+
+/* ==========================================
+   Form 表单增强
+   ========================================== */
+
+[data-theme="dark"] .ant-form-item-label > label {
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .ant-form-item-explain-error {
+  color: #fca5a5 !important;
 }
 
 /* ==========================================

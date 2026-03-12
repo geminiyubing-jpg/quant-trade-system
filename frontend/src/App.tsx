@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Layout, ConfigProvider, theme, Drawer, Spin } from 'antd';
+import { Layout, ConfigProvider, theme, Drawer, Spin, App as AntApp } from 'antd';
 import { useTranslation } from 'react-i18next';
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
@@ -36,10 +36,14 @@ const RiskManagement = lazy(() => import('./pages/RiskManagement'));
 // 行情相关
 const MarketRealtime = lazy(() => import('./pages/MarketRealtime'));
 const MarketOverview = lazy(() => import('./pages/MarketOverview'));
+const MarketPulse = lazy(() => import('./pages/MarketPulse'));
 const SectorAnalysis = lazy(() => import('./pages/SectorAnalysis'));
 
 // AI 相关
 const AILab = lazy(() => import('./pages/AILab'));
+
+// 工作区
+const Workspace = lazy(() => import('./pages/Workspace'));
 
 // 其他
 const Docs = lazy(() => import('./pages/Docs'));
@@ -51,12 +55,15 @@ const Docs = lazy(() => import('./pages/Docs'));
 const PageLoader = () => (
   <div style={{
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
     minHeight: 400,
+    gap: 16,
   }}>
-    <Spin size="large" tip="加载中..." />
+    <Spin size="large" />
+    <span style={{ color: 'var(--bb-text-secondary)' }}>加载中...</span>
   </div>
 );
 
@@ -115,6 +122,7 @@ function AppContent() {
   return (
     <TradingModeProvider>
       <ConfigProvider locale={antdLocale} theme={antdTheme}>
+        <AntApp>
         <BrowserRouter>
           <Routes>
             {/* 登录页面 - 无需认证 */}
@@ -224,11 +232,11 @@ function AppContent() {
                               <Route path="/strategy" element={<Navigate to="/strategy/library" replace />} />
 
                               {/* 新路由 */}
-                              <Route path="/workspace" element={<Dashboard />} />
                               <Route path="/data/management" element={<DataManagement />} />
                               <Route path="/data" element={<Navigate to="/data/management" replace />} />
                               <Route path="/market" element={<Navigate to="/market/overview" replace />} />
                               <Route path="/market/overview" element={<MarketOverview />} />
+                              <Route path="/market/pulse" element={<MarketPulse />} />
                               <Route path="/market/realtime" element={<MarketRealtime />} />
                               <Route path="/market/sectors" element={<SectorAnalysis />} />
                               <Route path="/strategy/library" element={<StrategyManagement />} />
@@ -239,6 +247,7 @@ function AppContent() {
                               <Route path="/ai/generate" element={<AILab />} />
                               <Route path="/ai/pick" element={<AILab />} />
                               <Route path="/ai/analyze" element={<AILab />} />
+                              <Route path="/workspace" element={<Workspace />} />
                               <Route path="/risk" element={<RiskManagement />} />
                               <Route path="/community" element={<Dashboard />} />
                               <Route path="/docs" element={<Docs />} />
@@ -253,6 +262,7 @@ function AppContent() {
             />
           </Routes>
         </BrowserRouter>
+        </AntApp>
       </ConfigProvider>
     </TradingModeProvider>
   );

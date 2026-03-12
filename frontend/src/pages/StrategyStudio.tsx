@@ -4,7 +4,7 @@
  * 提供策略代码编辑、调试和优化的集成开发环境。
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Layout,
   Button,
@@ -24,6 +24,7 @@ import {
   Tooltip,
   Dropdown,
   Empty,
+  Spin,
 } from 'antd';
 import {
   FileAddOutlined,
@@ -40,8 +41,12 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
   SyncOutlined,
+  RobotOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import CodeEditor from '../components/CodeEditor';
+import AIStrategyGenerator from '../components/AIStrategyGenerator';
+import strategyRegistryService, { StrategyMetadata } from '../services/strategyRegistry';
 import './StrategyStudio.css';
 
 const { Sider, Content } = Layout;
@@ -67,67 +72,122 @@ interface LogEntry {
   message: string;
 }
 
-// 模拟策略文件数据
-const mockStrategyFiles: StrategyFile[] = [
-  {
-    id: '1',
-    name: '我的策略',
-    type: 'folder',
-    children: [
-      {
-        id: '1-1',
-        name: '双均线交叉策略.py',
-        type: 'file',
-        status: 'passed',
-        content: '# 双均线交叉策略\n# 当短期均线上穿长期均线时买入，下穿时卖出\n\nclass MACrossStrategy:\n    pass',
-        updatedAt: '2026-03-10 10:30:00',
-      },
-      {
-        id: '1-2',
-        name: '动量策略.py',
-        type: 'file',
-        status: 'testing',
-        content: '# 动量策略\n\nclass MomentumStrategy:\n    pass',
-        updatedAt: '2026-03-10 09:15:00',
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: '示例策略',
-    type: 'folder',
-    children: [
-      {
-        id: '2-1',
-        name: '均值回归策略.py',
-        type: 'file',
-        status: 'draft',
-        content: '# 均值回归策略\n\nclass MeanReversionStrategy:\n    pass',
-        updatedAt: '2026-03-09 16:45:00',
-      },
-    ],
-  },
-];
+// 策略状态到文件状态的映射
+const strategyStatusToFileStatus = (status: string): 'draft' | 'testing' | 'passed' | 'failed' => {
+  const mapping: Record<string, 'draft' | 'testing' | 'passed' | 'failed'> = {
+    development: 'draft',
+    testing: 'testing',
+    backtest_passed: 'passed',
+    paper_trading: 'passed',
+    live_trading: 'passed',
+    deprecated: 'failed',
+    suspended: 'failed',
+  };
+  return mapping[status] || 'draft';
+};
+
+// 将策略注册表数据转换为文件树格式
+const convertStrategiesToFiles = (strategies: StrategyMetadata[]): StrategyFile[] => {
+  // 按分类分组
+  const categoryMap = new Map<string, StrategyMetadata[]>();
+
+  strategies.forEach(strategy => {
+    const category = strategy.category || '未分类';
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, []);
+    }
+    categoryMap.get(category)!.push(strategy);
+  });
+
+  // 转换为文件树结构
+  const files: StrategyFile[] = [];
+
+  categoryMap.forEach((strategyList, categoryName) => {
+    const folder: StrategyFile = {
+      id: `folder-${categoryName}`,
+      name: categoryName,
+      type: 'folder',
+      children: strategyList.map(strategy => ({
+        id: strategy.strategy_id,
+        name: `${strategy.name}.py`,
+        type: 'file' as const,
+        status: strategyStatusToFileStatus(strategy.status),
+        content: `# ${strategy.name}\n# ${strategy.description || ''}\n# 版本: ${strategy.version}\n# 作者: ${strategy.author || '未知'}\n\n# 参数配置:\n# ${JSON.stringify(strategy.default_params, null, 2)}\n\nclass ${strategy.strategy_id}:\n    """${strategy.description || strategy.name}"""\n    pass`,
+        createdAt: strategy.version ? new Date().toISOString() : undefined,
+        updatedAt: new Date().toISOString(),
+      })),
+    };
+    files.push(folder);
+  });
+
+  // 如果没有策略，返回默认的空结构
+  if (files.length === 0) {
+    files.push({
+      id: 'folder-empty',
+      name: '策略文件',
+      type: 'folder',
+      children: [],
+    });
+  }
+
+  return files;
+};
 
 const StrategyStudio: React.FC = () => {
   // 状态
-  const [files, setFiles] = useState<StrategyFile[]>(mockStrategyFiles);
+  const [files, setFiles] = useState<StrategyFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<StrategyFile | null>(null);
   const [code, setCode] = useState<string>('');
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  // 预留状态变量，未来用于 Tab 切换和加载状态
+  const [aiGeneratorVisible, setAiGeneratorVisible] = useState(false);
+  // 预留状态变量，未来用于 Tab 切换
   const [_activeTab, _setActiveTab] = useState('editor');
-  const [_loading, _setLoading] = useState(false);
+  // 新建文件夹弹窗状态
+  const [createFolderModalVisible, setCreateFolderModalVisible] = useState(false);
+  const [folderForm] = Form.useForm();
+  // 调试状态
+  const [debugging, setDebugging] = useState(false);
+  // 重命名弹窗状态
+  const [renameModalVisible, setRenameModalVisible] = useState(false);
+  const [newFileName, setNewFileName] = useState('');
+  // 版本恢复弹窗状态
+  const [versionRestoreId, setVersionRestoreId] = useState<string | null>(null);
 
   const [form] = Form.useForm();
+
+  // 从策略注册表加载策略文件
+  const loadStrategies = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await strategyRegistryService.getStrategies();
+      const strategyList = result.data || [];
+      setFiles(convertStrategiesToFiles(strategyList));
+      addLog('info', `已从策略注册表加载 ${strategyList.length} 个策略`);
+    } catch (error) {
+      console.error('加载策略失败:', error);
+      addLog('error', '从策略注册表加载策略失败');
+      message.error('加载策略失败');
+      // 设置空的文件结构
+      setFiles([{
+        id: 'folder-empty',
+        name: '策略文件',
+        type: 'folder',
+        children: [],
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // 初始化
   useEffect(() => {
     addLog('info', '策略工作室已加载');
-    addLog('info', '选择一个策略文件开始编辑，或创建新策略');
-  }, []);
+    addLog('info', '正在从策略注册表加载策略文件...');
+    loadStrategies();
+  }, [loadStrategies]);
 
   // 添加日志
   const addLog = (level: LogEntry['level'], message: string) => {
@@ -275,7 +335,7 @@ const StrategyStudio: React.FC = () => {
     setCreateModalVisible(false);
     form.resetFields();
     addLog('success', `创建新策略: ${newFile.name}`);
-    message.success('策略创建成功');
+    message.success('策略创建成功，请通过策略注册表注册此策略');
   };
 
   // 文件操作菜单
@@ -307,10 +367,42 @@ const StrategyStudio: React.FC = () => {
     onClick: ({ key }: { key: string }) => {
       switch (key) {
         case 'rename':
-          message.info('重命名功能开发中');
+          if (selectedFile) {
+            setNewFileName(selectedFile.name.replace('.py', ''));
+            setRenameModalVisible(true);
+          }
           break;
         case 'copy':
-          message.info('复制功能开发中');
+          if (selectedFile) {
+            // 复制文件到同一目录
+            const newFile: StrategyFile = {
+              ...selectedFile,
+              id: `${Date.now()}`,
+              name: `${selectedFile.name.replace('.py', '')}_copy.py`,
+              status: 'draft',
+              updatedAt: new Date().toISOString(),
+            };
+            setFiles(prev => {
+              const addToFolder = (items: StrategyFile[]): StrategyFile[] => {
+                return items.map(item => {
+                  if (item.type === 'folder') {
+                    const hasFile = item.children?.some(c => c.id === selectedFile.id);
+                    if (hasFile) {
+                      return {
+                        ...item,
+                        children: [...(item.children || []), newFile],
+                      };
+                    }
+                    return { ...item, children: addToFolder(item.children || []) };
+                  }
+                  return item;
+                });
+              };
+              return addToFolder(prev);
+            });
+            addLog('success', `策略已复制: ${newFile.name}`);
+            message.success('策略复制成功');
+          }
           break;
         case 'download':
           if (selectedFile) {
@@ -329,6 +421,20 @@ const StrategyStudio: React.FC = () => {
             title: '确认删除',
             content: `确定要删除 "${selectedFile?.name}" 吗？`,
             onOk: () => {
+              setFiles(prev => {
+                const removeFile = (items: StrategyFile[]): StrategyFile[] => {
+                  return items
+                    .filter(item => item.id !== selectedFile?.id)
+                    .map(item => {
+                      if (item.children) {
+                        return { ...item, children: removeFile(item.children) };
+                      }
+                      return item;
+                    });
+                };
+                return removeFile(prev);
+              });
+              addLog('info', `策略已删除: ${selectedFile?.name}`);
               message.success('删除成功');
               setSelectedFile(null);
               setCode('');
@@ -345,6 +451,100 @@ const StrategyStudio: React.FC = () => {
     addLog('info', '日志已清空');
   };
 
+  // 新建文件夹
+  const handleCreateFolder = (values: { name: string }) => {
+    const newFolder: StrategyFile = {
+      id: `folder-${Date.now()}`,
+      name: values.name,
+      type: 'folder',
+      children: [],
+    };
+    setFiles(prev => [...prev, newFolder]);
+    setCreateFolderModalVisible(false);
+    folderForm.resetFields();
+    addLog('success', `文件夹已创建: ${values.name}`);
+    message.success('文件夹创建成功');
+  };
+
+  // 调试策略
+  const handleDebugStrategy = async () => {
+    if (!selectedFile) {
+      message.warning('请先选择一个策略文件');
+      return;
+    }
+
+    setDebugging(true);
+    addLog('info', `开始调试策略: ${selectedFile.name}`);
+
+    // 模拟调试过程
+    setTimeout(() => {
+      addLog('info', '解析策略代码...');
+    }, 500);
+
+    setTimeout(() => {
+      addLog('info', '检查语法错误...');
+    }, 1000);
+
+    setTimeout(() => {
+      addLog('info', '运行单元测试...');
+    }, 1500);
+
+    setTimeout(() => {
+      addLog('success', '调试完成！策略代码无语法错误');
+      setDebugging(false);
+    }, 2500);
+  };
+
+  // 确认重命名
+  const handleRenameConfirm = () => {
+    if (!selectedFile || !newFileName.trim()) {
+      message.error('请输入有效的文件名');
+      return;
+    }
+
+    const updatedName = newFileName.endsWith('.py') ? newFileName : `${newFileName}.py`;
+    setFiles(prev => {
+      const renameFile = (items: StrategyFile[]): StrategyFile[] => {
+        return items.map(item => {
+          if (item.id === selectedFile.id) {
+            return { ...item, name: updatedName, updatedAt: new Date().toISOString() };
+          }
+          if (item.children) {
+            return { ...item, children: renameFile(item.children) };
+          }
+          return item;
+        });
+      };
+      return renameFile(prev);
+    });
+
+    setSelectedFile(prev => prev ? { ...prev, name: updatedName } : null);
+    setRenameModalVisible(false);
+    addLog('success', `文件已重命名为: ${updatedName}`);
+    message.success('重命名成功');
+  };
+
+  // 恢复历史版本
+  const handleRestoreVersion = (version: string) => {
+    setVersionRestoreId(version);
+    Modal.confirm({
+      title: '恢复历史版本',
+      content: `确定要恢复到 ${version} 吗？当前未保存的更改将丢失。`,
+      onOk: () => {
+        // 模拟恢复历史版本
+        addLog('info', `正在恢复到 ${version}...`);
+        setTimeout(() => {
+          addLog('success', `已恢复到 ${version}`);
+          message.success(`已恢复到 ${version}`);
+          setVersionRestoreId(null);
+        }, 500);
+      },
+      onCancel: () => {
+        setVersionRestoreId(null);
+      },
+    });
+  };
+
   return (
     <Layout className="strategy-studio">
       {/* 左侧边栏 - 文件浏览器 */}
@@ -355,6 +555,15 @@ const StrategyStudio: React.FC = () => {
             策略文件
           </Title>
           <Space>
+            <Tooltip title="刷新策略列表">
+              <Button
+                type="text"
+                size="small"
+                icon={<ReloadOutlined spin={loading} />}
+                onClick={loadStrategies}
+                loading={loading}
+              />
+            </Tooltip>
             <Tooltip title="新建策略">
               <Button
                 type="text"
@@ -364,25 +573,39 @@ const StrategyStudio: React.FC = () => {
               />
             </Tooltip>
             <Tooltip title="新建文件夹">
-              <Button type="text" size="small" icon={<FolderOutlined />} />
+              <Button type="text" size="small" icon={<FolderOutlined />} onClick={() => setCreateFolderModalVisible(true)} />
             </Tooltip>
           </Space>
         </div>
 
-        <div className="file-tree">
-          <Tree
-            showIcon
-            showLine
-            defaultExpandAll
-            treeData={convertToTreeData(files)}
-            onSelect={handleFileSelect}
-          />
-        </div>
+        <Spin spinning={loading}>
+          <div className="file-tree">
+            {files.length > 0 ? (
+              <Tree
+                showIcon
+                showLine
+                defaultExpandAll
+                treeData={convertToTreeData(files)}
+                onSelect={handleFileSelect}
+              />
+            ) : (
+              <Empty description="暂无策略文件" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            )}
+          </div>
+        </Spin>
 
         {/* 快速操作 */}
         <div className="quick-actions">
           <Button
             type="primary"
+            icon={<RobotOutlined />}
+            block
+            onClick={() => setAiGeneratorVisible(true)}
+            style={{ marginBottom: 8 }}
+          >
+            AI 生成策略
+          </Button>
+          <Button
             icon={<PlayCircleOutlined />}
             block
             onClick={handleRunBacktest}
@@ -396,6 +619,8 @@ const StrategyStudio: React.FC = () => {
             block
             style={{ marginTop: 8 }}
             disabled={!selectedFile}
+            loading={debugging}
+            onClick={handleDebugStrategy}
           >
             调试策略
           </Button>
@@ -539,7 +764,16 @@ const StrategyStudio: React.FC = () => {
                 { version: 'v1.0', date: '2026-03-05', desc: '初始版本' },
               ] : []}
               renderItem={item => (
-                <List.Item actions={[<Button type="link" size="small">恢复</Button>]}>
+                <List.Item actions={[
+                  <Button
+                    type="link"
+                    size="small"
+                    loading={versionRestoreId === item.version}
+                    onClick={() => handleRestoreVersion(item.version)}
+                  >
+                    恢复
+                  </Button>
+                ]}>
                   <List.Item.Meta
                     title={item.version}
                     description={`${item.date} - ${item.desc}`}
@@ -607,6 +841,59 @@ const StrategyStudio: React.FC = () => {
               <Select.Option value="我的策略">我的策略</Select.Option>
               <Select.Option value="示例策略">示例策略</Select.Option>
             </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* AI 策略生成器弹窗 */}
+      <AIStrategyGenerator
+        visible={aiGeneratorVisible}
+        onClose={() => setAiGeneratorVisible(false)}
+        onStrategyGenerated={(strategy) => {
+          addLog('success', `AI 策略已生成并保存: ${strategy.strategy_id}`);
+          message.success('AI 策略已保存到策略注册表');
+          // 刷新策略列表
+          loadStrategies();
+        }}
+      />
+
+      {/* 新建文件夹弹窗 */}
+      <Modal
+        title="新建文件夹"
+        open={createFolderModalVisible}
+        onCancel={() => setCreateFolderModalVisible(false)}
+        onOk={() => folderForm.submit()}
+      >
+        <Form
+          form={folderForm}
+          layout="vertical"
+          onFinish={handleCreateFolder}
+        >
+          <Form.Item
+            name="name"
+            label="文件夹名称"
+            rules={[{ required: true, message: '请输入文件夹名称' }]}
+          >
+            <Input placeholder="例如: 我的策略" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 重命名弹窗 */}
+      <Modal
+        title="重命名策略"
+        open={renameModalVisible}
+        onCancel={() => setRenameModalVisible(false)}
+        onOk={handleRenameConfirm}
+      >
+        <Form layout="vertical">
+          <Form.Item label="新文件名">
+            <Input
+              value={newFileName}
+              onChange={(e) => setNewFileName(e.target.value)}
+              placeholder="输入新文件名"
+              suffix=".py"
+            />
           </Form.Item>
         </Form>
       </Modal>

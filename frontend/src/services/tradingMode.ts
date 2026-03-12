@@ -1,10 +1,11 @@
 /**
  * 交易模式API服务
- * 
+ *
  * 负责与后端API交互，管理交易模式的切换和状态
  */
 
 import { notification } from 'antd';
+import { apiRequest } from './api';
 
 // 交易模式类型
 export type TradingMode = 'PAPER' | 'LIVE';
@@ -32,52 +33,14 @@ export interface TradingModeStatus {
   warning_message?: string;
 }
 
-// API基础URL配置
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// API路径前缀
 const API_PREFIX = '/api/v1/trading';
-
-/**
- * 通用API请求函数
- */
-async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const url = `${API_BASE_URL}${API_PREFIX}${endpoint}`;
-  
-  const defaultOptions: RequestInit = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include', // 发送cookies
-    ...options,
-  };
-  
-  try {
-    const response = await fetch(url, defaultOptions);
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({
-        detail: response.statusText,
-      }));
-      
-      throw new Error(errorData.detail || 'API请求失败');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    // 记录错误并抛出
-    console.error('API request failed:', error);
-    throw error;
-  }
-}
 
 /**
  * 获取当前交易模式
  */
 export async function getTradingModeStatus(): Promise<TradingModeStatus> {
-  return apiRequest<TradingModeStatus>('/mode');
+  return apiRequest<TradingModeStatus>(`${API_PREFIX}/mode`, {}, false);
 }
 
 /**
@@ -92,7 +55,7 @@ export async function switchTradingMode(
   password?: string
 ): Promise<TradingModeSwitchResponse> {
   try {
-    const response = await apiRequest<TradingModeSwitchResponse>('/mode/switch', {
+    const response = await apiRequest<TradingModeSwitchResponse>(`${API_PREFIX}/mode/switch`, {
       method: 'POST',
       body: JSON.stringify({
         mode,
@@ -100,25 +63,25 @@ export async function switchTradingMode(
         confirm: true,
       } as TradingModeSwitchRequest),
     });
-    
+
     // 显示成功通知
     notification.success({
       message: response.message,
       description: '交易模式已切换',
       placement: 'topRight',
     });
-    
+
     return response;
   } catch (error: unknown) {
     // 显示错误通知
     const errorMessage = error instanceof Error ? error.message : '切换失败';
-    
+
     notification.error({
       message: '交易模式切换失败',
       description: errorMessage,
       placement: 'topRight',
     });
-    
+
     throw error;
   }
 }

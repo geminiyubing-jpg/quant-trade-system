@@ -1,0 +1,87 @@
+{
+  "strategy_id": "ai_momentum_bbc78024",
+  "name": "成交量加权动量突破策略",
+  "version": "1.0.0",
+  "author": "AI Generator",
+  "description": "",
+  "category": "momentum",
+  "frequency": "1d",
+  "status": "development",
+  "tags": [
+    "AI生成",
+    "momentum"
+  ],
+  "risk_level": "high",
+  "market_condition": "市场呈现明显上涨趋势，成交量放大",
+  "generated_at": "2026-03-11T22:10:11.851969",
+  "content": {
+    "strategy_name": "成交量加权动量突破策略",
+    "strategy_principle": "该策略基于动量效应，认为资产的上涨趋势具有延续性。结合用户描述的'市场呈现明显上涨趋势，成交量放大'，策略核心在于捕捉'价量齐升'的强势阶段。通过均线系统判断趋势方向，利用价格突破前期高点作为入场触发信号，并以成交量显著放大作为确认信号，过滤假突破。策略旨在在趋势加速阶段入场，获取主升浪收益。",
+    "entry_conditions": {
+      "description": "满足以下全部条件时，于下一根K线开盘价入场做多。",
+      "conditions": [
+        {
+          "indicator": "MA_Trend",
+          "logic": "收盘价 > MA20，且 MA20 > MA60",
+          "purpose": "确认市场处于多头排列，大趋势向上"
+        },
+        {
+          "indicator": "Price_Breakout",
+          "logic": "收盘价突破过去20个交易日的最高价",
+          "purpose": "确认短期动量爆发，创出新高"
+        },
+        {
+          "indicator": "Volume_Surge",
+          "logic": "当日成交量 > 过去20日平均成交量的 1.5 倍",
+          "purpose": "确认突破有效，有资金强力推动"
+        }
+      ]
+    },
+    "exit_conditions": {
+      "description": "采用移动止盈与硬性止损相结合的方式。",
+      "conditions": [
+        {
+          "type": "Trailing_Stop",
+          "logic": "价格回撤超过入场后最高价的 10%",
+          "purpose": "保护浮动利润，让利润奔跑，适用于高波动上涨趋势"
+        },
+        {
+          "type": "Trend_Reversal",
+          "logic": "收盘价跌破 MA20 均线",
+          "purpose": "趋势转弱信号，被动离场"
+        }
+      ]
+    },
+    "risk_management": {
+      "stop_loss": {
+        "method": "ATR_Based",
+        "parameter": "2 * ATR(14)",
+        "description": "入场价 - 2倍ATR作为硬性止损底线，防止单次极端回撤。"
+      },
+      "position_sizing": {
+        "method": "Volatility_Adjusted",
+        "formula": "Position_Size = (Total_Equity * Risk_Rate) / ATR",
+        "parameters": {
+          "risk_per_trade": "2%",
+          "max_leverage": "5x"
+        },
+        "description": "根据波动率(ATR)倒推仓位，确保每笔交易的风险敞口恒定。鉴于高风险承受能力，单笔最大亏损设为总资金的2%，允许使用杠杆放大收益。"
+      },
+      "max_drawdown_control": {
+        "rule": "若账户总净值回撤达到 15%，强制降低仓位至半仓或停止开新仓，直至净值修复。"
+      }
+    },
+    "suitable_market_environment": {
+      "trend": "明显的多头上涨趋势",
+      "volatility": "中高波动率",
+      "volume": "成交量活跃或持续放大",
+      "style": "趋势跟踪型，适合牛市主升浪或强势板块轮动阶段"
+    }
+  },
+  "default_params": {},
+  "params_schema": {},
+  "min_history_bars": 100,
+  "supported_markets": [
+    "A股"
+  ]
+}

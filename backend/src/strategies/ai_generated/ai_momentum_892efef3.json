@@ -1,0 +1,27 @@
+{
+  "strategy_id": "ai_momentum_892efef3",
+  "name": "AIMomentumStrategy",
+  "version": "1.0.0",
+  "author": "AI Generator",
+  "description": "",
+  "category": "momentum",
+  "frequency": "1d",
+  "status": "development",
+  "tags": [
+    "AI生成",
+    "momentum"
+  ],
+  "risk_level": "medium",
+  "market_condition": "市场呈现明显上涨趋势，成交量放大",
+  "generated_at": "2026-03-11T22:00:27.788911",
+  "content": {
+    "raw_content": "```json\n{\n  \"strategy_name\": \"趋势成交量共振动量策略\",\n  \"strategy_principle\": \"该策略基于'量价配合'的经典动量理论。在明显的上涨趋势中，价格突破伴随成交量的显著放大，往往意味着机构资金的介入和趋势的加速。策略通过捕捉'价格创新高'与'成交量异常放大'的共振点入场，利用动态ATR通道进行趋势跟踪，旨在捕捉主升浪行情。\",\n  \"entry_conditions\": {\n    \"description\": \"当以下所有条件同时满足时，在下一根K线开盘价买入。\",\n    \"conditions\": [\n      {\n        \"indicator\": \"趋势过滤\",\n        \"logic\": \"收盘价 > 过去60日移动平均线 (MA60)\",\n        \"purpose\": \"确保市场处于明显的上涨趋势中\"\n      },\n      {\n        \"indicator\": \"动量突破\",\n        \"logic\": \"收盘价突破过去20日最高价\",\n        \"purpose\": \"确认价格动量启动，创出阶段性新高\"\n      },\n      {\n        \"",
+    "strategy_type": "momentum"
+  },
+  "default_params": {},
+  "params_schema": {},
+  "min_history_bars": 100,
+  "supported_markets": [
+    "A股"
+  ]
+}

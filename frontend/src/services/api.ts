@@ -43,8 +43,17 @@ export async function apiRequest<T>(
     ...options,
   };
 
+  // 创建 AbortController 用于超时控制
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 90000); // 90秒超时
+
   try {
-    const response = await fetch(url, defaultOptions);
+    const response = await fetch(url, {
+      ...defaultOptions,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({
@@ -60,6 +69,21 @@ export async function apiRequest<T>(
 
     return await response.json();
   } catch (error) {
+    clearTimeout(timeoutId);
+
+    // 处理超时错误
+    if (error instanceof Error && error.name === 'AbortError') {
+      const timeoutError = new Error('请求超时，请稍后重试');
+      if (showErrorNotification) {
+        notification.error({
+          message: '请求超时',
+          description: '服务器响应时间过长，请稍后重试',
+          placement: 'topRight',
+        });
+      }
+      throw timeoutError;
+    }
+
     const errorMessage = error instanceof Error ? error.message : '操作失败';
     if (showErrorNotification) {
       notification.error({

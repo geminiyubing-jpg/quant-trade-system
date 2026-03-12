@@ -3,6 +3,7 @@
 
 提供策略的动态注册、自动发现和实例化功能。
 支持装饰器注册和目录扫描自动注册。
+支持数据库持久化存储。
 
 参考设计：
 - Vn.py 的策略加载机制
@@ -18,6 +19,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from decimal import Decimal
+from datetime import datetime
+import uuid
 
 from .base import StrategyBase, StrategyConfig, StrategyStatus
 
@@ -602,6 +605,174 @@ class StrategyRegistry:
         self._strategy_instances.clear()
         self._instance_counter.clear()
         logger.info("注册表已清空")
+
+    # ==================== 数据库持久化方法 ====================
+
+    def load_from_database(self, db_session) -> int:
+        """
+        从数据库加载策略到注册表
+
+        Args:
+            db_session: 数据库会话
+
+        Returns:
+            加载的策略数量
+        """
+        try:
+            from src.models import Strategy as DBStrategy
+
+            strategies = db_session.query(DBStrategy).all()
+            loaded_count = 0
+
+            for db_strategy in strategies:
+                # 将数据库策略转换为注册表元数据
+                metadata = StrategyMetadata(
+                    strategy_id=str(db_strategy.id),
+                    name=db_strategy.name,
+                    strategy_class=None,  # 从数据库加载的策略没有类
+                    version=str(db_strategy.version or 1),
+                    author="",
+                    description=db_strategy.description or "",
+                    category="database",  # 标记为数据库策略
+                    frequency=StrategyFrequency.DAILY,
+                    status=self._map_db_status_to_lifecycle(db_strategy.status),
+                    tags=[],
+                    params_schema={},
+                    default_params=db_strategy.parameters or {},
+                    min_history_bars=0,
+                    supported_markets=["A股"],
+                    risk_level="medium",
+                )
+
+                # 添加到注册表（不覆盖已存在的）
+                if metadata.strategy_id not in self._strategies:
+                    self._strategies[metadata.strategy_id] = metadata
+                    loaded_count += 1
+
+            logger.info(f"从数据库加载了 {loaded_count} 个策略")
+            return loaded_count
+
+        except Exception as e:
+            logger.error(f"从数据库加载策略失败: {e}")
+            return 0
+
+    def save_to_database(
+        self,
+        metadata: StrategyMetadata,
+        db_session,
+        user_id: str = None,
+        code: str = None
+    ) -> bool:
+        """
+        将策略保存到数据库
+
+        Args:
+            metadata: 策略元数据
+            db_session: 数据库会话
+            user_id: 用户ID
+            code: 策略代码
+
+        Returns:
+            是否保存成功
+        """
+        try:
+            from src.models import Strategy as DBStrategy
+            from src.models.strategy import strategy_status_enum
+
+            # 检查是否已存在
+            existing = db_session.query(DBStrategy).filter(
+                DBStrategy.name == metadata.name
+            ).first()
+
+            if existing:
+                # 更新现有策略
+                existing.description = metadata.description
+                existing.parameters = metadata.default_params
+                existing.code = code or existing.code
+                existing.version = (existing.version or 0) + 1
+                existing.status = self._map_lifecycle_to_db_status(metadata.status)
+                existing.updated_at = datetime.utcnow()
+            else:
+                # 创建新策略
+                new_strategy = DBStrategy(
+                    id=uuid.uuid4(),
+                    user_id=uuid.UUID(user_id) if user_id else uuid.uuid4(),
+                    name=metadata.name,
+                    description=metadata.description,
+                    status=self._map_lifecycle_to_db_status(metadata.status),
+                    code=code or f"# {metadata.name}\n# 策略代码待实现",
+                    parameters=metadata.default_params,
+                    version=1,
+                )
+                db_session.add(new_strategy)
+
+            db_session.commit()
+            logger.info(f"策略 {metadata.strategy_id} 已保存到数据库")
+            return True
+
+        except Exception as e:
+            logger.error(f"保存策略到数据库失败: {e}")
+            db_session.rollback()
+            return False
+
+    def register_from_dict(
+        self,
+        data: Dict[str, Any],
+        strategy_class: Type[StrategyBase] = None
+    ) -> StrategyMetadata:
+        """
+        从字典数据创建并注册策略（用于 AI 生成的策略）
+
+        Args:
+            data: 策略数据字典
+            strategy_class: 可选的策略类
+
+        Returns:
+            注册的策略元数据
+        """
+        metadata = StrategyMetadata(
+            strategy_id=data.get("strategy_id", str(uuid.uuid4())),
+            name=data.get("name", data.get("strategy_name", "未命名策略")),
+            strategy_class=strategy_class,
+            version=data.get("version", "1.0.0"),
+            author=data.get("author", "AI"),
+            description=data.get("description", ""),
+            category=data.get("category", "general"),
+            frequency=StrategyFrequency(data.get("frequency", "1d")),
+            status=StrategyLifecycleStatus(data.get("status", "development")),
+            tags=data.get("tags", []),
+            params_schema=data.get("params_schema", {}),
+            default_params=data.get("default_params", data.get("parameters", {})),
+            min_history_bars=data.get("min_history_bars", 0),
+            supported_markets=data.get("supported_markets", ["A股"]),
+            risk_level=data.get("risk_level", "medium"),
+        )
+
+        self._register_metadata(metadata)
+        return metadata
+
+    def _map_db_status_to_lifecycle(self, db_status: str) -> 'StrategyLifecycleStatus':
+        """将数据库状态映射到生命周期状态"""
+        mapping = {
+            'DRAFT': StrategyLifecycleStatus.DEVELOPMENT,
+            'ACTIVE': StrategyLifecycleStatus.LIVE_TRADING,
+            'PAUSED': StrategyLifecycleStatus.SUSPENDED,
+            'ARCHIVED': StrategyLifecycleStatus.DEPRECATED,
+        }
+        return mapping.get(db_status, StrategyLifecycleStatus.DEVELOPMENT)
+
+    def _map_lifecycle_to_db_status(self, lifecycle_status: 'StrategyLifecycleStatus') -> str:
+        """将生命周期状态映射到数据库状态"""
+        mapping = {
+            StrategyLifecycleStatus.DEVELOPMENT: 'DRAFT',
+            StrategyLifecycleStatus.TESTING: 'DRAFT',
+            StrategyLifecycleStatus.BACKTEST_PASSED: 'DRAFT',
+            StrategyLifecycleStatus.PAPER_TRADING: 'DRAFT',
+            StrategyLifecycleStatus.LIVE_TRADING: 'ACTIVE',
+            StrategyLifecycleStatus.DEPRECATED: 'ARCHIVED',
+            StrategyLifecycleStatus.SUSPENDED: 'PAUSED',
+        }
+        return mapping.get(lifecycle_status, 'DRAFT')
 
 
 # ==============================================

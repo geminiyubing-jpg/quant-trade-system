@@ -350,8 +350,8 @@
             <div>
                 <h1>📊 Quant-Trade System</h1>
                 <div class="meta">
-                    <span>版本: v2.5.0</span>
-                    <span>更新日期: 2026-03-10</span>
+                    <span>版本: v2.8.0</span>
+                    <span>更新日期: 2026-03-11</span>
                     <span>团队: QuantDev</span>
                 </div>
             </div>
@@ -392,6 +392,8 @@
                         <li>Redux Toolkit</li>
                         <li>WebSocket Client</li>
                         <li>ECharts / Recharts</li>
+                        <li>Bloomberg 深色主题</li>
+                        <li>14+ 页面组件</li>
                     </ul>
                 </div>
                 <div class="arch-layer">
@@ -402,6 +404,8 @@
                         <li>JWT Authentication</li>
                         <li>WebSocket Server</li>
                         <li>Celery Tasks</li>
+                        <li>GLM-5 AI 服务</li>
+                        <li>25+ API 端点</li>
                     </ul>
                 </div>
                 <div class="arch-layer">
@@ -411,7 +415,9 @@
                         <li>TimescaleDB</li>
                         <li>Redis 7</li>
                         <li>RabbitMQ</li>
-                        <li>AkShare 数据源</li>
+                        <li>AkShare / Tushare</li>
+                        <li>63 张数据表</li>
+                        <li>15+ 服务模块</li>
                     </ul>
                 </div>
             </div>
@@ -478,10 +484,10 @@
             <div class="progress-container">
                 <div class="progress-label">
                     <span>后端完成度</span>
-                    <span>90%</span>
+                    <span>95%</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill completed" style="width: 90%"></div>
+                    <div class="progress-fill completed" style="width: 95%"></div>
                 </div>
             </div>
 
@@ -511,25 +517,25 @@
                         <td class="feature-name">📈 数据管理</td>
                         <td class="feature-path">backend/src/services/data/</td>
                         <td><span class="status completed">✅ 完成</span></td>
-                        <td>AkShare集成、数据验证</td>
+                        <td>AkShare/Tushare集成、数据验证</td>
                     </tr>
                     <tr>
                         <td class="feature-name">💹 交易系统</td>
                         <td class="feature-path">backend/src/api/v1/endpoints/trading.py</td>
                         <td><span class="status completed">✅ 完成</span></td>
-                        <td>双轨运行、订单管理</td>
+                        <td>双轨运行、订单管理、成交记录</td>
                     </tr>
                     <tr>
                         <td class="feature-name">🛡️ 风控系统</td>
                         <td class="feature-path">backend/src/services/risk/</td>
                         <td><span class="status completed">✅ 完成</span></td>
-                        <td>6个风控检查器、实时监控</td>
+                        <td>6个风控检查器、预警触发服务</td>
                     </tr>
                     <tr>
                         <td class="feature-name">📊 回测引擎</td>
                         <td class="feature-path">backend/src/services/backtest/</td>
                         <td><span class="status completed">✅ 完成</span></td>
-                        <td>策略回测、性能指标</td>
+                        <td>策略回测、因子分析、归因分析</td>
                     </tr>
                     <tr>
                         <td class="feature-name">🔌 WebSocket</td>
@@ -550,16 +556,34 @@
                         <td>多类型预警、历史记录</td>
                     </tr>
                     <tr>
-                        <td class="feature-name">📝 策略引擎</td>
-                        <td class="feature-path">backend/src/services/strategy/</td>
-                        <td><span class="status partial">⚠️ 部分</span></td>
-                        <td>框架完成，缺少具体策略</td>
+                        <td class="feature-name">📝 策略注册表</td>
+                        <td class="feature-path">backend/src/services/strategy/registry.py</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>策略注册、版本控制、AI策略包装器</td>
                     </tr>
                     <tr>
-                        <td class="feature-name">🤖 AI服务</td>
-                        <td class="feature-path">backend/src/services/ai/</td>
-                        <td><span class="status partial">⚠️ 部分</span></td>
-                        <td>框架完成，缺少模型集成</td>
+                        <td class="feature-name">💼 投资组合</td>
+                        <td class="feature-path">backend/src/services/portfolio/</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>组合管理、优化、风险指标</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🤖 AI 服务</td>
+                        <td class="feature-path">backend/src/services/ai/glm.py</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>GLM-5 集成、策略进化引擎</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">📊 市场动态</td>
+                        <td class="feature-path">backend/src/services/market_dynamics/</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>AI美林时钟、宏观经济分析</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🔔 通知服务</td>
+                        <td class="feature-path">backend/src/services/notification/</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>多渠道通知、预警触发</td>
                     </tr>
                 </tbody>
             </table>
@@ -572,10 +596,10 @@
             <div class="progress-container">
                 <div class="progress-label">
                     <span>前端完成度</span>
-                    <span>80%</span>
+                    <span>90%</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill completed" style="width: 80%"></div>
+                    <div class="progress-fill completed" style="width: 90%"></div>
                 </div>
             </div>
 
@@ -629,7 +653,7 @@
                         <td class="feature-name">🌙 主题系统</td>
                         <td class="feature-path">frontend/src/contexts/ThemeContext.tsx</td>
                         <td><span class="status completed">✅ 完成</span></td>
-                        <td>白天/夜晚/自动模式</td>
+                        <td>Bloomberg深色主题</td>
                     </tr>
                     <tr>
                         <td class="feature-name">🌐 国际化</td>
@@ -646,20 +670,56 @@
                     <tr>
                         <td class="feature-name">📝 策略管理</td>
                         <td class="feature-path">frontend/src/pages/StrategyManagement.tsx</td>
-                        <td><span class="status partial">⚠️ 部分</span></td>
-                        <td>UI框架完成，缺业务逻辑</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>策略版本、配置管理</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🔧 策略工作室</td>
+                        <td class="feature-path">frontend/src/pages/StrategyStudio.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>代码编辑器、策略开发</td>
                     </tr>
                     <tr>
                         <td class="feature-name">📈 回测页面</td>
                         <td class="feature-path">frontend/src/pages/Backtest.tsx</td>
-                        <td><span class="status partial">⚠️ 部分</span></td>
-                        <td>UI框架完成，缺配置交互</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>回测执行、结果分析</td>
                     </tr>
                     <tr>
                         <td class="feature-name">💹 交易页面</td>
                         <td class="feature-path">frontend/src/pages/Trading.tsx</td>
-                        <td><span class="status partial">⚠️ 部分</span></td>
-                        <td>UI框架完成，缺订单管理</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>订单管理、交易执行</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">💼 投资组合</td>
+                        <td class="feature-path">frontend/src/pages/Portfolio.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>组合管理、风险分析</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🛡️ 风险管理</td>
+                        <td class="feature-path">frontend/src/pages/RiskManagement.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>风控规则、预警管理</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">📊 板块分析</td>
+                        <td class="feature-path">frontend/src/pages/SectorAnalysis.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>板块轮动、资金流向</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">💓 市场脉搏</td>
+                        <td class="feature-path">frontend/src/pages/MarketPulse.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>市场情绪、宏观分析</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🤖 AI 实验室</td>
+                        <td class="feature-path">frontend/src/pages/AILab.tsx</td>
+                        <td><span class="status completed">✅ 完成</span></td>
+                        <td>AI策略生成、智能选股、策略进化</td>
                     </tr>
                 </tbody>
             </table>
@@ -672,7 +732,7 @@
             <div class="progress-container">
                 <div class="progress-label">
                     <span>待开发功能</span>
-                    <span>5个模块</span>
+                    <span>4个模块</span>
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: 0%; background: var(--danger-color)"></div>
@@ -690,28 +750,22 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="feature-name">📊 市场数据API</td>
+                        <td class="feature-name">🔗 券商 API 对接</td>
+                        <td><span class="status completed">P0</span></td>
+                        <td><span class="status pending">❌ 未开始</span></td>
+                        <td>实盘交易接口对接</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">🐳 容器化部署</td>
                         <td><span class="status completed">P1</span></td>
                         <td><span class="status pending">❌ 未开始</span></td>
-                        <td>股票列表、详情、板块分析接口</td>
+                        <td>Docker/K8s 部署配置</td>
                     </tr>
                     <tr>
-                        <td class="feature-name">🤖 AI实验室</td>
+                        <td class="feature-name">🔄 CI/CD 流水线</td>
                         <td><span class="status partial">P2</span></td>
                         <td><span class="status pending">❌ 未开始</span></td>
-                        <td>AI策略生成、智能选股、市场分析</td>
-                    </tr>
-                    <tr>
-                        <td class="feature-name">💼 投资组合</td>
-                        <td><span class="status partial">P2</span></td>
-                        <td><span class="status pending">❌ 未开始</span></td>
-                        <td>组合构建、风险归因、绩效分析</td>
-                    </tr>
-                    <tr>
-                        <td class="feature-name">🔧 策略工作室</td>
-                        <td><span class="status partial">P2</span></td>
-                        <td><span class="status pending">❌ 未开始</span></td>
-                        <td>代码编辑器、策略调试、优化</td>
+                        <td>GitHub Actions 自动化</td>
                     </tr>
                     <tr>
                         <td class="feature-name">👥 社区功能</td>
@@ -730,18 +784,29 @@
 <pre><span class="folder">quant-trade-system/</span>
 <span class="indent-1 folder">backend/</span>
 <span class="indent-2 folder">src/</span>
-<span class="indent-3 folder">api/v1/endpoints/</span>     <span class="file"># API端点 (10个模块)</span>
+<span class="indent-3 folder">api/v1/endpoints/</span>     <span class="file"># API端点 (25+ 模块)</span>
 <span class="indent-3 folder">core/</span>                   <span class="file"># 核心模块 (config, database, security)</span>
-<span class="indent-3 folder">models/</span>                 <span class="file"># 数据模型 (7个模型)</span>
+<span class="indent-3 folder">models/</span>                 <span class="file"># 数据模型</span>
 <span class="indent-3 folder">schemas/</span>                <span class="file"># Pydantic模式</span>
-<span class="indent-3 folder">services/</span>               <span class="file"># 业务服务 (data, trading, risk, backtest, ws)</span>
+<span class="indent-3 folder">services/</span>               <span class="file"># 业务服务 (15+ 模块)</span>
+<span class="indent-3">  ├── ai/</span>              <span class="file"># AI服务 (GLM-5, 策略进化)</span>
+<span class="indent-3">  ├── data/</span>             <span class="file"># 数据服务 (获取, 清洗, 质量)</span>
+<span class="indent-3">  ├── strategy/</span>         <span class="file"># 策略服务 (注册表, AI包装器)</span>
+<span class="indent-3">  ├── backtest/</span>         <span class="file"># 回测服务 (引擎, 优化器)</span>
+<span class="indent-3">  ├── trading/</span>          <span class="file"># 交易服务 (执行, 订单)</span>
+<span class="indent-3">  ├── risk/</span>             <span class="file"># 风控服务 (检查, 预警)</span>
+<span class="indent-3">  ├── portfolio/</span>        <span class="file"># 组合服务 (管理, 优化)</span>
+<span class="indent-3">  ├── market_dynamics/</span>  <span class="file"># 市场动态 (美林时钟)</span>
+<span class="indent-3">  ├── notification/</span>      <span class="file"># 通知服务</span>
+<span class="indent-3">  └── websocket/</span>        <span class="file"># WebSocket 推送</span>
+<span class="indent-3 folder">strategies/</span>             <span class="file"># 内置策略 (双均线, 动量, RSI)</span>
 <span class="indent-3 folder">repositories/</span>           <span class="file"># 数据仓库</span>
-<span class="indent-2 folder">migrations/</span>              <span class="file"># 数据库迁移</span>
+<span class="indent-2 folder">database/scripts/</span>        <span class="file"># 数据库脚本 (种子数据, 初始化)</span>
 <span class="indent-2 folder">tests/</span>                  <span class="file"># 测试文件</span>
 <span class="indent-1 folder">frontend/</span>
 <span class="indent-2 folder">src/</span>
-<span class="indent-3 folder">components/</span>             <span class="file"># UI组件 (15+组件)</span>
-<span class="indent-3 folder">pages/</span>                  <span class="file"># 页面 (6个页面)</span>
+<span class="indent-3 folder">components/</span>             <span class="file"># UI组件 (20+组件)</span>
+<span class="indent-3 folder">pages/</span>                  <span class="file"># 页面 (14个页面)</span>
 <span class="indent-3 folder">services/</span>               <span class="file"># API服务</span>
 <span class="indent-3 folder">hooks/</span>                  <span class="file"># 自定义Hooks</span>
 <span class="indent-3 folder">store/</span>                  <span class="file"># Redux Store</span>
@@ -749,7 +814,8 @@
 <span class="indent-3 folder">i18n/</span>                   <span class="file"># 国际化</span>
 <span class="indent-3 folder">types/</span>                  <span class="file"># TypeScript类型</span>
 <span class="indent-3 folder">utils/</span>                  <span class="file"># 工具函数</span>
-<span class="indent-1 folder">docs/</span>                    <span class="file"># 文档</span>
+<span class="indent-3 folder">styles/</span>                 <span class="file"># 样式 (Bloomberg主题)</span>
+<span class="indent-1 folder">docs/</span>                    <span class="file"># 文档 (10+ 文档)</span>
 <span class="indent-1 folder">database/</span>                <span class="file"># 数据库脚本</span>
 <span class="indent-1 folder">scripts/</span>                 <span class="file"># 工具脚本</span>
 </pre>
@@ -763,37 +829,61 @@
                 <div class="tech-category">
                     <h4>🔒 安全特性</h4>
                     <ul class="tech-list">
-                        <li>JWT Token认证</li>
+                        <li>JWT Token + Refresh Token</li>
                         <li>密码bcrypt哈希</li>
-                        <li>CORS配置</li>
+                        <li>CORS 白名单配置</li>
                         <li>审计日志追踪</li>
+                        <li>请求限流保护</li>
                     </ul>
                 </div>
                 <div class="tech-category">
                     <h4>⚡ 性能优化</h4>
                     <ul class="tech-list">
                         <li>WebSocket实时推送</li>
-                        <li>Redis缓存</li>
-                        <li>TimescaleDB时序分区</li>
-                        <li>前端IndexedDB缓存</li>
+                        <li>Redis 多级缓存</li>
+                        <li>TimescaleDB 时序分区</li>
+                        <li>前端 IndexedDB 缓存</li>
+                        <li>GZip 响应压缩</li>
                     </ul>
                 </div>
                 <div class="tech-category">
                     <h4>🎨 用户体验</h4>
                     <ul class="tech-list">
-                        <li>Bloomberg专业主题</li>
+                        <li>Bloomberg 专业深色主题</li>
                         <li>价格闪烁动画</li>
                         <li>键盘快捷键</li>
-                        <li>多语言支持</li>
+                        <li>中英文国际化</li>
+                        <li>响应式布局</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h4>🤖 AI 能力</h4>
+                    <ul class="tech-list">
+                        <li>GLM-5 智能分析集成</li>
+                        <li>AI 策略生成器</li>
+                        <li>策略进化引擎 (遗传算法)</li>
+                        <li>AI 美林时钟分析</li>
+                        <li>智能选股助手</li>
+                    </ul>
+                </div>
+                <div class="tech-category">
+                    <h4>📊 策略系统</h4>
+                    <ul class="tech-list">
+                        <li>策略注册表 + 版本控制</li>
+                        <li>AI 策略包装器</li>
+                        <li>内置策略 (双均线/动量/RSI)</li>
+                        <li>回测引擎 + 因子分析</li>
+                        <li>参数优化器</li>
                     </ul>
                 </div>
                 <div class="tech-category">
                     <h4>🛠️ 运维支持</h4>
                     <ul class="tech-list">
-                        <li>Docker一键部署</li>
-                        <li>Prometheus监控</li>
-                        <li>结构化日志</li>
+                        <li>Docker 容器化</li>
                         <li>健康检查接口</li>
+                        <li>Loguru 结构化日志</li>
+                        <li>事件总线 (EventBus)</li>
+                        <li>数据质量监控</li>
                     </ul>
                 </div>
             </div>
@@ -801,8 +891,8 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>Quant-Trade System v2.5.0 | © 2026 QuantDev Team</p>
-            <p>最后更新: 2026-03-10</p>
+            <p>Quant-Trade System v2.5.1 | © 2026 QuantDev Team</p>
+            <p>最后更新: 2026-03-11 | 下次评审: 2026-03-18</p>
         </footer>
     </div>
 </body>

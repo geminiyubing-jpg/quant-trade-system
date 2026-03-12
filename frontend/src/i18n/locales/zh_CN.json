@@ -6,6 +6,7 @@
   },
   "nav": {
     "dashboard": "仪表盘",
+    "workspace": "工作区",
     "market": "市场动态",
     "strategy": "量化策略",
     "strategyLibrary": "策略库",
@@ -24,10 +25,52 @@
     "settings": "设置"
   },
   "workspace": {
-    "title": "工作台",
+    "title": "工作区",
     "dashboard": "个人仪表盘",
     "quickAccess": "快速入口",
-    "recentActivity": "最近活动"
+    "recentActivity": "最近活动",
+    "newWorkspace": "新建工作区",
+    "openWorkspace": "打开工作区",
+    "addPanel": "添加面板",
+    "save": "保存",
+    "saved": "工作区已保存",
+    "deleted": "工作区已删除",
+    "duplicated": "已创建副本",
+    "loaded": "已加载",
+    "unnamedWorkspace": "未命名工作区",
+    "panels": "个面板",
+    "autoSaveEnabled": "自动保存已启用",
+    "aiAssistant": "AI 助手",
+    "emptyTitle": "欢迎使用工作区",
+    "emptyDesc": "选择一个模板开始，或从空白工作区创建",
+    "blankWorkspace": "空白工作区",
+    "blankWorkspaceDesc": "从零开始自由配置",
+    "noSavedWorkspaces": "暂无保存的工作区",
+    "inputWorkspaceName": "请输入工作区名称",
+    "inputWorkspaceNamePlaceholder": "请输入工作区名称",
+    "saveWorkspaceTitle": "保存工作区",
+    "newWorkspaceTitle": "新建工作区",
+    "create": "创建",
+    "deleteConfirm": "确定要删除此工作区吗？",
+    "selectPanelType": "请选择面板类型",
+    "panel": "面板",
+    "panelTypes": {
+      "chart": "K线图",
+      "table": "数据表",
+      "news": "新闻",
+      "watchlist": "自选股",
+      "capitalFlow": "资金流向",
+      "heatmap": "热力图",
+      "custom": "自定义"
+    },
+    "templates": {
+      "trading": "交易监控",
+      "tradingDesc": "实时行情和交易监控",
+      "analysis": "市场分析",
+      "analysisDesc": "技术分析和板块热力图",
+      "portfolio": "组合管理",
+      "portfolioDesc": "持仓和资金流向"
+    }
   },
   "market": {
     "title": "市场动态",
@@ -386,6 +429,79 @@
     },
     "tab": {
       "all": "全部"
+    }
+  },
+  "marketPulse": {
+    "title": "市场动态",
+    "loading": "加载市场数据...",
+    "lastUpdate": "最后更新",
+    "noData": "暂无数据",
+    "noMatch": "未找到匹配的市场数据",
+    "searchPlaceholder": "搜索代码/名称...",
+    "categories": {
+      "all": "全部",
+      "watchlist": "自选",
+      "cn-hk": "A股/港股",
+      "forex-commodities": "外汇/商品",
+      "ftse": "富时指数",
+      "msci": "MSCI 指数",
+      "global": "全球指数",
+      "crypto": "数字货币",
+      "bonds": "债券收益率"
+    },
+    "categoryNames": {
+      "watchlist": "常用指数",
+      "cn-hk": "A股/港股",
+      "forex-commodities": "外汇/商品",
+      "ftse": "富时指数",
+      "msci": "MSCI 指数",
+      "global": "全球指数",
+      "crypto": "数字货币",
+      "bonds": "债券收益率"
+    },
+    "heatmap": {
+      "title": "全球大类资产表现",
+      "up": "上涨",
+      "down": "下跌"
+    },
+    "section": {
+      "more": "更多",
+      "manage": "管理"
+    },
+    "detail": {
+      "overview": "概览",
+      "chart": "走势图",
+      "currentPrice": "当前价格",
+      "changePercent": "涨跌幅",
+      "todayHigh": "今日最高",
+      "todayLow": "今日最低",
+      "exchange": "交易所",
+      "volatility": "波动率",
+      "changePoints": "涨跌点数",
+      "time": "时间",
+      "price": "价格",
+      "watched": "已关注",
+      "watch": "关注",
+      "removeWatch": "从自选移除",
+      "addWatch": "加入自选",
+      "setAlert": "设置价格提醒",
+      "alert": "提醒",
+      "removedFromWatchlist": "已将 {name} 从自选移除",
+      "addedToWatchlist": "已将 {name} 加入自选",
+      "alertDeveloping": "价格提醒功能开发中: {name}"
+    },
+    "watchlist": {
+      "title": "管理自选",
+      "myWatchlist": "我的自选",
+      "addItem": "添加项目",
+      "noWatchlist": "暂无自选项目",
+      "noAvailable": "暂无可添加项目",
+      "noMatch": "未找到匹配项目",
+      "searchPlaceholder": "搜索指数/商品...",
+      "tip": "提示: 点击星星图标可快速添加/移除",
+      "done": "完成",
+      "removeFromWatchlist": "从自选移除",
+      "addToWatchlist": "添加到自选"
     }
   },
   "alerts": {

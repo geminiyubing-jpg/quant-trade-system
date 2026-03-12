@@ -52,7 +52,7 @@ class OrderBase(BaseModel):
     side: OrderSide = Field(..., description="订单方向")
     order_type: str = Field(default="LIMIT", description="订单类型（MARKET=市价, LIMIT=限价）")
     quantity: int = Field(..., gt=0, description="数量")
-    price: Decimal = Field(..., gt=0, decimal_places=2, description="价格")
+    price: Decimal = Field(..., gt=0, description="价格")
     execution_mode: ExecutionMode = Field(
         default=ExecutionMode.PAPER,
         description="执行模式（PAPER=模拟, LIVE=实盘）"
@@ -68,13 +68,11 @@ class OrderCreate(OrderBase):
     stop_loss_price: Optional[Decimal] = Field(
         None,
         gt=0,
-        decimal_places=2,
         description="止损价格"
     )
     take_profit_price: Optional[Decimal] = Field(
         None,
         gt=0,
-        decimal_places=2,
         description="止盈价格"
     )
     max_slippage: Decimal = Field(

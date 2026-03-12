@@ -12,13 +12,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card, Row, Col, Statistic, Tag, Space, Button, Spin, Typography,
-  Progress, Tooltip, Divider, Alert, Tabs, Table
+  Progress, Tooltip, Divider, Alert, Table
 } from 'antd';
 import {
   RiseOutlined, FallOutlined, DashboardOutlined,
-  ThunderboltOutlined, BulbOutlined, WarningOutlined,
-  SyncOutlined, InfoCircleOutlined, TrophyOutlined,
-  ClockCircleOutlined, FundOutlined, StockOutlined
+  SyncOutlined, InfoCircleOutlined,
+  ClockCircleOutlined, FundOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
@@ -26,7 +25,6 @@ import { get } from '../services/api';
 import './MarketOverview.css';
 
 const { Title, Text } = Typography;
-const { TabPane } = Tabs;
 
 // 类型定义
 interface MainIndex {
@@ -103,7 +101,7 @@ const MERRILL_CLOCK_CONFIG = {
 };
 
 const MarketOverview: React.FC = () => {
-  const { t } = useTranslation();
+  useTranslation(); // 保持 i18n 上下文
   const [loading, setLoading] = useState(false);
   const [country, setCountry] = useState<'CN' | 'US'>('CN');
   const [data, setData] = useState<MarketOverviewData | null>(null);
@@ -116,7 +114,7 @@ const MarketOverview: React.FC = () => {
 
     try {
       const response = await get(`/api/v1/market-dynamics/overview?country=${country}`);
-      setData(response);
+      setData(response as MarketOverviewData);
     } catch (err: any) {
       setError(err.message || '加载数据失败');
     } finally {
@@ -376,7 +374,8 @@ const MarketOverview: React.FC = () => {
   if (loading && !data) {
     return (
       <div className="loading-container">
-        <Spin size="large" tip="加载市场数据..." />
+        <Spin size="large" />
+        <div style={{ marginTop: 16, color: 'var(--bb-text-secondary)' }}>加载市场数据...</div>
       </div>
     );
   }

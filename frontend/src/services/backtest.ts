@@ -15,6 +15,7 @@ import type {
 } from '../types/backtest';
 
 const API_PREFIX = '/api/v1/backtest';
+const ANALYSIS_PREFIX = '/api/v1/backtest-analysis';
 
 // ==============================================
 // 回测管理
@@ -109,6 +110,133 @@ export async function stopBacktest(backtestId: string): Promise<void> {
 }
 
 // ==============================================
+// 回测验证
+// ==============================================
+
+export interface ValidationRequest {
+  backtest_id: string;
+  equity_curve?: number[];
+  daily_returns?: number[];
+  trades?: Array<{
+    symbol: string;
+    side: string;
+    quantity: number;
+    price: number;
+    timestamp: string;
+    pnl?: number;
+  }>;
+}
+
+export interface ValidationResult {
+  backtest_id: string;
+  overall_status: 'passed' | 'warning' | 'failed' | 'critical';
+  overall_score: number;
+  summary: {
+    total_validations: number;
+    passed: number;
+    warnings: number;
+    failed: number;
+    critical: number;
+  };
+  validation_results: Array<{
+    category: string;
+    status: string;
+    score: number;
+    message: string;
+    details: Record<string, unknown>;
+    recommendations: string[];
+  }>;
+}
+
+/**
+ * 执行回测验证
+ */
+export async function validateBacktest(request: ValidationRequest): Promise<ValidationResult> {
+  return post<ValidationResult>(`${ANALYSIS_PREFIX}/validate`, request);
+}
+
+/**
+ * 获取验证报告
+ */
+export async function getValidationReport(backtestId: string): Promise<ValidationResult> {
+  return get<ValidationResult>(`${ANALYSIS_PREFIX}/validate/${backtestId}`);
+}
+
+// ==============================================
+// 风险分析
+// ==============================================
+
+export interface RiskAnalysisRequest {
+  daily_returns: number[];
+  positions?: Record<string, number>;
+  benchmark_returns?: number[];
+  factor_exposures?: Record<string, number>;
+}
+
+export interface RiskAnalysisResult {
+  var_result: {
+    var_95: number;
+    var_99: number;
+    cvar_95: number;
+    cvar_99: number;
+    method: string;
+    daily_var: number;
+    annual_var: number;
+  };
+  stress_tests: Array<{
+    scenario_name: string;
+    description: string;
+    portfolio_impact: number;
+    worst_case_impact: number;
+    recovery_days: number;
+  }>;
+  risk_decomposition: {
+    total_risk: number;
+    systematic_risk: number;
+    idiosyncratic_risk: number;
+    concentration_risk: number;
+    factor_contributions: Record<string, number>;
+  };
+  downside_risk: {
+    downside_deviation: number;
+    max_drawdown: number;
+    max_drawdown_duration: number;
+    recovery_factor: number;
+    pain_index: number;
+  };
+  volatility_analysis: {
+    total_volatility: number;
+    upside_volatility: number;
+    downside_volatility: number;
+    volatility_ratio: number;
+  };
+  risk_summary: {
+    key_metrics: Record<string, string>;
+    risk_breakdown: Record<string, string>;
+    worst_case_scenario: {
+      name: string;
+      impact: string;
+    } | null;
+    risk_alerts: string[];
+  };
+  risk_rating: 'Low' | 'Medium' | 'High' | 'Critical';
+}
+
+/**
+ * 执行风险分析
+ */
+export async function analyzeRisk(request: RiskAnalysisRequest): Promise<RiskAnalysisResult> {
+  return post<RiskAnalysisResult>(`${ANALYSIS_PREFIX}/risk-analysis`, request);
+}
+
+/**
+ * 获取风险分析结果
+ */
+export async function getRiskAnalysis(backtestId: string): Promise<Partial<RiskAnalysisResult>> {
+  return get<Partial<RiskAnalysisResult>>(`${ANALYSIS_PREFIX}/risk-analysis/${backtestId}`);
+}
+
+// ==============================================
 // 因子分析
 // ==============================================
 
@@ -120,14 +248,14 @@ export async function runFactorAnalysis(backtestId: string, params: {
   signals: Array<{ date: string; symbol: string; signal_value: number; return: number }>;
   returns: Array<{ date: string; symbol: string; return: number }>;
 }): Promise<FactorAnalysis> {
-  return post<FactorAnalysis>(`${API_PREFIX}/${backtestId}/analysis/factor`, params);
+  return post<FactorAnalysis>(`${ANALYSIS_PREFIX}/results/${backtestId}/factor-analysis`, params);
 }
 
 /**
  * 获取因子分析结果
  */
-export async function getFactorAnalysis(backtestId: string): Promise<FactorAnalysis> {
-  return get<FactorAnalysis>(`${API_PREFIX}/${backtestId}/analysis/factor`);
+export async function getFactorAnalysis(backtestId: string): Promise<FactorAnalysis[]> {
+  return get<FactorAnalysis[]>(`${ANALYSIS_PREFIX}/results/${backtestId}/factor-analysis`);
 }
 
 // ==============================================
@@ -143,14 +271,14 @@ export async function runAttributionAnalysis(backtestId: string, params: {
   benchmark_weights: Array<{ date: string; symbol: string; weight: number }>;
   returns_data: Array<{ date: string; symbol: string; return: number }>;
 }): Promise<AttributionAnalysis> {
-  return post<AttributionAnalysis>(`${API_PREFIX}/${backtestId}/analysis/attribution`, params);
+  return post<AttributionAnalysis>(`${ANALYSIS_PREFIX}/results/${backtestId}/attribution`, params);
 }
 
 /**
  * 获取归因分析结果
  */
-export async function getAttributionAnalysis(backtestId: string): Promise<AttributionAnalysis> {
-  return get<AttributionAnalysis>(`${API_PREFIX}/${backtestId}/analysis/attribution`);
+export async function getAttributionAnalysis(backtestId: string): Promise<AttributionAnalysis | null> {
+  return get<AttributionAnalysis | null>(`${ANALYSIS_PREFIX}/results/${backtestId}/attribution`);
 }
 
 // 导出服务对象
@@ -164,6 +292,12 @@ export const backtestService = {
   getExtendedMetrics,
   deleteBacktest,
   stopBacktest,
+  // 回测验证
+  validateBacktest,
+  getValidationReport,
+  // 风险分析
+  analyzeRisk,
+  getRiskAnalysis,
   // 因子分析
   runFactorAnalysis,
   getFactorAnalysis,

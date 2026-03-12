@@ -16,6 +16,10 @@ import sys
 from .core.config import settings
 from .core.database import check_db_connection
 from .services.websocket.market_data_service import market_data_service
+from .services.strategy.ai_strategy_wrapper import load_all_ai_strategies
+
+# 导入策略模块，触发装饰器注册
+from .strategies import builtin  # noqa: F401
 
 
 # ==============================================
@@ -59,6 +63,11 @@ async def lifespan(app: FastAPI):
     # 启动行情数据服务
     await market_data_service.start()
     logger.info("✅ 行情数据服务已启动")
+
+    # 加载已保存的 AI 策略
+    ai_strategies_count = load_all_ai_strategies()
+    if ai_strategies_count > 0:
+        logger.info(f"✅ 已加载 {ai_strategies_count} 个 AI 策略")
 
     yield  # 应用运行中
 
@@ -282,7 +291,11 @@ app.include_router(sector.router, prefix="/api/v1/data", tags=["板块分析"])
 
 # 市场动态路由（美林时钟 + 宏观分析）
 from .api.v1.endpoints import market_dynamics
-app.include_router(market_dynamics.router, tags=["Market Dynamics"])
+app.include_router(market_dynamics.router, prefix="/api/v1", tags=["Market Dynamics"])
+
+# OpenBB Platform 路由（美股、国际市场、宏观经济、技术分析）
+from .api.v1.endpoints import openbb
+app.include_router(openbb.router, prefix="/api/v1/openbb", tags=["OpenBB Platform"])
 
 
 # ==============================================

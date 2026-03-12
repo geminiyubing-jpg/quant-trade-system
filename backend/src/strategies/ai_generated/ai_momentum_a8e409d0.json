@@ -1,0 +1,27 @@
+{
+  "strategy_id": "ai_momentum_a8e409d0",
+  "name": "AIMomentumStrategy",
+  "version": "1.0.0",
+  "author": "AI Generator",
+  "description": "",
+  "category": "momentum",
+  "frequency": "1d",
+  "status": "development",
+  "tags": [
+    "AI生成",
+    "momentum"
+  ],
+  "risk_level": "medium",
+  "market_condition": "市场呈现明显上涨趋势，成交量放大",
+  "generated_at": "2026-03-11T22:14:50.472358",
+  "content": {
+    "raw_content": "```json\n{\n  \"strategy_name\": \"Enhanced Volume-Price Momentum Strategy (增强型量价动量策略)\",\n  \"strategy_principle\": \"该策略基于动量效应理论，即'强者恒强'。在上涨趋势中，价格的上涨若伴随着成交量的显著放大，通常意味着资金入场意愿强烈，趋势具有较高的持续性。策略通过捕捉价格突破关键均线且成交量确认的时点入场，利用趋势惯性获取收益。\",\n  \"entry_conditions\": {\n    \"indicator_settings\": {\n      \"MA_Fast\": 20,\n      \"MA_Slow\": 60,\n      \"Volume_MA\": 20,\n      \"ATR_Period\": 14\n    },\n    \"long_signal\": [\n      \"收盘价 > MA_Slow (60日均线)，确保处于长期上升趋势中\",\n      \"收盘价上穿 MA_Fast (20日均线)，产生短期动能突破信号\",\n      \"当日成交量 > 20日平均成交量的 1.5 倍，确认资金推动\",\n      \"RSI(14) 处于 [50, 80] 区间，表明动能强劲但未进入极度超买区域\"\n    ],\n    \"short_signal\": [\n      \"本策略主要针对上涨趋势设计，以做多为主\",\n      \"若需做空：收盘价 < MA_Slow，收盘价下穿 MA_Fast，成交量放大 1.5 倍\"\n    ]\n  },\n  \"exit_conditions\": {\n    \"take_profit\": {\n      \"method\": \"Trailing Stop (动态止盈)\",\n      \"logic\": \"使用ATR通道追踪趋势。止盈价格 = 最高价 - 2 * ATR(14)。当价格回撤触及该线时平仓，旨在吃到趋势的大部分红利。\"\n    },\n    \"stop_loss\": {\n      \"method\": \"ATR Based Stop (波动率止损)\",\n      \"logic\": \"入场价格 - 2 * ATR(14)。根据市场波动率设置止损，避免因市场正常波动被震仓出局。\"\n    },\n    \"signal_exit\": [\n      \"收盘价下穿 MA_Fast (20日均线) 且 当日成交量 > 20日平均成交量，视为趋势转弱，主动平仓\"\n    ]\n  },\n  \"risk_control\": {\n    \"position_sizing\": {\n      \"method\": \"Risk Parity / Volatility Adjusted (风险平价/波动率调整)\",\n      \"formula\": \"单笔交易股数 = (账户总权益 * 单笔最大风险敞口) / (入场价 - 止损价)\",\n      \"parameters\": {\n        \"max_risk_per_trade\": \"2%\",\n        \"max_position_concentration\": \"20% (单一标的",
+    "strategy_type": "momentum"
+  },
+  "default_params": {},
+  "params_schema": {},
+  "min_history_bars": 100,
+  "supported_markets": [
+    "A股"
+  ]
+}

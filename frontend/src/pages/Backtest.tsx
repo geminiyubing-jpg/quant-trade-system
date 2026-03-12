@@ -12,12 +12,15 @@ import {
 import {
   PlayCircleOutlined, BarChartOutlined, InfoCircleOutlined,
   ExperimentOutlined, DashboardOutlined, StockOutlined, FundOutlined,
-  ReloadOutlined
+  ReloadOutlined, SafetyOutlined, WarningOutlined, ThunderboltOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 
 // 导入服务和类型
-import backtestService from '../services/backtest';
+import backtestService, {
+  type ValidationResult,
+  type RiskAnalysisResult
+} from '../services/backtest';
 import type {
   BacktestResult,
   CreateBacktestRequest,
@@ -101,6 +104,12 @@ const Backtest: React.FC = () => {
   const [_trades, setTrades] = useState<unknown[]>([]);
   const [_equityCurve, setEquityCurve] = useState<unknown[]>([]);
 
+  // 验证和风险分析状态
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [riskResult, setRiskResult] = useState<RiskAnalysisResult | null>(null);
+  const [validating, setValidating] = useState(false);
+  const [analyzingRisk, setAnalyzingRisk] = useState(false);
+
   // 加载回测结果列表
   const loadResults = useCallback(async () => {
     setLoading(true);
@@ -123,16 +132,20 @@ const Backtest: React.FC = () => {
         createdAt: r.created_at,
       }));
       setResults(extendedResults);
-      if (extendedResults.length > 0 && !selectedResult) {
-        setSelectedResult(extendedResults[0]);
-      }
+      // 只在首次加载时自动选择第一个结果
+      setSelectedResult(prev => {
+        if (extendedResults.length > 0 && !prev) {
+          return extendedResults[0];
+        }
+        return prev;
+      });
     } catch (error) {
       console.error('加载回测结果失败:', error);
       setResults([]);
     } finally {
       setLoading(false);
     }
-  }, [selectedResult]);
+  }, []);
 
   useEffect(() => {
     loadResults();
@@ -273,6 +286,54 @@ const Backtest: React.FC = () => {
       message.destroy();
       console.error('归因分析失败:', error);
       message.error('归因分析执行失败');
+    }
+  };
+
+  // 执行回测验证
+  const runValidation = async () => {
+    if (!selectedResult) return;
+    setValidating(true);
+    try {
+      const result = await backtestService.validateBacktest({
+        backtest_id: selectedResult.backtest_id,
+        equity_curve: [],
+        daily_returns: [],
+        trades: [],
+      });
+      setValidationResult(result);
+      if (result.overall_status === 'passed') {
+        message.success('验证通过');
+      } else if (result.overall_status === 'warning') {
+        message.warning('验证完成，存在警告');
+      } else {
+        message.error('验证失败，请检查问题');
+      }
+    } catch (error) {
+      console.error('验证失败:', error);
+      message.error('验证执行失败');
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  // 执行风险分析
+  const runRiskAnalysis = async () => {
+    if (!selectedResult) return;
+    setAnalyzingRisk(true);
+    try {
+      const result = await backtestService.analyzeRisk({
+        daily_returns: [],
+        positions: {},
+        benchmark_returns: [],
+        factor_exposures: {},
+      });
+      setRiskResult(result);
+      message.success('风险分析完成');
+    } catch (error) {
+      console.error('风险分析失败:', error);
+      message.error('风险分析执行失败');
+    } finally {
+      setAnalyzingRisk(false);
     }
   };
 
@@ -489,6 +550,162 @@ const Backtest: React.FC = () => {
                       </>
                     ) : (
                       <Empty description="暂无归因分析数据，请点击执行分析" />
+                    )}
+                  </Card>
+                </TabPane>
+
+                {/* 回测验证 */}
+                <TabPane tab={<span><SafetyOutlined /> 回测验证</span>} key="validation">
+                  <Card size="small" extra={<Button type="primary" size="small" onClick={runValidation} loading={validating}>执行验证</Button>}>
+                    <Alert message="回测验证检测潜在的数据偏差问题，确保回测结果的可靠性" type="info" showIcon style={{ marginBottom: 16 }} />
+                    {validationResult ? (
+                      <>
+                        <Row gutter={16} style={{ marginBottom: 16 }}>
+                          <Col span={8}>
+                            <Card size="small" style={{ textAlign: 'center' }}>
+                              <Statistic
+                                title="验证状态"
+                                value={validationResult.overall_status === 'passed' ? '通过' :
+                                       validationResult.overall_status === 'warning' ? '警告' :
+                                       validationResult.overall_status === 'failed' ? '失败' : '严重'}
+                                valueStyle={{
+                                  color: validationResult.overall_status === 'passed' ? '#52c41a' :
+                                         validationResult.overall_status === 'warning' ? '#faad14' : '#ff4d4f'
+                                }}
+                              />
+                            </Card>
+                          </Col>
+                          <Col span={8}>
+                            <Card size="small" style={{ textAlign: 'center' }}>
+                              <Statistic title="综合得分" value={validationResult.overall_score} suffix="/ 100" />
+                            </Card>
+                          </Col>
+                          <Col span={8}>
+                            <Card size="small" style={{ textAlign: 'center' }}>
+                              <Progress
+                                type="circle"
+                                percent={validationResult.summary.passed / validationResult.summary.total_validations * 100}
+                                format={() => `${validationResult.summary.passed}/${validationResult.summary.total_validations}`}
+                                strokeColor={validationResult.overall_status === 'passed' ? '#52c41a' : '#faad14'}
+                              />
+                            </Card>
+                          </Col>
+                        </Row>
+                        <Table
+                          dataSource={validationResult.validation_results}
+                          rowKey="category"
+                          size="small"
+                          pagination={false}
+                          columns={[
+                            { title: '验证项目', dataIndex: 'category', key: 'category' },
+                            {
+                              title: '状态', dataIndex: 'status', key: 'status',
+                              render: (v) => <Tag color={v === 'passed' ? 'green' : v === 'warning' ? 'orange' : 'red'}>{v}</Tag>
+                            },
+                            { title: '得分', dataIndex: 'score', key: 'score', render: (v) => v.toFixed(0) },
+                            { title: '说明', dataIndex: 'message', key: 'message' },
+                          ]}
+                        />
+                      </>
+                    ) : (
+                      <Empty description="暂无验证结果，请点击执行验证" />
+                    )}
+                  </Card>
+                </TabPane>
+
+                {/* 风险度量 */}
+                <TabPane tab={<span><ThunderboltOutlined /> 风险度量</span>} key="risk">
+                  <Card size="small" extra={<Button type="primary" size="small" onClick={runRiskAnalysis} loading={analyzingRisk}>执行分析</Button>}>
+                    {riskResult ? (
+                      <>
+                        <Row gutter={16} style={{ marginBottom: 16 }}>
+                          <Col span={6}>
+                            <Card size="small" style={{ textAlign: 'center',
+                              borderColor: riskResult.risk_rating === 'Low' ? '#52c41a' :
+                                          riskResult.risk_rating === 'Medium' ? '#faad14' :
+                                          riskResult.risk_rating === 'High' ? '#ff7875' : '#f5222d'
+                            }}>
+                              <Statistic
+                                title="风险等级"
+                                value={riskResult.risk_rating}
+                                valueStyle={{
+                                  color: riskResult.risk_rating === 'Low' ? '#52c41a' :
+                                         riskResult.risk_rating === 'Medium' ? '#faad14' :
+                                         riskResult.risk_rating === 'High' ? '#ff7875' : '#f5222d'
+                                }}
+                              />
+                            </Card>
+                          </Col>
+                          <Col span={6}>
+                            <Statistic title="95% VaR" value={riskResult.var_result.var_95 * 100} precision={2} suffix="%" />
+                          </Col>
+                          <Col span={6}>
+                            <Statistic title="95% CVaR" value={riskResult.var_result.cvar_95 * 100} precision={2} suffix="%" />
+                          </Col>
+                          <Col span={6}>
+                            <Statistic title="最大回撤" value={riskResult.downside_risk.max_drawdown * 100} precision={2} suffix="%" valueStyle={{ color: '#ff4d4f' }} />
+                          </Col>
+                        </Row>
+
+                        <Card title="压力测试" size="small" style={{ marginBottom: 16 }}>
+                          <Table
+                            dataSource={riskResult.stress_tests}
+                            rowKey="scenario_name"
+                            size="small"
+                            pagination={false}
+                            columns={[
+                              { title: '情景', dataIndex: 'scenario_name', key: 'scenario_name' },
+                              { title: '描述', dataIndex: 'description', key: 'description' },
+                              {
+                                title: '组合影响', dataIndex: 'portfolio_impact', key: 'portfolio_impact',
+                                render: (v) => <span style={{ color: v < 0 ? '#ff4d4f' : '#52c41a' }}>{(v * 100).toFixed(1)}%</span>
+                              },
+                              { title: '恢复天数', dataIndex: 'recovery_days', key: 'recovery_days' },
+                            ]}
+                          />
+                        </Card>
+
+                        <Row gutter={16}>
+                          <Col span={12}>
+                            <Card title="风险分解" size="small">
+                              <Descriptions column={1} size="small">
+                                <Descriptions.Item label="总风险">{(riskResult.risk_decomposition.total_risk * 100).toFixed(2)}%</Descriptions.Item>
+                                <Descriptions.Item label="系统性风险">{(riskResult.risk_decomposition.systematic_risk * 100).toFixed(2)}%</Descriptions.Item>
+                                <Descriptions.Item label="特质风险">{(riskResult.risk_decomposition.idiosyncratic_risk * 100).toFixed(2)}%</Descriptions.Item>
+                                <Descriptions.Item label="集中度风险">{(riskResult.risk_decomposition.concentration_risk * 100).toFixed(2)}%</Descriptions.Item>
+                              </Descriptions>
+                            </Card>
+                          </Col>
+                          <Col span={12}>
+                            <Card title="波动率分析" size="small">
+                              <Descriptions column={1} size="small">
+                                <Descriptions.Item label="总波动率">{(riskResult.volatility_analysis.total_volatility * 100).toFixed(2)}%</Descriptions.Item>
+                                <Descriptions.Item label="上行波动率">{(riskResult.volatility_analysis.upside_volatility * 100).toFixed(2)}%</Descriptions.Item>
+                                <Descriptions.Item label="下行波动率">{(riskResult.volatility_analysis.downside_volatility * 100).toFixed(2)}%</Descriptions.Item>
+                                <Descriptions.Item label="波动率比">{riskResult.volatility_analysis.volatility_ratio.toFixed(2)}</Descriptions.Item>
+                              </Descriptions>
+                            </Card>
+                          </Col>
+                        </Row>
+
+                        {riskResult.risk_summary.risk_alerts.length > 0 && (
+                          <Alert
+                            style={{ marginTop: 16 }}
+                            message="风险警报"
+                            description={
+                              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                                {riskResult.risk_summary.risk_alerts.map((alert, i) => (
+                                  <li key={i}><WarningOutlined style={{ color: '#faad14', marginRight: 8 }} />{alert}</li>
+                                ))}
+                              </ul>
+                            }
+                            type="warning"
+                            showIcon
+                          />
+                        )}
+                      </>
+                    ) : (
+                      <Empty description="暂无风险分析结果，请点击执行分析" />
                     )}
                   </Card>
                 </TabPane>

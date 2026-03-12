@@ -11,6 +11,10 @@ import {
   CalculatorOutlined,
   StockOutlined,
   SettingOutlined,
+  GlobalOutlined,
+  ThunderboltOutlined,
+  ApiOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 
 // ==============================================
@@ -235,12 +239,15 @@ export const TASK_TYPE_CONFIGS: TaskTypeConfig[] = [
 // 快捷任务模板
 // ==============================================
 
+// 任务类型
+export type TaskType = 'stock_daily' | 'stock_info' | 'factor' | 'index' | 'custom';
+
 export interface QuickTemplate {
   key: string;
   name: string;
   description: string;
   icon: React.ReactNode;
-  taskType: string;
+  taskType: TaskType;
   config: Record<string, any>;
   schedule?: string;
 }
@@ -292,6 +299,56 @@ export const QUICK_TEMPLATES: QuickTemplate[] = [
       date_range: 'last_year',
     },
     schedule: '0 18 * * 1-5',
+  },
+  // ========== OpenBB 数据接口快捷操作 ==========
+  {
+    key: 'openbb_us_equity',
+    name: '美股日线数据',
+    description: '通过 OpenBB 获取美股历史日线数据',
+    icon: <ApiOutlined />,
+    taskType: 'stock_daily',
+    config: {
+      symbols: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA'],
+      date_range: 'last_month',
+      source: 'openbb',
+    },
+  },
+  {
+    key: 'openbb_hk_stock',
+    name: '港股日线数据',
+    description: '通过 OpenBB 获取港股历史日线数据',
+    icon: <GlobalOutlined />,
+    taskType: 'stock_daily',
+    config: {
+      symbols: ['0700.HK', '9988.HK', '3690.HK'],
+      date_range: 'last_month',
+      source: 'openbb',
+    },
+  },
+  {
+    key: 'openbb_technical',
+    name: '技术指标计算',
+    description: '计算 RSI、MACD、布林带等技术指标',
+    icon: <ThunderboltOutlined />,
+    taskType: 'factor',
+    config: {
+      factors: ['rsi', 'macd', 'bbands', 'sma', 'ema'],
+      date_range: 'last_year',
+      source: 'openbb',
+    },
+  },
+  {
+    key: 'openbb_macro',
+    name: '宏观经济数据',
+    description: '获取 GDP、CPI、失业率等宏观经济指标',
+    icon: <DatabaseOutlined />,
+    taskType: 'custom',
+    config: {
+      data_type: 'macro',
+      indicators: ['GDP', 'CPI', 'UNRATE', 'FEDFUNDS'],
+      date_range: 'last_year',
+      source: 'openbb',
+    },
   },
 ];
 

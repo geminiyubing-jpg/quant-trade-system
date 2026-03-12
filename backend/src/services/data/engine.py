@@ -39,6 +39,11 @@ class DataType(str, Enum):
     FUNDAMENTAL = "fundamental"         # 基本面数据
     CORPORATE_ACTION = "corp_action"    # 公司行动（分红、拆股）
 
+    # OpenBB 扩展数据类型
+    MACRO_ECONOMIC = "macro_economic"       # 宏观经济数据
+    TECHNICAL_INDICATOR = "technical"       # 技术指标
+    QUANT_ANALYSIS = "quant_analysis"       # 量化分析
+
 
 class DataFrequency(str, Enum):
     """数据频率"""

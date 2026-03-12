@@ -122,11 +122,71 @@ const AILab: React.FC = () => {
   }, [settingsForm]);
 
   // 保存 AI 设置
-  const handleSaveSettings = () => {
-    localStorage.setItem('ai_api_key', apiKey);
-    localStorage.setItem('ai_api_url', apiUrl);
-    localStorage.setItem('ai_model', model);
-    message.success(t('ai.settingsSaved', 'AI 设置已保存'));
+  const handleSaveSettings = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // 保存到后端
+      const response = await fetch('http://localhost:8000/api/v1/ai/config/glm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          api_key: apiKey,
+          api_url: apiUrl,
+          model: model,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // 同时保存到 localStorage 作为备份
+        localStorage.setItem('ai_api_key', apiKey);
+        localStorage.setItem('ai_api_url', apiUrl);
+        localStorage.setItem('ai_model', model);
+
+        message.success(t('ai.settingsSaved', 'AI 设置已保存并生效'));
+
+        // 刷新状态
+        fetchAIStatus();
+      } else {
+        message.error(result.message || t('ai.saveFailed', '保存失败'));
+      }
+    } catch (error) {
+      console.error('Save settings error:', error);
+      // 如果后端失败，仍然保存到 localStorage
+      localStorage.setItem('ai_api_key', apiKey);
+      localStorage.setItem('ai_api_url', apiUrl);
+      localStorage.setItem('ai_model', model);
+      message.warning(t('ai.settingsSavedLocal', '设置已保存到本地，后端保存失败'));
+    }
+  };
+
+  // 测试连接
+  const handleTestConnection = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/api/v1/ai/config/glm/test', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        message.success(t('ai.connectionSuccess', '连接成功'));
+      } else {
+        message.error(result.message || t('ai.connectionFailed', '连接失败'));
+      }
+    } catch (error) {
+      console.error('Test connection error:', error);
+      message.error(t('ai.connectionFailed', '连接失败'));
+    }
   };
 
   // 生成策略
@@ -691,9 +751,11 @@ const AILab: React.FC = () => {
                     label={t('ai.model', '模型')}
                   >
                     <Select onChange={(value) => setModel(value)}>
-                      <Option value="glm-4">GLM-4</Option>
-                      <Option value="glm-4-flash">GLM-4-Flash</Option>
-                      <Option value="glm-4-plus">GLM-4-Plus</Option>
+                      <Option value="glm-4">GLM-4（标准版）</Option>
+                      <Option value="glm-4-flash">GLM-4-Flash（快速版）</Option>
+                      <Option value="glm-4-plus">GLM-4-Plus（增强版）</Option>
+                      <Option value="glm-4-air">GLM-4-Air（轻量版）</Option>
+                      <Option value="glm-5">GLM-5（最新版）</Option>
                     </Select>
                   </Form.Item>
                   <Form.Item>
@@ -706,8 +768,11 @@ const AILab: React.FC = () => {
                       >
                         {t('common.save', '保存')}
                       </Button>
-                      <Button onClick={() => fetchAIStatus()}>
+                      <Button onClick={handleTestConnection}>
                         {t('ai.testConnection', '测试连接')}
+                      </Button>
+                      <Button onClick={() => fetchAIStatus()}>
+                        {t('common.refresh', '刷新状态')}
                       </Button>
                     </Space>
                   </Form.Item>

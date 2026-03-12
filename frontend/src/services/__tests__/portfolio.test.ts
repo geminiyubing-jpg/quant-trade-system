@@ -172,8 +172,8 @@ describe('Portfolio Service', () => {
 
   describe('optimizePortfolio', () => {
     it('应该成功执行组合优化', async () => {
-      const optimizeRequest = {
-        method: 'MEAN_VARIANCE',
+      const optimizeRequest: import('../../types/portfolio').OptimizeRequest = {
+        method: 'MEAN_VARIANCE' as const,
         constraints: {
           max_weight: 0.2,
           min_weight: 0,

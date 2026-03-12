@@ -60,22 +60,27 @@ class GLM5Service:
             "stream": False
         }
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=120.0) as client:
             try:
-                logger.info(f"Calling GLM-5 API: {self.api_url}")
+                logger.info(f"Calling GLM API: {self.api_url}")
                 response = await client.post(
                     self.api_url,
                     headers=headers,
                     json=payload
                 )
                 response.raise_for_status()
-                return response.json()
+                result = response.json()
+                logger.info(f"GLM API response received successfully")
+                return result
 
+            except httpx.TimeoutException:
+                logger.error("GLM API timeout after 120s")
+                raise TimeoutError("GLM API 请求超时，请稍后重试")
             except httpx.HTTPStatusError as e:
-                logger.error(f"GLM-5 API error: {e}")
-                raise
+                logger.error(f"GLM API HTTP error: {e.response.status_code} - {e.response.text}")
+                raise Exception(f"GLM API 错误 ({e.response.status_code}): {e.response.text[:200]}")
             except Exception as e:
-                logger.error(f"GLM-5 service error: {e}")
+                logger.error(f"GLM service error: {e}")
                 raise
 
     async def generate_strategy(
@@ -83,6 +88,8 @@ class GLM5Service:
         strategy_type: str,
         market_condition: str,
         risk_tolerance: str = "medium",
+        symbol: str = None,
+        custom_prompt: str = None,
     ) -> Dict[str, Any]:
         """
         AI 生成交易策略
@@ -91,49 +98,143 @@ class GLM5Service:
             strategy_type: 策略类型（如：动量、反转、套利）
             market_condition: 市场状况描述
             risk_tolerance: 风险承受能力
+            symbol: 指导股票代码（可选，填入后将获取该股票的综合信息）
+            custom_prompt: 自定义提示词/约束（可选，AI 将根据用户要求优化策略）
 
         Returns:
             生成的策略内容
         """
+        # 股票信息（如果有）
+        stock_info = ""
+        if symbol:
+            logger.info(f"获取股票 {symbol} 的综合信息...")
+            stock_info = await self._get_stock_comprehensive_info(symbol)
+
         system_prompt = """你是一个专业的量化交易策略专家。请根据用户的需求生成具体的交易策略。
 
-策略必须包含：
-1. 策略名称
-2. 策略原理
-3. 入场条件（具体、可执行）
-4. 出场条件（具体、可执行）
-5. 风控规则（止损、止盈、仓位管理）
-6. 适用市场环境
+策略必须包含以下字段（JSON格式）：
+{
+  "strategy_name": "策略名称",
+  "principle": "策略原理说明",
+  "explanation": "自然语言策略解释（用通俗易懂的语言解释策略的核心逻辑、为什么有效、适用场景等）",
+  "factors": [
+    {
+      "name": "因子名称",
+      "description": "因子描述",
+      "formula": "计算公式（如果有）",
+      "weight": "权重（如：高/中/低）"
+    }
+  ],
+  "entry_conditions": ["入场条件1", "入场条件2"],
+  "exit_conditions": ["出场条件1", "出场条件2"],
+  "risk_management": {
+    "stop_loss": "止损规则",
+    "take_profit": "止盈规则",
+    "position_size": "仓位管理规则"
+  },
+  "parameters": {
+    "param1": "参数说明"
+  },
+  "suitable_market": "适用市场环境",
+  "expected_return": "预期收益率",
+  "risk_level": "风险等级",
+  "trading_advice": "交易建议和注意事项"
+}
 
-请以 JSON 格式返回结果。"""
+请确保：
+1. 策略逻辑清晰，可回测
+2. 参数明确，可量化
+3. 风控严格，符合专业量化标准
+4. explanation 字段必须用自然语言详细解释策略
+5. factors 数组必须列出策略使用的所有量化因子"""
 
+        # 构建用户提示
         user_prompt = f"""请生成一个{strategy_type}策略。
 
 市场状况：{market_condition}
 风险承受能力：{risk_tolerance}
+"""
+        if stock_info:
+            user_prompt += f"""
+目标股票信息：
+{stock_info}
 
+请基于上述股票的综合信息，生成针对该股票的专属交易策略和交易建议。
+"""
+
+        # 添加用户自定义约束
+        if custom_prompt:
+            user_prompt += f"""
+用户额外约束/要求：
+{custom_prompt}
+
+请严格遵守上述约束条件来优化生成的策略。
+"""
+
+        user_prompt += """
 要求：
 - 策略逻辑清晰，可回测
 - 参数明确，可量化
-- 风控严格，符合 Quant Core Team 标准
-"""
+- 风控严格，符合专业量化标准
+- 必须包含 explanation 字段，用自然语言解释策略
+- 必须包含 factors 数组，列出所有使用的量化因子
+- 请以 JSON 格式返回结果"""
 
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ]
 
-        logger.info(f"Generating strategy: {strategy_type}")
-        response = await self._call_api(messages, temperature=0.7)
+        logger.info(f"Generating strategy: {strategy_type}, symbol: {symbol}, custom_prompt: {bool(custom_prompt)}")
+        response = await self._call_api(messages, temperature=0.7, max_tokens=4000)
 
         return {
             "success": True,
             "data": {
                 "strategy_type": strategy_type,
+                "symbol": symbol,
                 "generated_content": response.get("choices", [{}])[0].get("message", {}),
                 "raw_response": response
             }
         }
+
+    async def _get_stock_comprehensive_info(self, symbol: str) -> str:
+        """
+        获取股票的综合信息（通过 MCP 工具）
+
+        Args:
+            symbol: 股票代码
+
+        Returns:
+            股票综合信息字符串
+        """
+        try:
+            from .mcp import mcp_service
+
+            # 获取股票价格信息
+            price_result = await mcp_service.execute_tool(
+                "get_stock_price",
+                {"symbol": symbol}
+            )
+
+            # 构建综合信息
+            info_parts = [f"股票代码: {symbol}"]
+
+            if price_result.get("success") and price_result.get("data"):
+                data = price_result["data"]
+                info_parts.append(f"最新价格: {data.get('price_close', 'N/A')}")
+                info_parts.append(f"更新时间: {data.get('timestamp', 'N/A')}")
+            else:
+                info_parts.append("价格数据: 暂无实时数据")
+
+            # 添加基本面分析提示
+            info_parts.append("\n请基于该股票的技术面和市场环境生成策略")
+
+            return "\n".join(info_parts)
+
+        except Exception as e:
+            logger.warning(f"获取股票信息失败: {e}")
+            return f"股票代码: {symbol}\n(获取详细信息失败，请基于一般市场分析生成策略)"
 
     async def analyze_market(
         self,

@@ -2,14 +2,30 @@
  * SectorAnalysis 基础测试 (不依赖 matchMedia)
  */
 
-import React from 'react';
+import '@testing-library/jest-dom';
 
-// 简单的 mock，防止 matchMedia 错误
-jest.mock('react-responsive', () => ({
-  useMediaQuery: jest.fn().mockReturnValue({
-    isDesktop: true,
-    isMobile: true,
-  }),
+// Mock window.matchMedia for Ant Design
+const mockMatchMedia = (query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: jest.fn(),
+  removeListener: jest.fn(),
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  dispatchEvent: jest.fn(),
+});
+
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: mockMatchMedia,
+});
+
+// Mock ResizeObserver
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
 }));
 
 describe('SectorAnalysis Basic Tests', () => {

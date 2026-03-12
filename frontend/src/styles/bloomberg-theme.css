@@ -49,14 +49,14 @@
   /* 主要文字 - 高对比度 */
   --bb-text-primary: #E6EDF3;
 
-  /* 次要文字 - 中对比度 */
-  --bb-text-secondary: #8B949E;
+  /* 次要文字 - 中对比度（提高亮度以符合 WCAG AA） */
+  --bb-text-secondary: #B0B8C1;
 
-  /* 弱化文字 - 低对比度 */
-  --bb-text-muted: #6E7681;
+  /* 弱化文字 - 低对比度（提高亮度以保证可读性） */
+  --bb-text-muted: #8B949E;
 
-  /* 禁用文字 */
-  --bb-text-disabled: #484F58;
+  /* 禁用文字（提高亮度） */
+  --bb-text-disabled: #6E7681;
 
   /* 反色文字（用于深色按钮） */
   --bb-text-inverse: #000000;

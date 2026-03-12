@@ -108,11 +108,17 @@ const ENGINE_PREFIX = '/api/v1/data-engine';
 export interface DataSource {
   id: string;
   name: string;
-  source_type: 'akshare' | 'tushare' | 'eastmoney' | 'custom';
+  source_type: 'akshare' | 'tushare' | 'eastmoney' | 'openbb' | 'yahoo_finance' | 'custom';
   config: Record<string, any>;
   is_active: boolean;
   last_sync?: string;
   created_at: string;
+  // OpenBB 专用配置
+  providers?: {
+    equity?: string;      // 股票数据提供商
+    economy?: string;     // 宏观经济数据提供商
+    technical?: string;   // 技术分析提供商
+  };
 }
 
 // 数据同步任务
@@ -167,6 +173,22 @@ const QUALITY_PREFIX = '/api/v1/data-quality';
 
 // 数据质量报告
 export interface QualityReport {
+  report_id: string;
+  report_time: string;
+  overall_score: number;
+  overall_level: string;
+  metrics: Array<{
+    type: string;
+    score: number;
+    level: string;
+    details: Record<string, unknown>;
+  }>;
+  recommendations: string[];
+  alerts: Array<Record<string, unknown>>;
+}
+
+// 数据质量详细报告（用于数据管理页面）
+export interface QualityReportDetail {
   id: string;
   data_type: string;
   table_name: string;
@@ -180,68 +202,204 @@ export interface QualityReport {
     field: string;
     issue_type: string;
     count: number;
-    examples: any[];
+    examples: unknown[];
   }>;
   created_at: string;
 }
 
-// 数据质量规则
-export interface QualityRule {
-  id: string;
-  name: string;
-  data_type: string;
-  field: string;
-  rule_type: 'not_null' | 'range' | 'format' | 'unique' | 'custom';
-  rule_config: Record<string, any>;
-  is_active: boolean;
-  created_at: string;
+// 数据质量报告列表响应
+export interface QualityReportListResponse {
+  total: number;
+  items: QualityReportDetail[];
+}
+
+// 数据质量告警
+export interface QualityAlert {
+  alert_id: string;
+  alert_type: string;
+  severity: string;
+  message: string;
+  source?: string;
+  timestamp: string;
+  acknowledged: boolean;
+}
+
+// 数据质量摘要
+export interface QualitySummary {
+  overall_score: number;
+  overall_level: string;
+  metric_count: number;
+  alert_count: number;
+  last_update: string;
 }
 
 /**
  * 获取数据质量报告
  */
+export async function getQualityReport(): Promise<QualityReport> {
+  return get(`${QUALITY_PREFIX}/report`);
+}
+
+/**
+ * 获取数据质量报告列表
+ */
 export async function getQualityReports(params?: {
   data_type?: string;
-  start_date?: string;
-  end_date?: string;
-}): Promise<{
-  total: number;
-  items: QualityReport[];
-}> {
+  skip?: number;
+  limit?: number;
+}): Promise<QualityReportListResponse> {
   const query = new URLSearchParams();
   if (params?.data_type) query.append('data_type', params.data_type);
-  if (params?.start_date) query.append('start_date', params.start_date);
-  if (params?.end_date) query.append('end_date', params.end_date);
+  if (params?.skip !== undefined) query.append('skip', String(params.skip));
+  if (params?.limit !== undefined) query.append('limit', String(params.limit));
 
   const queryString = query.toString();
   return get(`${QUALITY_PREFIX}/reports${queryString ? `?${queryString}` : ''}`);
 }
 
 /**
- * 获取数据质量规则列表
- */
-export async function getQualityRules(): Promise<{
-  total: number;
-  items: QualityRule[];
-}> {
-  return get(`${QUALITY_PREFIX}/rules`);
-}
-
-/**
- * 创建数据质量规则
- */
-export async function createQualityRule(data: Omit<QualityRule, 'id' | 'created_at'>): Promise<QualityRule> {
-  return post(`${QUALITY_PREFIX}/rules`, data);
-}
-
-/**
  * 运行数据质量检查
  */
-export async function runQualityCheck(data: {
+export async function runQualityCheck(params: {
   data_type: string;
   table_name?: string;
 }): Promise<{ task_id: string; status: string }> {
-  return post(`${QUALITY_PREFIX}/check`, data);
+  return post(`${QUALITY_PREFIX}/check`, params);
+}
+
+/**
+ * 获取数据质量摘要
+ */
+export async function getQualitySummary(): Promise<QualitySummary> {
+  return get(`${QUALITY_PREFIX}/summary`);
+}
+
+/**
+ * 获取数据质量告警列表
+ */
+export async function getQualityAlerts(params?: {
+  severity?: string;
+  acknowledged?: boolean;
+  limit?: number;
+}): Promise<QualityAlert[]> {
+  const query = new URLSearchParams();
+  if (params?.severity) query.append('severity', params.severity);
+  if (params?.acknowledged !== undefined) query.append('acknowledged', String(params.acknowledged));
+  if (params?.limit) query.append('limit', String(params.limit));
+
+  const queryString = query.toString();
+  return get(`${QUALITY_PREFIX}/alerts${queryString ? `?${queryString}` : ''}`);
+}
+
+/**
+ * 确认告警
+ */
+export async function acknowledgeAlert(alertId: string): Promise<{ success: boolean; message: string }> {
+  return post(`${QUALITY_PREFIX}/alerts/${alertId}/acknowledge`);
+}
+
+/**
+ * 获取指标历史
+ */
+export async function getMetricHistory(params?: {
+  metric_type?: string;
+  limit?: number;
+}): Promise<Array<{
+  type: string;
+  score: number;
+  level: string;
+  timestamp: string;
+  details: Record<string, unknown>;
+}>> {
+  const query = new URLSearchParams();
+  if (params?.metric_type) query.append('metric_type', params.metric_type);
+  if (params?.limit) query.append('limit', String(params.limit));
+
+  const queryString = query.toString();
+  return get(`${QUALITY_PREFIX}/history${queryString ? `?${queryString}` : ''}`);
+}
+
+/**
+ * 获取特定指标详情
+ */
+export async function getMetricDetail(metricType: string): Promise<{
+  success: boolean;
+  data: {
+    type: string;
+    score: number;
+    level: string;
+    details: Record<string, unknown>;
+    timestamp: string;
+  };
+}> {
+  return get(`${QUALITY_PREFIX}/metrics/${metricType}`);
+}
+
+/**
+ * 检查数据完整性
+ */
+export async function checkCompleteness(params?: {
+  table_name?: string;
+  symbol?: string;
+}): Promise<{
+  success: boolean;
+  data: {
+    type: string;
+    score: number;
+    level: string;
+    details: Record<string, unknown>;
+  };
+}> {
+  const query = new URLSearchParams();
+  if (params?.table_name) query.append('table_name', params.table_name);
+  if (params?.symbol) query.append('symbol', params.symbol);
+
+  const queryString = query.toString();
+  return post(`${QUALITY_PREFIX}/check/completeness${queryString ? `?${queryString}` : ''}`);
+}
+
+/**
+ * 检查数据准确性
+ */
+export async function checkAccuracy(params?: {
+  table_name?: string;
+  sample_size?: number;
+}): Promise<{
+  success: boolean;
+  data: {
+    type: string;
+    score: number;
+    level: string;
+    details: Record<string, unknown>;
+  };
+}> {
+  const query = new URLSearchParams();
+  if (params?.table_name) query.append('table_name', params.table_name);
+  if (params?.sample_size) query.append('sample_size', String(params.sample_size));
+
+  const queryString = query.toString();
+  return post(`${QUALITY_PREFIX}/check/accuracy${queryString ? `?${queryString}` : ''}`);
+}
+
+/**
+ * 检查数据及时性
+ */
+export async function checkTimeliness(params?: {
+  source_name?: string;
+}): Promise<{
+  success: boolean;
+  data: {
+    type: string;
+    score: number;
+    level: string;
+    details: Record<string, unknown>;
+  };
+}> {
+  const query = new URLSearchParams();
+  if (params?.source_name) query.append('source_name', params.source_name);
+
+  const queryString = query.toString();
+  return post(`${QUALITY_PREFIX}/check/timeliness${queryString ? `?${queryString}` : ''}`);
 }
 
 /**
@@ -259,6 +417,168 @@ export async function updateDataSource(
   data: { name: string; config: Record<string, any> }
 ): Promise<DataSource> {
   return post(`${ENGINE_PREFIX}/sources/${sourceId}`, data);
+}
+
+// ==============================================
+// OpenBB 数据源
+// ==============================================
+
+const OPENBB_PREFIX = '/api/v1/openbb';
+
+// OpenBB 数据源状态
+export interface OpenBBStatus {
+  name: string;
+  description: string;
+  is_connected: boolean;
+  supported_types: string[];
+  providers: {
+    equity: boolean;
+    economy: boolean;
+    technical: boolean;
+  };
+}
+
+// OpenBB 提供商列表
+export interface OpenBBProviders {
+  equity: {
+    free: string[];
+    paid: string[];
+  };
+  economy: {
+    free: string[];
+    paid: string[];
+  };
+  news: {
+    paid: string[];
+  };
+}
+
+// OpenBB 股票报价
+export interface OpenBBQuote {
+  symbol: string;
+  price: number;
+  open?: number;
+  high?: number;
+  low?: number;
+  close?: number;
+  volume?: number;
+  change?: number;
+  change_percent?: number;
+  previous_close?: number;
+  provider: string;
+}
+
+// OpenBB 历史价格
+export interface OpenBBHistoricalPrice {
+  symbol: string;
+  timestamp: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  adj_close?: number;
+}
+
+export interface OpenBBHistoricalResponse {
+  symbol: string;
+  data: OpenBBHistoricalPrice[];
+  provider: string;
+  count: number;
+}
+
+// OpenBB 宏观指标
+export interface OpenBBMacroResponse {
+  indicator: string;
+  data: Record<string, unknown>[];
+  provider: string;
+  count: number;
+}
+
+// OpenBB 技术指标
+export interface OpenBBTechnicalResponse {
+  symbol: string;
+  indicators: string[];
+  data: Record<string, unknown>[];
+  provider: string;
+  count: number;
+}
+
+/**
+ * 获取 OpenBB 服务状态
+ */
+export async function getOpenBBStatus(): Promise<OpenBBStatus> {
+  return get(`${OPENBB_PREFIX}/status`);
+}
+
+/**
+ * 获取 OpenBB 提供商列表
+ */
+export async function getOpenBBProviders(): Promise<OpenBBProviders> {
+  return get(`${OPENBB_PREFIX}/providers`);
+}
+
+/**
+ * 获取 OpenBB 股票报价
+ */
+export async function getOpenBBQuote(
+  symbol: string,
+  provider?: string
+): Promise<OpenBBQuote> {
+  const params = provider ? `?provider=${provider}` : '';
+  return get(`${OPENBB_PREFIX}/equity/quote/${symbol}${params}`);
+}
+
+/**
+ * 获取 OpenBB 历史价格
+ */
+export async function getOpenBBHistorical(
+  symbol: string,
+  startDate?: string,
+  endDate?: string,
+  provider?: string
+): Promise<OpenBBHistoricalResponse> {
+  const params = new URLSearchParams();
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  if (provider) params.append('provider', provider);
+  const queryString = params.toString();
+  return get(`${OPENBB_PREFIX}/equity/historical/${symbol}${queryString ? `?${queryString}` : ''}`);
+}
+
+/**
+ * 获取 OpenBB 宏观经济指标
+ */
+export async function getOpenBBMacro(
+  indicator: string,
+  startDate?: string,
+  endDate?: string,
+  provider?: string
+): Promise<OpenBBMacroResponse> {
+  const params = new URLSearchParams();
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  if (provider) params.append('provider', provider);
+  const queryString = params.toString();
+  return get(`${OPENBB_PREFIX}/economy/macro/${indicator}${queryString ? `?${queryString}` : ''}`);
+}
+
+/**
+ * 获取 OpenBB 技术指标
+ */
+export async function getOpenBBTechnical(
+  symbol: string,
+  indicators: string[],
+  startDate?: string,
+  endDate?: string,
+  provider?: string
+): Promise<OpenBBTechnicalResponse> {
+  const params = new URLSearchParams();
+  params.append('indicators', indicators.join(','));
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  if (provider) params.append('provider', provider);
+  return get(`${OPENBB_PREFIX}/technical/indicators/${symbol}?${params.toString()}`);
 }
 
 // ==============================================
@@ -280,10 +600,24 @@ export const dataService = {
   syncDataSource,
   updateDataSource,
   // 数据质量
+  getQualityReport,
   getQualityReports,
-  getQualityRules,
-  createQualityRule,
   runQualityCheck,
+  getQualitySummary,
+  getQualityAlerts,
+  acknowledgeAlert,
+  getMetricHistory,
+  getMetricDetail,
+  checkCompleteness,
+  checkAccuracy,
+  checkTimeliness,
+  // OpenBB 数据源
+  getOpenBBStatus,
+  getOpenBBProviders,
+  getOpenBBQuote,
+  getOpenBBHistorical,
+  getOpenBBMacro,
+  getOpenBBTechnical,
 };
 
 export default dataService;

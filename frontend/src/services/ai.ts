@@ -18,17 +18,24 @@ export interface AIServiceStatus {
 
 // 策略生成请求
 export interface StrategyGenerateRequest {
-  description: string;
-  strategy_type?: string;
-  risk_level?: 'low' | 'medium' | 'high';
+  strategy_type: string;
+  market_condition: string;
+  risk_tolerance?: 'low' | 'medium' | 'high';
+  symbol?: string;
+  custom_prompt?: string;
 }
 
 // 策略生成响应
 export interface StrategyGenerateResponse {
   success: boolean;
-  code: string;
-  explanation: string;
-  parameters: Record<string, any>;
+  data: {
+    strategy_type: string;
+    generated_content: {
+      content: string;
+      role: string;
+    };
+    raw_response: any;
+  };
 }
 
 // 智能选股请求
@@ -73,6 +80,20 @@ export interface MarketAnalysisResponse {
   recommendations: string[];
 }
 
+// AI 对话请求
+export interface ChatRequest {
+  message: string;
+  context?: string;
+  conversation_history?: Array<{ role: string; content: string }>;
+}
+
+// AI 对话响应
+export interface ChatResponse {
+  success: boolean;
+  response?: string;
+  message?: string;  // 兼容字段
+}
+
 // AI 设置
 export interface AISettings {
   api_key?: string;
@@ -90,7 +111,8 @@ export interface AISettings {
  * 获取 AI 服务状态
  */
 export async function getAIStatus(): Promise<AIServiceStatus> {
-  return get<AIServiceStatus>(`${API_PREFIX}/status`);
+  const response = await get<{ success: boolean; data: AIServiceStatus }>(`${API_PREFIX}/status`);
+  return response.data;
 }
 
 // ==============================================
@@ -101,7 +123,7 @@ export async function getAIStatus(): Promise<AIServiceStatus> {
  * 生成策略代码
  */
 export async function generateStrategy(request: StrategyGenerateRequest): Promise<StrategyGenerateResponse> {
-  return post<StrategyGenerateResponse>(`${API_PREFIX}/generate-strategy`, request);
+  return post<StrategyGenerateResponse>(`${API_PREFIX}/generate/strategy`, request);
 }
 
 // ==============================================
@@ -127,6 +149,17 @@ export async function analyzeMarket(request: MarketAnalysisRequest): Promise<Mar
 }
 
 // ==============================================
+// AI 对话
+// ==============================================
+
+/**
+ * AI 对话
+ */
+export async function chat(request: ChatRequest): Promise<ChatResponse> {
+  return post<ChatResponse>(`${API_PREFIX}/chat`, request);
+}
+
+// ==============================================
 // AI 设置
 // ==============================================
 
@@ -144,16 +177,53 @@ export async function updateAISettings(settings: Partial<AISettings>): Promise<{
   return post<{ success: boolean }>(`${API_PREFIX}/settings`, settings);
 }
 
+// ==============================================
+// AI 策略保存
+// ==============================================
+
+// 保存 AI 策略请求
+export interface SaveAIStrategyRequest {
+  strategy_name: string;
+  strategy_type: string;
+  description?: string;
+  content: Record<string, any>;
+  risk_level?: 'low' | 'medium' | 'high';
+  market_condition?: string;
+}
+
+// 保存 AI 策略响应
+export interface SaveAIStrategyResponse {
+  success: boolean;
+  data: {
+    strategy_id: string;
+    file_path: string;
+    strategy: Record<string, any>;
+    registered: boolean;
+  };
+  message: string;
+}
+
+/**
+ * 保存 AI 生成的策略
+ */
+export async function saveAIStrategy(request: SaveAIStrategyRequest): Promise<SaveAIStrategyResponse> {
+  return post<SaveAIStrategyResponse>(`${API_PREFIX}/save-strategy`, request);
+}
+
 // 导出服务对象
 export const aiService = {
   // 服务状态
   getAIStatus,
   // 策略生成
   generateStrategy,
+  // 保存策略
+  saveAIStrategy,
   // 智能选股
   pickStocks,
   // 市场分析
   analyzeMarket,
+  // AI 对话
+  chat,
   // 设置
   getAISettings,
   updateAISettings,

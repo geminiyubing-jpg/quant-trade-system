@@ -1,8 +1,8 @@
 # Quant-Trade System API 文档
 
-> **版本**: v2.2.0
+> **版本**: v2.3.0
 > **基础 URL**: `http://localhost:8000/api/v1`
-> **更新日期**: 2026-03-10
+> **更新日期**: 2026-03-12
 
 ---
 
@@ -645,7 +645,276 @@ Authorization: Bearer <your_jwt_token>
 
 ---
 
-## 16. 请求限流
+## 16. OpenBB 平台接口 `/api/v1/openbb`
+
+OpenBB Platform 提供全球市场数据，包括美股、国际股票、宏观经济、技术分析等。
+
+### 16.1 股票实时报价
+
+**GET** `/openbb/equity/quote/{symbol}`
+
+**路径参数**:
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| symbol | string | 是 | 股票代码 (如 AAPL, MSFT) |
+
+**查询参数**:
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| provider | string | 否 | 数据提供商 (yfinance, fmp, polygon) |
+
+**响应**:
+```json
+{
+  "symbol": "AAPL",
+  "price": 178.50,
+  "open": 177.20,
+  "high": 179.30,
+  "low": 176.80,
+  "close": 178.50,
+  "volume": 52345678,
+  "change": 1.30,
+  "change_percent": 0.73,
+  "previous_close": 177.20,
+  "provider": "yfinance"
+}
+```
+
+### 16.2 历史价格数据
+
+**GET** `/openbb/equity/historical/{symbol}`
+
+**查询参数**:
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| start_date | date | 否 | 开始日期 (YYYY-MM-DD) |
+| end_date | date | 否 | 结束日期 (YYYY-MM-DD) |
+| provider | string | 否 | 数据提供商 |
+
+**响应**:
+```json
+{
+  "symbol": "AAPL",
+  "data": [
+    {
+      "timestamp": "2026-03-11T00:00:00",
+      "open": 177.20,
+      "high": 179.30,
+      "low": 176.80,
+      "close": 178.50,
+      "volume": 52345678
+    }
+  ],
+  "provider": "yfinance",
+  "count": 30
+}
+```
+
+### 16.3 股票基本面数据
+
+**GET** `/openbb/equity/fundamentals/{symbol}`
+
+**查询参数**:
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| statement_type | string | 否 | 报表类型: balance/income/cash |
+| period | string | 否 | 周期: annual/quarterly |
+| provider | string | 否 | 数据提供商 |
+
+### 16.4 宏观经济指标
+
+**GET** `/openbb/economy/macro/{indicator}`
+
+**常用指标**:
+- `GDP`: 国内生产总值
+- `CPI`: 消费者物价指数
+- `UNRATE`: 失业率
+- `FEDFUNDS`: 联邦基金利率
+- `DGS10`: 10年期国债收益率
+
+**查询参数**:
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| start_date | date | 否 | 开始日期 |
+| end_date | date | 否 | 结束日期 |
+| provider | string | 否 | 数据提供商 (fred, oecd) |
+
+### 16.5 技术分析指标
+
+**GET** `/openbb/technical/indicators/{symbol}`
+
+**查询参数**:
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| indicators | string | 是 | 指标列表 (逗号分隔): rsi,macd,bbands,sma,ema |
+| start_date | date | 否 | 开始日期 |
+| end_date | date | 否 | 结束日期 |
+
+**响应**:
+```json
+{
+  "symbol": "AAPL",
+  "indicators": ["rsi", "macd"],
+  "data": [
+    {
+      "timestamp": "2026-03-11",
+      "rsi": 65.32,
+      "macd": 1.25,
+      "macd_signal": 1.10,
+      "macd_histogram": 0.15
+    }
+  ],
+  "provider": "yfinance",
+  "count": 30
+}
+```
+
+### 16.6 服务状态
+
+**GET** `/openbb/status`
+
+**响应**:
+```json
+{
+  "name": "openbb",
+  "description": "OpenBB Platform 多源数据",
+  "is_connected": true,
+  "use_fallback": false,
+  "supported_types": ["stock_price", "fundamental", "macro_economic", "technical_indicator"],
+  "providers": {
+    "equity": true,
+    "economy": true,
+    "technical": true
+  }
+}
+```
+
+### 16.7 支持的提供商列表
+
+**GET** `/openbb/providers`
+
+**响应**:
+```json
+{
+  "equity": {
+    "free": ["yfinance"],
+    "paid": ["fmp", "polygon", "intrinio"]
+  },
+  "economy": {
+    "free": ["fred"],
+    "paid": ["oecd", "tradingeconomics"]
+  },
+  "news": {
+    "paid": ["benzinga", "biztoc"]
+  }
+}
+```
+
+---
+
+## 17. 券商接口
+
+系统支持多种券商接口，用于实盘交易执行。
+
+### 17.1 东方财富证券
+
+**文件位置**: `backend/src/brokers/eastmoney.py`
+
+**支持功能**:
+- 股票交易（买入/卖出）
+- 撤单
+- 查询持仓和资金
+- 查询订单状态
+
+**配置参数**:
+```python
+{
+    "api_key": "your_api_key",
+    "api_secret": "your_api_secret",
+    "account_id": "your_account_id",
+    "sandbox": True  # 沙箱环境
+}
+```
+
+**使用示例**:
+```python
+from brokers.eastmoney import EastMoneyBroker
+
+broker = EastMoneyBroker(config)
+await broker.connect()
+
+# 下单
+result = await broker.place_order(
+    symbol="000001.SZ",
+    side="BUY",
+    quantity=1000,
+    price=Decimal("12.50"),
+    order_type="LIMIT"
+)
+
+# 获取持仓
+positions = await broker.get_positions()
+```
+
+### 17.2 迅投 QMT
+
+**文件位置**: `backend/src/brokers/xtquant.py`
+
+**支持功能**:
+- 实时行情订阅
+- 股票交易（买入/卖出）
+- 撤单
+- 查询持仓和资金
+- 查询订单状态
+
+**配置参数**:
+```python
+{
+    "qmt_path": "C:\\迅投QMT交易端\\userdata_mini",
+    "account_id": "your_account_id",
+    "account_type": "STOCK"
+}
+```
+
+**使用示例**:
+```python
+from brokers.xtquant import XTQuantBroker
+
+broker = XTQuantBroker(config)
+await broker.connect()
+
+# 下单
+result = await broker.place_order(
+    symbol="000001.SZ",
+    side="BUY",
+    quantity=1000,
+    price=Decimal("12.50"),
+    order_type="LIMIT"
+)
+
+# 订阅行情
+await broker.subscribe_quote(["000001.SZ", "600000.SH"], callback)
+```
+
+### 17.3 券商工厂
+
+**文件位置**: `backend/src/brokers/factory.py`
+
+通过券商工厂创建券商实例：
+
+```python
+from brokers.factory import BrokerFactory
+
+# 创建东方财富券商
+broker = BrokerFactory.create_broker("eastmoney", config)
+
+# 创建 QMT 券商
+broker = BrokerFactory.create_broker("xtquant", config)
+```
+
+---
+
+## 18. 请求限流
 
 | 接口类型 | 限制 |
 |----------|------|
@@ -664,4 +933,4 @@ Authorization: Bearer <your_jwt_token>
 ---
 
 **维护者**: QuantDev Team
-**最后更新**: 2026-03-10
+**最后更新**: 2026-03-12

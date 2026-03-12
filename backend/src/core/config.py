@@ -116,6 +116,21 @@ class Settings(BaseSettings):
     glm_model: str = Field(default="glm-4", description="GLM Model Name")
 
     # ==============================================
+    # OpenBB Platform 配置
+    # ==============================================
+    openbb_hub_pat: Optional[str] = Field(default=None, description="OpenBB Hub Personal Access Token")
+    openbb_fmp_api_key: Optional[str] = Field(default=None, description="Financial Modeling Prep API Key")
+    openbb_polygon_api_key: Optional[str] = Field(default=None, description="Polygon.io API Key")
+    openbb_benzinga_api_key: Optional[str] = Field(default=None, description="Benzinga API Key")
+    openbb_intrinio_api_key: Optional[str] = Field(default=None, description="Intrinio API Key")
+    openbb_fred_api_key: Optional[str] = Field(default=None, description="FRED API Key")
+    openbb_tiingo_api_key: Optional[str] = Field(default=None, description="Tiingo API Key")
+
+    # OpenBB 默认提供商配置
+    openbb_default_equity_provider: str = Field(default="yfinance", description="默认股票数据提供商")
+    openbb_default_economy_provider: str = Field(default="fred", description="默认宏观经济数据提供商")
+
+    # ==============================================
     # 交易配置
     # ==============================================
     default_max_slippage: float = Field(default=0.001, description="默认最大滑点", ge=0)

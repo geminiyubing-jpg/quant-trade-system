@@ -15,31 +15,22 @@ from ..models import (
     StrategyVersion, StrategyConfig, StrategyAuditLog,
 )
 
-
 from ..models.strategy_version import ChangeType, ActionType
-
 
 from .base import BaseRepository
 
-
 from ...core.exceptions import NotFoundError
-
 
 from ...core.logging import get_logger
 
-
-from ...services.strategy.manager import StrategyManager
-
-
 from ...schemas.strategy import (
     StrategyVersionCreate, StrategyVersionUpdate,
-    StrategyVersionResponse
- StrategyConfigCreate, StrategyConfigUpdate
+    StrategyVersionResponse, StrategyConfigCreate, StrategyConfigUpdate,
     StrategyConfigResponse
 )
 from ...schemas.strategy_version import (
-    StrategyAuditLogCreate, StrategyAuditLogUpdate
- StrategyAuditLogResponse
+    StrategyAuditLogCreate, StrategyAuditLogUpdate,
+    StrategyAuditLogResponse
 )
 
 
@@ -60,7 +51,7 @@ class StrategyVersionRepository(BaseRepository[StrategyVersion, StrategyVersion]
         ).order_by(desc(StrategyVersion.created_at)).all()
 
         if not include_inactive:
-            versions = [v for v in versions if not v.is_active]
+            versions = [v for v in versions if v.is_active]
 
         return versions
 
@@ -96,19 +87,19 @@ class StrategyVersionRepository(BaseRepository[StrategyVersion, StrategyVersion]
 
     def activate_version(self, version_id: str) -> bool:
         """激活指定版本"""
-        # 先停用其他版本
-        self.db.query(StrategyVersion).filter(
-            StrategyVersion.strategy_id.in_ (
-                select(StrategyVersion.strategy_id
-                from StrategyVersion
-                where StrategyVersion.id != :version_id
-                and StrategyVersion.is_active == True
-            )
-        # 激活目标版本
+        # 获取目标版本
         target = self.get_version(version_id)
         if not target:
             return False
 
+        # 先停用同一策略的其他版本
+        self.db.query(StrategyVersion).filter(
+            StrategyVersion.strategy_id == target.strategy_id,
+            StrategyVersion.id != version_id,
+            StrategyVersion.is_active == True
+        ).update({"is_active": False})
+
+        # 激活目标版本
         target.is_active = True
         self.db.commit()
         return True
@@ -142,7 +133,6 @@ class StrategyVersionRepository(BaseRepository[StrategyVersion, StrategyVersion]
             'code_changed': v1.version_code_hash != v2.version_code_hash,
         }
 
-
     def delete_version(self, version_id: str) -> bool:
         """删除版本"""
         version = self.get_version(version_id)
@@ -163,12 +153,13 @@ class StrategyConfigRepository(BaseRepository[StrategyConfig, StrategyConfig]):
         include_inactive: bool = False
     ) -> Optional[StrategyConfig]:
         """获取策略配置"""
-        configs = self.db.query(StrategyConfig).filter(
+        query = self.db.query(StrategyConfig).filter(
             StrategyConfig.strategy_id == strategy_id
         )
         if not include_inactive:
-            configs = configs.filter(StrategyConfig.is_active == True).all()
+            query = query.filter(StrategyConfig.is_active == True)
 
+        configs = query.all()
         return configs[0] if configs else None
 
     def get_active_config(self, strategy_id: str) -> Optional[StrategyConfig]:
@@ -199,5 +190,3 @@ class StrategyConfigRepository(BaseRepository[StrategyConfig, StrategyConfig]):
         self.db.delete(config)
         self.db.commit()
         return True
-
-

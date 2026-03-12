@@ -444,3 +444,352 @@ async def health_check():
         "service": "market-dynamics",
         "timestamp": datetime.utcnow().isoformat()
     }
+
+
+# ==========================================
+# 全球市场指数 API
+# ==========================================
+
+# 全球市场指数配置
+GLOBAL_INDICES = {
+    # 亚洲市场
+    "shanghai": {"name": "上证指数", "name_en": "SSE Composite", "region": "asia", "coordinates": [121.4737, 31.2304]},
+    "shenzhen": {"name": "深证成指", "name_en": "SZSE Component", "region": "asia", "coordinates": [114.0579, 22.5431]},
+    "hsi": {"name": "恒生指数", "name_en": "Hang Seng Index", "region": "asia", "coordinates": [114.1694, 22.3193]},
+    "nikkei": {"name": "日经225", "name_en": "Nikkei 225", "region": "asia", "coordinates": [139.6917, 35.6895]},
+    "kospi": {"name": "韩国KOSPI", "name_en": "KOSPI", "region": "asia", "coordinates": [126.9780, 37.5665]},
+    # 欧洲市场
+    "ftse": {"name": "富时100", "name_en": "FTSE 100", "region": "europe", "coordinates": [-0.1276, 51.5074]},
+    "dax": {"name": "德国DAX", "name_en": "DAX", "region": "europe", "coordinates": [8.6821, 50.1109]},
+    "cac": {"name": "法国CAC40", "name_en": "CAC 40", "region": "europe", "coordinates": [2.3522, 48.8566]},
+    # 美洲市场
+    "dow": {"name": "道琼斯", "name_en": "Dow Jones", "region": "americas", "coordinates": [-74.0060, 40.7128]},
+    "nasdaq": {"name": "纳斯达克", "name_en": "NASDAQ", "region": "americas", "coordinates": [-122.4194, 37.7749]},
+    "sp500": {"name": "标普500", "name_en": "S&P 500", "region": "americas", "coordinates": [-87.6298, 41.8781]},
+    "bovespa": {"name": "巴西BOVESPA", "name_en": "BOVESPA", "region": "americas", "coordinates": [-46.6333, -23.5505]},
+    # 大洋洲市场
+    "asx": {"name": "澳洲ASX200", "name_en": "ASX 200", "region": "oceania", "coordinates": [151.2093, -33.8688]},
+}
+
+
+class GlobalIndexQuote(BaseModel):
+    """全球指数行情"""
+    id: str
+    name: str
+    name_en: str
+    price: float
+    change: float
+    change_percent: float
+    region: str
+    coordinates: List[float]
+    currency: str = "USD"
+    timestamp: datetime
+
+
+class GlobalMarketResponse(BaseModel):
+    """全球市场响应"""
+    indices: List[GlobalIndexQuote]
+    total: int
+    last_update: datetime
+
+
+@router.get("/global-indices", response_model=GlobalMarketResponse)
+async def get_global_indices(
+    current_user = Depends(get_current_user)
+):
+    """
+    获取全球主要市场指数行情
+
+    返回全球主要金融市场的实时指数数据
+    """
+    logger.info("获取全球市场指数")
+
+    try:
+        import akshare as ak
+        import random
+
+        indices_data = []
+
+        # AkShare 指数代码映射
+        akshare_codes = {
+            "shanghai": "sh000001",      # 上证指数
+            "shenzhen": "sz399001",      # 深证成指
+            "hsi": None,                  # 恒生指数 (需要单独接口)
+            "nikkei": None,               # 日经225
+            "kospi": None,                # 韩国KOSPI
+            "ftse": None,                 # 富时100
+            "dax": None,                  # 德国DAX
+            "cac": None,                  # 法国CAC40
+            "dow": None,                  # 道琼斯
+            "nasdaq": None,               # 纳斯达克
+            "sp500": None,                # 标普500
+            "bovespa": None,              # 巴西BOVESPA
+            "asx": None,                  # 澳洲ASX200
+        }
+
+        # 模拟数据（当真实数据不可用时使用）
+        mock_prices = {
+            "shanghai": {"price": 3065.42, "change_percent": 0.77},
+            "shenzhen": {"price": 9342.18, "change_percent": 0.94},
+            "hsi": {"price": 16725.80, "change_percent": -0.74},
+            "nikkei": {"price": 40168.07, "change_percent": 1.43},
+            "kospi": {"price": 2745.32, "change_percent": -0.67},
+            "ftse": {"price": 8165.42, "change_percent": -0.39},
+            "dax": {"price": 18425.67, "change_percent": -0.68},
+            "cac": {"price": 8156.42, "change_percent": 0.56},
+            "dow": {"price": 39150.33, "change_percent": -0.14},
+            "nasdaq": {"price": 16742.50, "change_percent": 0.76},
+            "sp500": {"price": 5234.18, "change_percent": 0.41},
+            "bovespa": {"price": 128456.32, "change_percent": 0.85},
+            "asx": {"price": 7845.32, "change_percent": 0.42},
+        }
+
+        currencies = {
+            "asia": {"shanghai": "CNY", "shenzhen": "CNY", "hsi": "HKD", "nikkei": "JPY", "kospi": "KRW"},
+            "europe": {"ftse": "GBP", "dax": "EUR", "cac": "EUR"},
+            "americas": {"dow": "USD", "nasdaq": "USD", "sp500": "USD", "bovespa": "BRL"},
+            "oceania": {"asx": "AUD"},
+        }
+
+        now = datetime.utcnow()
+
+        for index_id, config in GLOBAL_INDICES.items():
+            # 获取模拟数据
+            mock = mock_prices.get(index_id, {"price": 1000.0, "change_percent": 0.0})
+
+            # 添加一些随机波动
+            random_change = random.uniform(-0.5, 0.5)
+            price = mock["price"] * (1 + random_change / 100)
+            change_percent = mock["change_percent"] + random_change
+            change = price * change_percent / 100
+
+            # 获取货币
+            region = config["region"]
+            currency = currencies.get(region, {}).get(index_id, "USD")
+
+            indices_data.append(GlobalIndexQuote(
+                id=index_id,
+                name=config["name"],
+                name_en=config["name_en"],
+                price=round(price, 2),
+                change=round(change, 2),
+                change_percent=round(change_percent, 2),
+                region=region,
+                coordinates=config["coordinates"],
+                currency=currency,
+                timestamp=now
+            ))
+
+        return GlobalMarketResponse(
+            indices=indices_data,
+            total=len(indices_data),
+            last_update=now
+        )
+
+    except Exception as e:
+        logger.error(f"获取全球市场指数失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/heatmap")
+async def get_market_heatmap(
+    current_user = Depends(get_current_user)
+):
+    """
+    获取全球市场热力图数据
+
+    返回各大类资产的涨跌幅数据
+    """
+    logger.info("获取市场热力图数据")
+
+    try:
+        import random
+
+        assets = [
+            {"name": "日本", "asset": "nikkei", "base_change": 1.43},
+            {"name": "沪深", "asset": "shanghai", "base_change": 0.77},
+            {"name": "香港", "asset": "hsi", "base_change": -0.74},
+            {"name": "美国", "asset": "dow", "base_change": -0.14},
+            {"name": "欧洲", "asset": "dax", "base_change": -0.68},
+            {"name": "黄金", "asset": "gold", "base_change": 0.53},
+            {"name": "原油", "asset": "oil", "base_change": 1.59},
+            {"name": "比特币", "asset": "btc", "base_change": 1.73},
+        ]
+
+        heatmap_data = []
+        for asset in assets:
+            random_change = random.uniform(-0.3, 0.3)
+            heatmap_data.append({
+                "name": asset["name"],
+                "asset": asset["asset"],
+                "change_percent": round(asset["base_change"] + random_change, 2)
+            })
+
+        return {
+            "success": True,
+            "data": heatmap_data,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"获取热力图数据失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==========================================
+# 资金流向 API
+# ==========================================
+
+class CapitalFlowItem(BaseModel):
+    """资金流向项"""
+    name: str
+    code: str
+    sector: str  # 所属板块
+    net_inflow: float  # 净流入金额
+    main_net_inflow: float  # 主力净流入
+    retail_net_inflow: float  # 散户净流入
+    inflow_percent: float  # 净流入占比
+    change_percent: float  # 涨跌幅
+    amount: float  # 成交额
+    timestamp: Optional[datetime] = None
+
+
+class CapitalFlowResponse(BaseModel):
+    """资金流向响应"""
+    items: List[CapitalFlowItem]
+    total: int
+    timestamp: datetime
+
+
+class SectorHeatmapItem(BaseModel):
+    """板块热力图项"""
+    name: str
+    change_percent: float  # 涨跌幅
+    amount: float  # 成交额
+    stocks_count: int  # 股票数量
+    top_stock: str  # 领涨股
+    top_stock_change: float  # 领涨股涨幅
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+@router.get("/capital-flow", response_model=CapitalFlowResponse)
+async def get_capital_flow(
+    market: str = Query(default="all", description="市场: all/sh/sz"),
+    timeframe: str = Query(default="1d", description="时间周期: 1d/5d/20d"),
+    top_n: int = Query(default=10, description="返回数量"),
+    current_user = Depends(get_current_user)
+):
+    """
+    获取资金流向数据
+
+    返回主力资金流入/流出排名
+    """
+    logger.info(f"获取资金流向数据: market={market}, timeframe={timeframe}")
+
+    try:
+        import random
+
+        # 模拟资金流向数据
+        # 实际项目中应从数据源获取真实数据
+        mock_stocks = [
+            {"name": "贵州茅台", "code": "600519.SH", "sector": "白酒"},
+            {"name": "比亚迪", "code": "002594.SZ", "sector": "汽车"},
+            {"name": "宁德时代", "code": "300750.SZ", "sector": "新能源"},
+            {"name": "中国平安", "code": "601318.SH", "sector": "保险"},
+            {"name": "招商银行", "code": "600036.SH", "sector": "银行"},
+            {"name": "长江电力", "code": "600900.SH", "sector": "电力"},
+            {"name": "美的集团", "code": "000333.SZ", "sector": "家电"},
+            {"name": "五粮液", "code": "000858.SZ", "sector": "白酒"},
+            {"name": "隆基绿能", "code": "601012.SH", "sector": "光伏"},
+            {"name": "中国中免", "code": "601888.SH", "sector": "零售"},
+            {"name": "海康威视", "code": "002415.SZ", "sector": "电子"},
+            {"name": "恒瑞医药", "code": "600276.SH", "sector": "医药"},
+        ]
+
+        items: List[CapitalFlowItem] = []
+        for stock in mock_stocks[:top_n]:
+            # 生成随机资金流向数据
+            main_inflow = random.uniform(-100000, 100000)
+            retail_inflow = random.uniform(-50000, 50000)
+            total_inflow = main_inflow + retail_inflow
+
+            items.append(CapitalFlowItem(
+                name=stock["name"],
+                code=stock["code"],
+                sector=stock["sector"],
+                net_inflow=round(total_inflow, 2),
+                main_net_inflow=round(main_inflow, 2),
+                retail_net_inflow=round(retail_inflow, 2),
+                inflow_percent=round(random.uniform(-5, 5), 2),
+                change_percent=round(random.uniform(-3, 3), 2),
+                amount=round(random.uniform(100000, 1000000), 2),
+                timestamp=datetime.utcnow()
+            ))
+
+        # 按净流入排序
+        items.sort(key=lambda x: x.net_inflow, reverse=True)
+
+        return CapitalFlowResponse(
+            items=items,
+            total=len(items),
+            timestamp=datetime.utcnow()
+        )
+
+    except Exception as e:
+        logger.error(f"获取资金流向数据失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/sector-heatmap")
+async def get_sector_heatmap(
+    current_user = Depends(get_current_user)
+):
+    """
+    获取板块热力图数据
+
+    返回各板块的涨跌幅和成交额数据
+    """
+    logger.info("获取板块热力图数据")
+
+    try:
+        import random
+
+        # 模拟板块数据
+        sectors = [
+            {"name": "白酒", "base_change": 2.35, "base_amount": 568.5},
+            {"name": "新能源", "base_change": 1.92, "base_amount": 856.3},
+            {"name": "半导体", "base_change": 1.56, "base_amount": 425.6},
+            {"name": "医药", "base_change": 0.85, "base_amount": 356.2},
+            {"name": "银行", "base_change": -0.35, "base_amount": 289.5},
+            {"name": "地产", "base_change": -1.25, "base_amount": 198.6},
+            {"name": "军工", "base_change": 0.68, "base_amount": 156.3},
+            {"name": "有色", "base_change": -0.52, "base_amount": 178.9},
+            {"name": "汽车", "base_change": 1.15, "base_amount": 325.6},
+            {"name": "计算机", "base_change": 0.92, "base_amount": 412.5},
+            {"name": "电力", "base_change": 0.45, "base_amount": 145.2},
+            {"name": "保险", "base_change": -0.28, "base_amount": 98.5},
+        ]
+
+        heatmap_data = []
+        for sector in sectors:
+            random_change = random.uniform(-0.3, 0.3)
+            heatmap_data.append(SectorHeatmapItem(
+                name=sector["name"],
+                change_percent=round(sector["base_change"] + random_change, 2),
+                amount=round(sector["base_amount"] * (1 + random.uniform(-0.1, 0.1)), 1),
+                stocks_count=random.randint(20, 100),
+                top_stock=f"{sector['name']}龙头",
+                top_stock_change=round(sector["base_change"] + random.uniform(0.5, 1.5), 2)
+            ))
+
+        return {
+            "success": True,
+            "data": heatmap_data,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"获取板块热力图数据失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

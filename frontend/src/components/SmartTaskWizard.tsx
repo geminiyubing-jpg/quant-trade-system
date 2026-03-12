@@ -154,7 +154,7 @@ const SmartTaskWizard: React.FC<SmartTaskWizardProps> = ({
 
       const taskParams: TaskCreateParams = {
         name: taskName,
-        task_type: selectedType,
+        task_type: selectedType as TaskType,
         config,
         schedule: enableSchedule ? getScheduleCron() : undefined,
       };

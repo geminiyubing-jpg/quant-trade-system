@@ -259,17 +259,17 @@ const MarketRealtime: React.FC = () => {
     }
   };
 
-  const handleUnsubscribe = (symbol: string) => {
+  const handleUnsubscribe = useCallback((symbol: string) => {
     websocketService.unsubscribe([symbol]);
-    setSubscribedSymbols(subscribedSymbols.filter((s) => s !== symbol));
+    setSubscribedSymbols((prev) => prev.filter((s) => s !== symbol));
     message.info(`${t('realtime.unsubscribeSuccess')} ${symbol}`);
-  };
+  }, [t]);
 
   // 显示股票详情弹窗
-  const handleShowStockDetail = (symbol: string) => {
+  const handleShowStockDetail = useCallback((symbol: string) => {
     setSelectedSymbol(symbol);
     setStockDetailVisible(true);
-  };
+  }, []);
 
   // 关闭股票详情弹窗
   const handleCloseStockDetail = () => {
@@ -278,11 +278,11 @@ const MarketRealtime: React.FC = () => {
   };
 
   // 显示预警设置弹窗
-  const handleShowAlertModal = (symbol: string) => {
+  const handleShowAlertModal = useCallback((symbol: string) => {
     setAlertSymbol(symbol);
     setAlertQuote(quotes[symbol] || null);
     setAlertModalVisible(true);
-  };
+  }, [quotes]);
 
   // 关闭预警设置弹窗
   const handleCloseAlertModal = () => {
@@ -298,7 +298,7 @@ const MarketRealtime: React.FC = () => {
   };
 
   // 切换自选股状态
-  const handleToggleWatchlist = async (symbol: string) => {
+  const handleToggleWatchlist = useCallback(async (symbol: string) => {
     try {
       const isInWatchlist = watchlistSymbols.has(symbol);
       if (isInWatchlist) {
@@ -317,7 +317,7 @@ const MarketRealtime: React.FC = () => {
     } catch (error) {
       logger.error('自选股操作失败:', error);
     }
-  };
+  }, [watchlistSymbols]);
 
   // 双击打开股票详情
   const handleRowDoubleClick = (record: Quote) => {
