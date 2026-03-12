@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { ConfigProvider, theme } from 'antd';
@@ -123,14 +122,14 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <ConfigProvider
-        locale={antdLocale}
-        theme={antdTheme}
-      >
-        <App />
-      </ConfigProvider>
-    </Provider>
-  </React.StrictMode>
+  // 注意：暂时禁用 StrictMode 以兼容 ECharts 和 react-grid-layout
+  // 生产构建不受影响，这是开发环境的设置
+  <Provider store={store}>
+    <ConfigProvider
+      locale={antdLocale}
+      theme={antdTheme}
+    >
+      <App />
+    </ConfigProvider>
+  </Provider>
 );

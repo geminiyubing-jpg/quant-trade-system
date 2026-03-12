@@ -247,6 +247,59 @@ async def get_kline_data(
         raise HTTPException(status_code=500, detail=f"获取K线数据失败: {str(e)}")
 
 
+@router.get("/quotes")
+async def get_batch_quotes(
+    symbols: str = Query(..., description="股票代码列表，逗号分隔")
+):
+    """
+    批量获取实时行情
+
+    Args:
+        symbols: 股票代码列表（逗号分隔，如: 600519.SH,000001.SZ）
+
+    Returns:
+        多个股票的实时行情数据
+    """
+    try:
+        data_source = AkShareDataSource()
+        symbol_list = [s.strip() for s in symbols.split(",") if s.strip()]
+
+        results = []
+        for symbol in symbol_list:
+            try:
+                price = data_source.get_latest_price(symbol)
+                if price:
+                    results.append({
+                        "symbol": price.symbol,
+                        "name": symbol,  # 可以从缓存获取名称
+                        "timestamp": int(price.timestamp.timestamp() * 1000),
+                        "open": float(price.open),
+                        "high": float(price.high),
+                        "low": float(price.low),
+                        "price": float(price.close),
+                        "pre_close": float(price.close),  # 简化处理
+                        "volume": price.volume,
+                        "amount": float(price.amount) if price.amount else 0,
+                        "change": 0.0,
+                        "change_percent": 0.0,
+                    })
+            except Exception:
+                # 单个股票获取失败不影响其他股票
+                pass
+
+        return {
+            "success": True,
+            "data": results,
+            "meta": {
+                "requested": len(symbol_list),
+                "returned": len(results)
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"批量获取行情失败: {str(e)}")
+
+
 @router.get("/quote/{symbol}")
 async def get_realtime_quote(symbol: str):
     """
